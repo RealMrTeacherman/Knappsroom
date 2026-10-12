@@ -5,7 +5,7 @@
    subfolder such as user.github.io/classroom/, or anywhere else, with no
    edits. Registering "../sw.js" from an app directory gives this worker a
    scope of the suite root, which needs no special response header. */
-const CACHE = "classroom-suite-v90-42f5a6e5";
+const CACHE = "classroom-suite-v120-6718ddbe";
 
 const SHELL = [
   "./",
@@ -16,6 +16,7 @@ const SHELL = [
   "gradebook/manifest.json",
   "planner/",
   "planner/index.html",
+  "planner/day-view.js",
   "planner/manifest.json",
   "fluency/",
   "fluency/index.html",
@@ -25,15 +26,18 @@ const SHELL = [
   "groups/manifest.json",
   "groups/sub-slides.js",
   "groups/sub-deck-template.js",
+  "groups/sub-deck-colors.js",
   "groups/orf-suggest.js",
   "groups/win.js",
   "groups/jszip.min.js",
   "groups-icon-192.png",
   "groups-icon-512.png",
   "suite-nav.js",
+  "suite-edition.js",
   "suite-theme-boot.js",
   "suite-theme.css",
   "suite-sync.js",
+  "suite-planner-sync.js",
   "suite-names.js",
   "suite-orf.js",
   "suite-boot.js",
@@ -62,6 +66,14 @@ const SHELL = [
    over, and the previous one keeps serving the old site forever. That failure
    is invisible from the page, so a single stale path could freeze every future
    update. Individual adds mean a missing file costs only that file. */
+/* v103: every file an update caches is fetched past the browser's own HTTP
+   cache (`cache: "reload"`), and the background refresh revalidates
+   (`cache: "no-cache"`). GitHub Pages lets a browser keep a file for ten
+   minutes, so an update installed within ten minutes of the last load stored
+   the OLD file under the NEW version, and cache-first then served it until a
+   background refresh happened to replace it. Seen as v102's sync code running
+   with v101's win.js on the projecting computer; reproduced in Chromium by
+   tools/sw-update-check.py. */
 /* How long a page load waits on the network before the cached copy answers. */
 const NAV_WAIT_MS = 4000;
 
@@ -78,7 +90,7 @@ function cachedPage(req) {
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open(CACHE)
-      .then(c => Promise.all(SHELL.map(u => c.add(u).catch(() => null))))
+      .then(c => Promise.all(SHELL.map(u => c.add(new Request(u, { cache: "reload" })).catch(() => null))))
       .then(() => self.skipWaiting())
   );
 });
@@ -146,7 +158,7 @@ self.addEventListener("fetch", e => {
      tool loads) are cached opportunistically so they work offline later. */
   e.respondWith(
     caches.match(req).then(hit => {
-      const net = fetch(req).then(res => {
+      const net = fetch(req, { cache: "no-cache" }).then(res => {
         if (res && (res.ok || res.type === "opaque")) {
           const copy = res.clone();
           caches.open(CACHE).then(c => c.put(req, copy)).catch(() => { });

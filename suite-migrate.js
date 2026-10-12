@@ -138,8 +138,7 @@
   function wedBlocks() {
     return [
       { t: "8:00",  l: "Morning Meeting",                          s: "",        n: "Feelings check-in \u00b7 schedule \u00b7 attendance & lunch count \u00b7 jobs \u00b7 yoga dice" },
-      { t: "8:15",  l: "Phonics",                                  s: "phonics", n: "ECRI \u2014 first 15 minutes of the Reading block" },
-      { t: "8:30",  l: "Reading",                                  s: "reading", n: "" },
+      { t: "8:15",  l: "Reading",                                  s: "reading", n: "Starts with ECRI phonics" },   /* v120 */
       { t: "9:00",  l: "Structured Break",                         s: "",        n: "Recess" },
       { t: "9:15",  l: "Math",                                     s: "math",    n: "" },
       { t: "9:45",  l: "Assembly / Enrichments / World Wednesday", s: "enrich",  n: "Varies by week \u2014 write it in the Enrichment card" },
@@ -187,6 +186,8 @@
       }
 
       var want = wedBlocks();
+      /* v120: by time, not by position (merging 8:15 into Reading moved every index) */
+      var at = function (t) { for (var k = 0; k < want.length; k++) if (want[k].t === t) return want[k]; return null; };
       if (!wed.length) wed = want;
       else {
         var put = function (match, b) {
@@ -196,11 +197,11 @@
           else wed.push(b);
         };
         /* 9:45: whatever it was called, it is the open weekly block */
-        put(function (b) { return b.t === "9:45"; }, want[5]);
+        put(function (b) { return b.t === "9:45"; }, at("9:45"));
         /* 10:30: WIN, linked so its text reaches the sub plan */
-        put(function (b) { return b.t === "10:30"; }, want[6]);
+        put(function (b) { return b.t === "10:30"; }, at("10:30"));
         /* 11:40: GID & Class Store replaces the 11:45 STEAM slot */
-        put(function (b) { return b.t === "11:40" || b.t === "11:45" || /STEAM/i.test(b.l || ""); }, want[10]);
+        put(function (b) { return b.t === "11:40" || b.t === "11:45" || /STEAM/i.test(b.l || ""); }, at("11:40"));
       }
       st.templates[3] = wed.slice().sort(function (a, b) { return clock(a.t) - clock(b.t); });
       localStorage.setItem(S_KEY, JSON.stringify(st));
@@ -613,6 +614,82 @@
     try { localStorage.setItem("suite:subplan:v1", JSON.stringify(sp)); } catch (e) { }
   }
 
+  /* v94: three standing block notes he reworded, because sub plans now
+     print them for a stranger to read: WIN says which walk is which day,
+     Shoutouts says what a Mighty Mustang is, and Math small groups are on a
+     digital slide now, not the yellow chart. The old text is the planner's
+     built-in default, in the protected file, so it is corrected here. Only a
+     note that is still exactly the old default changes; anything typed is
+     kept. Converges, like subPlanWalkToWin(): a device not yet updated can
+     sync the old text back, and this puts it right on the next load. */
+  var NOTE_FIXES = [
+    { match: function (b) { return b.s === "win"; }, from: "Pull-outs for extra support",
+      to: "Walk to Read Mondays and Thursdays, Walk to Math Tuesdays and Fridays" },
+    { match: function (b) { return b.l === "Shoutouts"; }, from: "Bonus Mighty Mustangs",
+      to: "Students nominate others for Mighty Mustangs" },
+    { match: function (b) { return b.l === "Math small groups" && b.s === "math"; }, from: "Yellow chart",
+      to: "Groups are on the digital slide" }
+  ];
+  function standingNotes2026() {
+    var st;
+    try { st = JSON.parse(localStorage.getItem(S_KEY) || "null"); } catch (e) { return; }
+    if (!st || !st.templates || typeof st.templates !== "object") return;
+    var touched = false;
+    Object.keys(st.templates).forEach(function (d) {
+      var tpl = st.templates[d];
+      if (!Array.isArray(tpl)) return;
+      tpl.forEach(function (b) {
+        if (!b) return;
+        NOTE_FIXES.forEach(function (f) {
+          if (b.n === f.from && f.match(b)) { b.n = f.to; touched = true; }
+        });
+      });
+    });
+    if (touched) { try { localStorage.setItem(S_KEY, JSON.stringify(st)); } catch (e) { } }
+  }
+
+  /* v120: no Phonics subject at all (v100 had switched it off). Converging,
+     every load, so a device syncing an old copy is brought along too:
+     - the Phonics subject is removed (its past positions stay in the saved
+       days, unseen);
+     - a block or sub plan row linked to Phonics is linked to Reading;
+     - where a schedule still holds the untouched default pair, the 8:15
+       "Phonics" block and the Reading block after it become one Reading
+       block from 8:15, as the defaults now are. A block he has renamed or
+       moved is his and is left alone. */
+  function phonicsGone() {
+    var st;
+    try { st = JSON.parse(localStorage.getItem(S_KEY) || "null"); } catch (e) { return; }
+    if (!st || !Array.isArray(st.subjects) || !st.subjects.some(function (x) { return x && x.id === "reading"; })) return;
+    var touched = false;
+    var n = st.subjects.length;
+    st.subjects = st.subjects.filter(function (x) { return !(x && x.id === "phonics"); });
+    if (st.subjects.length !== n) touched = true;
+    Object.keys(st.templates || {}).forEach(function (d) {
+      var tpl = st.templates[d];
+      if (!Array.isArray(tpl)) return;
+      tpl.forEach(function (b) { if (b && b.s === "phonics") { b.s = "reading"; touched = true; } });
+      for (var i = 0; i < tpl.length - 1; i++) {
+        var a = tpl[i], b = tpl[i + 1];
+        if (!a || !b || a.t !== "8:15" || a.l !== "Phonics" || b.t !== "8:30" || b.s !== "reading") continue;
+        if (b.l === "Reading small groups" && (a.n || "") === "ECRI slides on the carpet" && (b.n || "") === "Blue chart \u00b7 Build Automaticity packets") {
+          tpl.splice(i, 2, { t: "8:15", l: "Phonics, then small groups", s: "reading", n: "ECRI slides on the carpet \u00b7 Blue chart \u00b7 Build Automaticity packets" }); touched = true;
+        } else if (b.l === "Reading" && !b.n && /^ECRI/.test(a.n || "")) {
+          tpl.splice(i, 2, { t: "8:15", l: "Reading", s: "reading", n: "Starts with ECRI phonics" }); touched = true;
+        }
+      }
+    });
+    if (touched) try { localStorage.setItem(S_KEY, JSON.stringify(st)); } catch (e) { }
+    var sp = null;
+    try { sp = JSON.parse(localStorage.getItem("suite:subplan:v1") || "null"); } catch (e) { sp = null; }
+    if (sp && Array.isArray(sp.blocks)) {
+      var hit = false;
+      sp.blocks.forEach(function (r) { if (r && r.subject === "phonics") { r.subject = "reading"; hit = true; } });
+      if (hit) try { localStorage.setItem("suite:subplan:v1", JSON.stringify(sp)); } catch (e) { }
+    }
+  }
+
+
   function runAll() {
     /* Science and Social Studies covers too much variety to be "Lesson 4", and
        Writing runs on its own rhythm rather than the curriculum's unit, week
@@ -629,6 +706,8 @@
     subPlanEndOfDay();
     walkToWin();
     subPlanWalkToWin();
+    standingNotes2026();                 /* after mondayShoutouts(), which can add the old Shoutouts note */
+    phonicsGone();                       /* v120 (v100 switched it off) */
     repairDays();
     skipUnscheduled();
   }

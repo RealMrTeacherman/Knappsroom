@@ -1,13 +1,24 @@
 /* ============================================================
    suite-sync.js
-   One connected JSON file, shared by every tool in this folder.
-   (v76: a watched folder now holds a file per computer as well; see
-   "Two computers watching the same folder" below.)
+   Moving the suite's data between devices.
 
-   All three tools live on one origin, so they already share local storage on
-   any given machine. The file is only the transport between machines: whichever
-   tool is open writes the whole picture, and there is no intra-machine conflict
-   to resolve. Between machines it is newest-wins on a single timestamp.
+   v96: one route, chosen around the devices actually in use.
+     - A computer in Chrome or Edge watches one folder (in iCloud Drive or
+       Google Drive, say). It merges anything dropped there and keeps a
+       current classroom.json in it, on its own, every few seconds.
+     - A phone or iPad cannot watch a folder or keep hold of a file: every
+       iOS browser is Safari underneath, and Safari gives a page a one-time
+       copy of a picked file and nothing more. So it Sends (share sheet,
+       Save to Files, into that folder) and Gets (picks classroom.json),
+       one tap each.
+     - Any device can email the sync file (v95), for a computer that can
+       reach neither.
+   The private-repo, Google sign-in and single-connected-file routes were
+   removed in v96; a device still set up for one is told once, and keeps
+   everything it has.
+
+   All the tools live on one origin, so they already share local storage on
+   any given device. The folder and the files are only the transport.
    ============================================================ */
 (function () {
   if (window.SuiteSync) return;
@@ -27,6 +38,7 @@
     "suite:readgroups:v1",  /* reading volunteer groups, per unit, by gradebook student id (groups/) */
     "suite:win:v1",         /* Walk to WIN lists for the grade, and where this class goes (groups/win.js) */
     "suite:suggest:v1",     /* v89: the gradebook's skill groups, offered on the Small Groups board */
+    "suite:boardGroups:v1", /* v97: the math board's groups, sent back for the gradebook to take */
     "suite:district:v1",    /* v88: the planner's district calendar (first, last, grading days), copied for gradebook Setup */
     /* Migration flags have to travel. They are not preferences: they record a
        decision ("Health/SEL was deliberately deleted", "leave Writing on its
@@ -40,16 +52,22 @@
      on the origin that is in neither list is a mistake, and `auditKeys()`
      reports it rather than letting it fail silently. */
   var NEVER_SYNC = {
-    "suite:gh:v1": "holds the GitHub token; it must never travel to another device",
-    "suite:gd:v1": "holds the Drive client id and file id, which are per-device",
-    "suite:theme:v1": "which look this device uses is a preference, not data",
+    /* v96: the three routes removed this build. Cleared on the first load
+       of v96 (see retireOld); listed so that a device mid-way through that
+       is not reported as having stray keys. */
+    "suite:gh:v1": "v96: the retired GitHub route's token; cleared on load, never travels",
+    "suite:gd:v1": "v96: the retired Google Drive route's settings; cleared on load",
+    "suite:retired:v1": "v96: which retired route this device was using, and whether it has been told",
+    "suite:lastGet:v1": "v96: when this device last brought in another device's file; drives the phone's Get reminder",
+    "suite:theme:v1": "the look this device used until v91; a preference, not data, and cleared on load since v92",
+    "suite:mailto:v1": "v95: the address this device's Email button fills in; set per device, like its name",
     "suite:device:v1": "this device's own name",
     "suite:syncBase:v1": "the merge base; superseded by IndexedDB, kept for migration",
     "suite:folderSeen:v1": "drops this device has already absorbed",
     "suite:folderFile:v1": "the name of this computer's own file in the watched folder",
     "suite:lastSync": "this device's clock on the last round",
     "suite:lastOk": "when this device last completed a round",
-    "suite:ghExp": "when this device's token expires",
+    "suite:ghExp": "v96: the retired GitHub token's expiry; cleared on load",
     "suite:lastExport:v1": "when this device last saved a sync file by hand, and whether it has changed since",
     /* v81: both are this device's own undo copies, taken just before a merge
        or a restore here. Sent to another computer they would undo the wrong
@@ -58,20 +76,29 @@
     "gb2_standards_v1_premerge": "this device's undo copy from before its last gradebook merge",
     "gb2:preRestore:v1": "this device's undo copy from before its last gradebook restore",
     /* v83: the same, for the running-records tool's Restore from backup */
-    "suite:orfPreRestore:v1": "this device's undo copy from before its last ORF tool restore"
+    "suite:orfPreRestore:v1": "this device's undo copy from before its last ORF tool restore",
+    /* v99: planner sync through a private GitHub repository
+       (suite-planner-sync.js). The token is this device's alone, and a
+       "Not a student here" is a judgment made on this device's notes. */
+    "suite:plannerHub:v1": "v99: this device's planner-sync repository, token and last round; never travels",
+    "suite:plannerHubOk:v1": "v99: words this device was told are not a student's name, per note",
+    /* v102: the Walk to WIN slide's summary travels only through GitHub,
+       with the boards; the folder route carries the lists themselves */
+    "suite:winLive:v1": "v102: the WIN slide summary by gradebook id; travels only in boards.json",
+    "suite:winLiveMine:v1": "v102: what this device last summarised, so it re-summarises only on its own change"
   };
   var KEY_PREFIXES = /^(gb2_|lp:|running-records|suite:)/;
+  /* one IndexedDB store for everything here; "handle" is the retired
+     connected file's slot, read once by retireOld() and then cleared */
   var HANDLE_DB = "suite_sync", HANDLE_KEY = "handle";
-  var SUPPORTED = !!window.showSaveFilePicker;
+  /* Chrome and Edge on a computer. Not Safari on any platform, and so
+     nothing on an iPhone or iPad. */
+  var FOLDER_SUPPORTED = !!window.showDirectoryPicker;
 
-  var handle = null, lastMtime = 0, writeTimer = null, pollTimer = null, fileBusy = false;
-  /* A write that lands while a round is already in flight used to be dropped
-     on the floor: every backend returned early on its busy flag and nothing
-     re-queued it. It recovered on the next poll, so it was a delay rather
-     than a loss, but a delay of up to twenty-five seconds on the last thing
-     you typed before shutting the lid is not worth keeping. */
+  /* A write that lands while a round is already in flight is queued, not
+     dropped: the round re-runs when it finishes (drainPending). */
   var pushPending = false;
-  var state = SUPPORTED ? "off" : "unsupported";
+  var state = FOLDER_SUPPORTED ? "off" : "unsupported";
   var detail = "";
   var listeners = [];
 
@@ -135,12 +162,6 @@
     keys["gb2_standards_v1"] = JSON.stringify(copy);
     return { suite: 1, updatedAt: obj.updatedAt || "", keys: keys };
   }
-  function localStamp() {
-    try {
-      var raw = localStorage.getItem("suite:lastSync");
-      return raw || "";
-    } catch (e) { return ""; }
-  }
   function setLocalStamp(s) { try { localStorage.setItem("suite:lastSync", s); } catch (e) { } }
 
   var applying = false;
@@ -160,137 +181,6 @@
     return changed;
   }
 
-  /* ---------- permissions ---------- */
-  function ensure(interactive) {
-    if (!handle) return Promise.resolve(false);
-    return handle.queryPermission({ mode: "readwrite" }).then(function (p) {
-      if (p === "granted") return true;
-      if (!interactive) { set("needsPermission"); return false; }
-      return handle.requestPermission({ mode: "readwrite" }).then(function (q) {
-        if (q === "granted") { set("connected", handle.name); return true; }
-        set("needsPermission"); return false;
-      });
-    }).catch(function () { set("error", "permission check failed"); return false; });
-  }
-
-  /* ---------- read / write ----------
-     This backend used to be the odd one out: it compared one timestamp and
-     then replaced whole keys. That is fine with a single machine, which is
-     all it was written for, but the moment two desktops share the file
-     through Drive for Desktop it means a morning of marks can be overwritten
-     wholesale with nothing reported. It now runs the same three-way merge as
-     the repository, Drive and folder backends. */
-  function fileRound(opts) {
-    opts = opts || {};
-    if (!handle) return Promise.resolve([]);
-    if (fileBusy) { if (opts.push) pushPending = true; return Promise.resolve([]); }
-    fileBusy = true;
-    return ensure(false).then(function (ok) {
-      if (!ok) return [];
-      return handle.getFile().then(function (f) {
-        var moved = f.lastModified > lastMtime;
-        if (!moved && !opts.force && !opts.push) return [];
-        return f.text().then(function (text) {
-          var remoteKeys = null;
-          if (text.trim()) {
-            var payload = null;
-            try { payload = normalise(JSON.parse(text)); } catch (e) { payload = null; }
-            if (!payload) { set("error", "that file is not a classroom backup"); return []; }
-            remoteKeys = payload.keys;
-          }
-          lastMtime = f.lastModified;
-          var localKeys = snapshot().keys;
-
-          if (!remoteKeys) {              /* empty or brand new: seed it */
-            return fileWrite(localKeys).then(function () {
-              writeBase(localKeys);
-              return [];
-            });
-          }
-          var merged = mergeKeys(readBase(), localKeys, remoteKeys);
-          lastReport = merged.report;
-          var changed = [];
-          if (merged.report.changedLocally.length) {
-            changed = apply({ keys: merged.keys, updatedAt: new Date().toISOString() });
-          }
-          if (!merged.report.changedRemotely.length) {
-            writeBase(merged.keys);
-            markOk();
-            set("connected", handle.name);
-            if (changed.length) notifyChanged(changed);
-            return changed;
-          }
-          return fileWrite(merged.keys).then(function () {
-            writeBase(merged.keys);
-            if (changed.length) notifyChanged(changed);
-            return changed;
-          });
-        });
-      });
-    }).catch(function () { set("error", "could not read the file"); return []; })
-      .then(function (r) { fileBusy = false; drainPending(); return r; });
-  }
-  function fileWrite(keys) {
-    var payload = { suite: 1, updatedAt: new Date().toISOString(), keys: keys };
-    return handle.createWritable().then(function (w) {
-      return w.write(JSON.stringify(payload, null, 1)).then(function () { return w.close(); });
-    }).then(function () {
-      setLocalStamp(payload.updatedAt);
-      return handle.getFile();
-    }).then(function (f) {
-      lastMtime = f.lastModified;
-      markOk();
-      set("connected", handle.name);
-      return true;
-    });
-  }
-  function pull(force) { return fileRound({ force: !!force }); }
-  function doWrite() { return fileRound({ push: true }).then(function () { return true; }); }
-  function push(now) {
-    if (!handle) return Promise.resolve(false);
-    clearTimeout(writeTimer);
-    if (now) return doWrite();
-    return new Promise(function (res) { writeTimer = setTimeout(function () { doWrite().then(res); }, 1200); });
-  }
-
-  /* ---------- connect ---------- */
-  function connect(openExisting) {
-    if (!SUPPORTED) return Promise.reject(new Error("unsupported"));
-    var opts = {
-      suggestedName: "classroom.json",
-      types: [{ description: "Classroom data", accept: { "application/json": [".json"] } }]
-    };
-    var p = openExisting
-      ? window.showOpenFilePicker({ types: opts.types, multiple: false }).then(function (a) { return a[0]; })
-      : window.showSaveFilePicker(opts);
-    return p.then(function (h) {
-      handle = h;
-      return idbSet(HANDLE_KEY, h);
-    }).then(function () {
-      if (!openExisting) return doWrite().then(function () { return []; });
-      return pull(true).then(function (changed) {
-        if (!changed.length) return doWrite().then(function () { return []; });
-        return changed;
-      });
-    }).then(function (changed) {
-      set("connected", handle.name);
-      startPolling();
-      return changed;
-    });
-  }
-  function disconnect() {
-    handle = null; clearInterval(pollTimer);
-    return idbSet(HANDLE_KEY, null).then(function () { set("off"); });
-  }
-
-  function startPolling() {
-    clearInterval(pollTimer);
-    pollTimer = setInterval(function () {
-      if (!handle || document.hidden) return;
-      pull(false).then(function (changed) { if (changed.length) notifyChanged(changed); });
-    }, 20000);
-  }
-
   /* ---------- telling the page ---------- */
   var changeHandlers = [];
   function notifyChanged(changed) { changeHandlers.forEach(function (f) { try { f(changed); } catch (e) { } }); }
@@ -301,9 +191,10 @@
     return loadBase().then(initBackend);
   }
   function initBackend() {
-    if (FOLDER_SUPPORTED) {
+    return retireOld().then(function () {
+      if (!FOLDER_SUPPORTED) { set("unsupported"); return; }
       return idbGet(FOLDER_HANDLE_KEY).then(function (h) {
-        if (!h) return initRest();
+        if (!h) { set("off"); return; }
         folder = h;
         return folderPerm(false).then(function (okPerm) {
           if (!okPerm) { set("needsPermission", "tap to allow the folder again"); folderPoll(); return; }
@@ -313,42 +204,39 @@
           });
         });
       });
-    }
-    return initRest();
-  }
-  function initRest() {
-    if (gdLoad()) {
-      set("syncing", "");
-      gdPoll();
-      return gdSync({ force: true }).then(function (changed) {
-        if (changed.length) notifyChanged(changed);
-      });
-    }
-    if (ghLoad()) {
-      set("connected", gh.owner + "/" + gh.repo);
-      ghPoll();
-      return ghSync({ force: true }).then(function (changed) {
-        if (changed.length) notifyChanged(changed);
-      });
-    }
-    if (!SUPPORTED) { set("unsupported"); return Promise.resolve(); }
-    return idbGet(HANDLE_KEY).then(function (h) {
-      if (!h) { set("off"); return; }
-      handle = h;
-      return ensure(false).then(function (ok) {
-        if (!ok) { set("needsPermission"); return; }
-        set("connected", h.name);
-        startPolling();
-        return pull(false).then(function (changed) { if (changed.length) notifyChanged(changed); });
-      });
     });
   }
 
-  /* any tool writing to a tracked key in another tab mirrors to the file */
-  window.addEventListener("storage", function (e) {
-    if (!e.key || KEYS.indexOf(e.key) < 0 || !handle) return;
-    push(false);
-  });
+  /* ---------- v96: the routes that were removed ----------
+     A device still set up for the GitHub repository, the Google sign-in or
+     a single connected file keeps all its data (it is in this browser), but
+     the setting is cleared, along with the GitHub token, and the device
+     notes which route it was on so the switcher can say so once. The note is
+     a flag on purpose: it records an event, and "told" must stick. */
+  var RETIRED_KEY = "suite:retired:v1";
+  function retired() {
+    try { return JSON.parse(localStorage.getItem(RETIRED_KEY) || "null") || null; } catch (e) { return null; }
+  }
+  function retireOld() {
+    var was = [];
+    try {
+      if (localStorage.getItem("suite:gh:v1")) was.push("github");
+      if (localStorage.getItem("suite:gd:v1")) was.push("drive");
+    } catch (e) { }
+    return idbGet(HANDLE_KEY).then(function (h) {
+      if (h) was.push("file");
+      if (!was.length) return;
+      try {
+        ["suite:gh:v1", "suite:ghExp", "suite:gd:v1"].forEach(function (k) { localStorage.removeItem(k); });
+        if (!retired()) localStorage.setItem(RETIRED_KEY, JSON.stringify({ routes: was, at: new Date().toISOString(), told: false }));
+      } catch (e) { }
+      return idbSet(HANDLE_KEY, null);
+    });
+  }
+  function retiredTold() {
+    var r = retired();
+    if (r && !r.told) { r.told = true; try { localStorage.setItem(RETIRED_KEY, JSON.stringify(r)); } catch (e) { } }
+  }
 
   /* ---------- the fallback for phones and iPads ----------
      The File System Access API is Chrome/Edge desktop only, so on a phone the
@@ -440,6 +328,83 @@
   }
 
   /* ------------------------------------------------------------
+     Emailing the sync file (v95)
+
+     A web page cannot send email. What it can do is hand a file to the
+     device's share sheet, where Mail is one of the choices, with the subject
+     and a line of instructions filled in. So the button prepares exactly what
+     Save a sync file makes and opens the share sheet with it attached; he
+     picks Mail and sends it to himself at school, where downloading the
+     attachment into a watched Downloads folder merges it on its own.
+
+     Chrome shares only some file types, and .json may not be one of them, so
+     the same file goes as .txt where .json is refused; the watcher, the
+     picker and drag-and-drop all take a classroom-*.txt. Where nothing can
+     be shared, it saves the file and opens a new email to the address set
+     for this device, to attach it to. Called from a real tap, and nothing is
+     awaited before share(), or Safari refuses it.
+     ------------------------------------------------------------ */
+  var MAIL_KEY = "suite:mailto:v1";
+  function mailAddress() { try { return String(localStorage.getItem(MAIL_KEY) || "").trim(); } catch (e) { return ""; } }
+  function setMailAddress(v) {
+    v = String(v || "").trim();
+    try { if (v) localStorage.setItem(MAIL_KEY, v); else localStorage.removeItem(MAIL_KEY); } catch (e) { }
+    return v;
+  }
+  function emailFile() {
+    var payload = snapshot();
+    payload.from = ownFile();
+    payload.fromName = deviceName();
+    var prev = exportState();
+    payload.n = (prev && typeof prev.n === "number" ? prev.n : 0) + 1;
+    var name = exportName();
+    var json = JSON.stringify(payload, null, 1);
+    var when = "";
+    try { when = new Date().toLocaleString([], { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }); } catch (e) { when = new Date().toString(); }
+    var subject = "Classroom sync file \u00b7 " + deviceName() + " \u00b7 " + when;
+    var body = "The classroom suite's sync file from " + deviceName() + ", " + when + ".\n\n" +
+      "On the other computer, download the attachment. If the suite there is watching Downloads, it is merged on its own " +
+      "within a few seconds; otherwise drop it on any page of the suite.";
+    function sent(how, file) {
+      setExportState({ at: payload.updatedAt, dirty: false, name: file, n: payload.n }); tellUnsent();
+      return { name: file, how: how };
+    }
+    function make(n, type) { try { return new File([json], n, { type: type }); } catch (e) { return null; } }
+    function shareable(f) {
+      if (!f || !navigator.share || !navigator.canShare) return false;
+      try { return navigator.canShare({ files: [f] }); } catch (e) { return false; }
+    }
+    function fallback() {
+      var url = URL.createObjectURL(new Blob([json], { type: "application/json" }));
+      var a = document.createElement("a");
+      a.href = url; a.download = name; a.rel = "noopener";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      var m = document.createElement("a");
+      m.href = "mailto:" + encodeURIComponent(mailAddress()).replace(/%40/g, "@") +
+        "?subject=" + encodeURIComponent(subject) +
+        "&body=" + encodeURIComponent(body + "\n\nAttach " + name + " from your Downloads folder before you send this.");
+      document.body.appendChild(m); m.click(); m.remove();
+      return sent("mailto", name);
+    }
+    var asJson = make(name, "application/json");
+    var asTxt = make(name.replace(/\.json$/i, ".txt"), "text/plain");
+    var file = shareable(asJson) ? asJson : shareable(asTxt) ? asTxt : null;
+    if (file) {
+      return navigator.share({ files: [file], title: subject, text: body })
+        .then(function () { return sent("share", file.name); })
+        .catch(function (e) {
+          if (e && e.name === "AbortError") return { name: file.name, how: "cancelled" };
+          return fallback();
+        });
+    }
+    return Promise.resolve(fallback());
+  }
+  /* a sync file that went by email as .txt (v95) */
+  var TXT_SYNC_RE = /^classroom-.*\.txt$/i;
+  function syncFileName(n) { return /\.json$/i.test(n || "") || TXT_SYNC_RE.test(n || ""); }
+
+  /* ------------------------------------------------------------
      Loading a file by hand (v77)
 
      Up to v76 loading a file replaced this device's data with it. That is
@@ -488,6 +453,8 @@
     return a.at < b.at ? -1 : a.at > b.at ? 1 : 0;
   }
 
+  var LASTGET_KEY = "suite:lastGet:v1";
+  function lastGet() { try { return JSON.parse(localStorage.getItem(LASTGET_KEY) || "null") || null; } catch (e) { return null; } }
   function importText(text, opts) {
     opts = opts || {};
     var raw;
@@ -501,6 +468,9 @@
     Object.keys(payload.keys).forEach(function (k) { if (KEYS.indexOf(k) >= 0 && typeof payload.keys[k] === "string") remote[k] = payload.keys[k]; });
 
     return loadHandPeers().then(function (peers) {
+      /* v96: a file from another device has been looked at, whether or not
+         it held anything new. The phone's Get reminder keys off this. */
+      if (from && from !== mine) { try { localStorage.setItem(LASTGET_KEY, JSON.stringify({ at: new Date().toISOString(), fromName: fromName })); } catch (e) { } }
       var known = from && from !== mine ? peers[from] : null;
       var info = { from: from, fromName: fromName, own: !!from && from === mine, at: payload.updatedAt || "",
                    n: typeof raw.n === "number" ? raw.n : undefined,
@@ -580,7 +550,7 @@
     return new Promise(function (res, rej) {
       var inp = document.createElement("input");
       inp.type = "file";
-      inp.accept = "application/json,.json";
+      inp.accept = "application/json,.json,text/plain,.txt";
       inp.style.cssText = "position:fixed;left:-9999px";
       inp.onchange = function () {
         var f = inp.files && inp.files[0];
@@ -800,27 +770,10 @@
     return stray;
   }
 
-  /* ============================================================
-     GITHUB BACKEND
-
-     A private repo holding one JSON file. Works in every browser that has
-     fetch, which is the point — the File System Access API does not exist on
-     iOS and never will, so this is what makes an iPad a real device rather
-     than a place to paste a backup into.
-
-     Two things it gets for free by being git: every write is a commit, so a
-     bad import can be recovered from the repo's history, and the blob sha
-     gives honest conflict detection — a write whose sha is stale is rejected
-     by GitHub rather than silently clobbering.
-
-     The token is kept in its own key and is deliberately NOT in KEYS, so it is
-     never written into the synced file and never travels to another device.
-     ============================================================ */
-  var GH_KEY = "suite:gh:v1";
-  var GHEXP_KEY = "suite:ghExp";
+  /* ---------- this device's name ----------
+     On every file it writes, so a merge can say where something came from,
+     and in the name of a computer's own file in the folder. */
   var DEVICE_KEY = "suite:device:v1";
-  var gh = null, ghEtag = "", ghSha = "", ghTimer = null, ghBusy = false;
-
   function deviceName() {
     try {
       var d = localStorage.getItem(DEVICE_KEY);
@@ -833,221 +786,10 @@
       return guess;
     } catch (e) { return "a device"; }
   }
-  function ghLoad() {
-    try { gh = JSON.parse(localStorage.getItem(GH_KEY) || "null"); } catch (e) { gh = null; }
-    return gh;
-  }
-  function ghStore() {
-    try { localStorage.setItem(GH_KEY, JSON.stringify(gh)); } catch (e) { }
-  }
-
-  /* base64 that survives a name with an accent in it */
-  function toB64(str) {
-    var bytes = new TextEncoder().encode(str), s = "";
-    for (var i = 0; i < bytes.length; i += 0x8000) {
-      s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
-    }
-    return btoa(s);
-  }
-  function fromB64(b64) {
-    var bin = atob(String(b64).replace(/\s/g, ""));
-    var bytes = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder().decode(bytes);
-  }
-
-  function ghUrl() {
-    return "https://api.github.com/repos/" + encodeURIComponent(gh.owner) + "/" +
-      encodeURIComponent(gh.repo) + "/contents/" + gh.path.split("/").map(encodeURIComponent).join("/");
-  }
-  function ghFetch(url, opts) {
-    opts = opts || {};
-    opts.headers = Object.assign({
-      Authorization: "Bearer " + gh.token,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28"
-    }, opts.headers || {});
-    opts.cache = "no-store";
-    return fetch(url, opts).then(function (res) {
-      /* A fine-grained token expires, a year at most and often sooner, and
-         GitHub says when on every authenticated response. Catching it here
-         is what lets the Setup tab warn a fortnight out instead of the sync
-         simply stopping one morning in March with a 401 nobody reads. */
-      try {
-        var exp = res.headers.get("github-authentication-token-expiration");
-        if (exp) localStorage.setItem(GHEXP_KEY, exp);
-      } catch (e) { }
-      return res;
-    });
-  }
-  /* days until the token expires, or null when GitHub did not say */
-  function ghTokenDays() {
-    try {
-      var raw = localStorage.getItem(GHEXP_KEY);
-      if (!raw) return null;
-      var t = Date.parse(raw.replace(/ UTC$/, "Z").replace(" ", "T"));
-      if (!t) return null;
-      return Math.floor((t - Date.now()) / 86400000);
-    } catch (e) { return null; }
-  }
-  function ghProblem(res) {
-    if (res.status === 401) return "the token was rejected — it may have expired or been revoked";
-    if (res.status === 403) {
-      if (res.headers.get("x-ratelimit-remaining") === "0") return "GitHub's rate limit is used up; it resets within the hour";
-      return "the token does not have Contents write access to that repository";
-    }
-    if (res.status === 404) return "no such repository, or the token cannot see it";
-    if (res.status === 409 || res.status === 422) return "conflict";
-    return "GitHub returned " + res.status;
-  }
-
-  /* the file as GitHub currently has it, or null if it is not there yet */
-  function ghRead(useEtag) {
-    var headers = {};
-    if (useEtag && ghEtag) headers["If-None-Match"] = ghEtag;
-    return ghFetch(ghUrl() + "?ref=" + encodeURIComponent(gh.branch), { headers: headers })
-      .then(function (res) {
-        if (res.status === 304) return { unchanged: true };
-        if (res.status === 404) { ghSha = ""; return null; }
-        if (!res.ok) throw new Error(ghProblem(res));
-        ghEtag = res.headers.get("etag") || "";
-        return res.json().then(function (j) {
-          ghSha = j.sha || "";
-          /* over a megabyte the contents API stops inlining the file */
-          var body = j.content ? fromB64(j.content) : null;
-          if (body == null && j.git_url) {
-            return ghFetch(j.git_url).then(function (r2) {
-              if (!r2.ok) throw new Error(ghProblem(r2));
-              return r2.json();
-            }).then(function (blob) { return { payload: normalise(JSON.parse(fromB64(blob.content))) }; });
-          }
-          return { payload: normalise(JSON.parse(body)) };
-        });
-      });
-  }
-  function ghWrite(payload, message) {
-    var body = {
-      message: message,
-      content: toB64(JSON.stringify(payload, null, 1)),
-      branch: gh.branch
-    };
-    if (ghSha) body.sha = ghSha;
-    return ghFetch(ghUrl(), { method: "PUT", body: JSON.stringify(body) }).then(function (res) {
-      if (!res.ok) throw new Error(ghProblem(res));
-      return res.json().then(function (j) {
-        ghSha = (j.content && j.content.sha) || "";
-        ghEtag = "";
-        return true;
-      });
-    });
-  }
-
-  /* One round: read, merge against the base, write back whatever moved. */
-  function ghSync(opts) {
-    opts = opts || {};
-    if (!gh) return Promise.resolve([]);
-    if (ghBusy) { if (opts.push) pushPending = true; return Promise.resolve([]); }
-    ghBusy = true;
-    if (!opts.quiet) set("syncing", "");
-    var localKeys = snapshot().keys;
-
-    return ghRead(!opts.force).then(function (res) {
-      if (res && res.unchanged && !opts.push) return [];
-
-      var remoteKeys = res && res.payload ? res.payload.keys : null;
-      if (!remoteKeys) {
-        /* nothing there yet, so this device seeds it */
-        return ghWrite({ suite: 1, updatedAt: new Date().toISOString(), keys: localKeys },
-          "Start classroom data from " + deviceName()).then(function () {
-            writeBase(localKeys); markOk();
-            set("connected", gh.owner + "/" + gh.repo);
-            return [];
-          });
-      }
-
-      var merged = mergeKeys(readBase(), localKeys, remoteKeys);
-      lastReport = merged.report;   /* whatever happens next, this round's result */
-      var changed = [];
-      if (merged.report.changedLocally.length) {
-        changed = apply({ keys: merged.keys, updatedAt: new Date().toISOString() });
-      }
-      var mustWrite = merged.report.changedRemotely.length > 0;
-      if (!mustWrite) {
-        writeBase(merged.keys); markOk();
-        set("connected", gh.owner + "/" + gh.repo);
-        if (changed.length) notifyChanged(changed);
-        return changed;
-      }
-      var note = "Update from " + deviceName();
-      if (merged.report.conflicts) note += " (" + merged.report.conflicts + " kept from this device)";
-      return ghWrite({ suite: 1, updatedAt: new Date().toISOString(), keys: merged.keys }, note)
-        .then(function () {
-          writeBase(merged.keys); markOk();
-          set("connected", gh.owner + "/" + gh.repo);
-          if (changed.length) notifyChanged(changed);
-          return changed;
-        });
-    }).catch(function (e) {
-      /* someone else committed between our read and our write: read again and
-         redo the merge on top of theirs. Once only, then give up quietly. */
-      if (/conflict/.test(e.message) && !opts.retried) {
-        ghBusy = false; ghEtag = "";
-        return ghSync(Object.assign({}, opts, { retried: true, force: true }));
-      }
-      set("error", e.message || String(e));
-      return [];
-    }).then(function (r) { ghBusy = false; drainPending(); return r; });
-  }
-
   var lastReport = null;
-  function ghConnect(cfg) {
-    gh = {
-      owner: String(cfg.owner || "").trim(),
-      repo: String(cfg.repo || "").trim(),
-      path: String(cfg.path || "classroom.json").trim().replace(/^\/+/, ""),
-      branch: String(cfg.branch || "main").trim(),
-      token: String(cfg.token || "").trim()
-    };
-    if (!gh.owner || !gh.repo || !gh.token) { gh = null; return Promise.reject(new Error("owner, repository and token are all needed")); }
-    ghEtag = ""; ghSha = "";
-    /* check the repo really is private before putting a roster in it */
-    return ghFetch("https://api.github.com/repos/" + encodeURIComponent(gh.owner) + "/" + encodeURIComponent(gh.repo))
-      .then(function (res) {
-        if (!res.ok) throw new Error(ghProblem(res));
-        return res.json();
-      }).then(function (info) {
-        if (info.private === false) {
-          gh = null;
-          throw new Error("that repository is public. Student names must not go in a public repo — make it private first, or use a different one.");
-        }
-        ghStore();
-        return ghSync({ force: true, push: true });
-      }).then(function (changed) {
-        ghPoll();
-        return changed;
-      }).catch(function (e) { gh = null; set("off"); throw e; });
-  }
-  function ghDisconnect(keepToken) {
-    clearInterval(ghTimer);
-    gh = null; ghEtag = ""; ghSha = "";
-    try {
-      localStorage.removeItem(GH_KEY); localStorage.removeItem(GHEXP_KEY);
-      if (!keepToken) { localStorage.removeItem(BASE_KEY); idbSet(BASE_IDB, null); baseCache = {}; }
-    } catch (e) { }
-    set("off");
-    return Promise.resolve();
-  }
-  function ghPoll() {
-    clearInterval(ghTimer);
-    if (!gh) return;
-    ghTimer = setInterval(function () {
-      if (!gh || document.hidden || !navigator.onLine) return;
-      ghSync({ quiet: true });
-    }, 25000);
-  }
 
   /* ---------- which backend is in charge ---------- */
-  function backend() { return folder ? "folder" : gd ? "drive" : gh ? "github" : handle ? "file" : ""; }
+  function backend() { return folder ? "folder" : ""; }
 
   /* Nothing used to write to the connected file when the tool you were
      looking at saved something — only another tab's storage event did, or the
@@ -1061,15 +803,18 @@
     pushTimer = setTimeout(flushPush, 4000);
   }
   function busyNow() {
-    return (folder && folderBusy) || (gd && gdBusy) || (gh && ghBusy) || (handle && fileBusy);
+    return !!(folder && folderBusy) || laneBusy();
   }
+  /* v99: the planner's GitHub round (suite-planner-sync.js) reads and
+     writes the same keys. Two rounds interleaved would each apply what it
+     read before the other wrote, and put the older copy back, so only one
+     runs at a time: each checks the other before starting. */
+  var otherLane = null;
+  function laneBusy() { try { return !!(otherLane && otherLane()); } catch (e) { return false; } }
   function flushPush() {
     clearTimeout(pushTimer); pushTimer = null;
     if (busyNow()) { pushPending = true; return; }
     if (folder) folderSync({ quiet: true });
-    else if (gd) gdSync({ quiet: true, push: true });
-    else if (gh) ghSync({ quiet: true, push: true });
-    else if (handle) doWrite();
   }
   /* called at the end of every round, whatever the backend */
   function drainPending() {
@@ -1079,9 +824,8 @@
   }
   /* When a round finished cleanly. The pill reports the age of this rather
      than a flat "Synced", because "Synced" is a claim about the past shown in
-     the present tense: a token that expired on Friday leaves a green dot
-     until something makes a request, and a quiet weekend is exactly when the
-     two devices drift. */
+     the present tense: a folder whose cloud client stopped on Friday leaves
+     a green dot, and a quiet weekend is exactly when two devices drift. */
   var LASTOK_KEY = "suite:lastOk";
   function markOk() { try { localStorage.setItem(LASTOK_KEY, new Date().toISOString()); } catch (e) { } }
   function lastOk() { try { return localStorage.getItem(LASTOK_KEY) || ""; } catch (e) { return ""; } }
@@ -1148,299 +892,23 @@
   } catch (e) { }
 
   /* ============================================================
-     GOOGLE DRIVE BACKEND
+     THE SYNC FOLDER
 
-     The file lives in the teacher's own Drive. If that is a school Google
-     Workspace account, it is the same place the district already keeps student
-     records under its existing agreement with Google, which is the reason to
-     prefer this over anything else.
+     A cloud drive's desktop app (iCloud Drive on a Mac, Google Drive for
+     desktop) is not an API: it syncs an ordinary folder, and there is
+     nothing in that for an administrator to block.
 
-     Scope is drive.file and nothing wider: this app can only ever see the file
-     it made itself, not the rest of the Drive. The token is held in memory
-     only — never written to storage — and renewed silently while the Google
-     session is alive.
-
-     Drive has no conditional write, so unlike the GitHub backend a stale write
-     cannot be rejected by the server. The version is therefore re-checked
-     immediately before writing and the merge redone if it moved. The window is
-     about a second, and the three-way merge means a loss inside it would need
-     both devices writing the same field in that same second.
-     ============================================================ */
-  var GD_KEY = "suite:gd:v1";
-  var SIGNIN_NEEDED = "signin-needed";
-  var GD_SCOPE = "https://www.googleapis.com/auth/drive.file";
-  var gd = null, gdTok = "", gdTokExp = 0, gdClient = null, gdTimer = null, gdBusy = false, gdVersion = "";
-
-  function gdLoad() {
-    try { gd = JSON.parse(localStorage.getItem(GD_KEY) || "null"); } catch (e) { gd = null; }
-    return gd;
-  }
-  function gdStore() { try { localStorage.setItem(GD_KEY, JSON.stringify(gd)); } catch (e) { } }
-
-  function gdScript() {
-    if (window.google && window.google.accounts && window.google.accounts.oauth2) return Promise.resolve();
-    return new Promise(function (res, rej) {
-      var existing = document.getElementById("gsi-client");
-      if (existing) { existing.addEventListener("load", function () { res(); }); return; }
-      var s = document.createElement("script");
-      s.id = "gsi-client";
-      s.src = "https://accounts.google.com/gsi/client";
-      s.async = true;
-      s.onload = function () { res(); };
-      s.onerror = function () { rej(new Error("could not reach Google to sign in \u2014 check the network, or whether the school blocks accounts.google.com")); };
-      document.head.appendChild(s);
-    });
-  }
-  /* interactive: show Google's account chooser. Otherwise renew in the
-     background, which works while the Google session cookie is alive. */
-  function gdAuth(interactive) {
-    if (gdTok && Date.now() < gdTokExp - 60000) return Promise.resolve(gdTok);
-    return gdScript().then(function () {
-      return new Promise(function (res, rej) {
-        try {
-          gdClient = window.google.accounts.oauth2.initTokenClient({
-            client_id: gd.clientId,
-            scope: GD_SCOPE,
-            callback: function (r) {
-              if (r && r.access_token) {
-                gdTok = r.access_token;
-                gdTokExp = Date.now() + (Number(r.expires_in || 3600) * 1000);
-                res(gdTok);
-                return;
-              }
-              /* A silent renewal that cannot be done silently is the normal
-                 course of events, not a fault: Safari in particular drops the
-                 Google session cookie on its own schedule. It needs one tap,
-                 not an error message. */
-              rej(new Error(interactive ? "Google did not return a token" : SIGNIN_NEEDED));
-            },
-            error_callback: function (err) {
-              if (!interactive) { rej(new Error(SIGNIN_NEEDED)); return; }
-              rej(new Error(err && err.type === "popup_closed"
-                ? "the Google sign-in window was closed"
-                : "Google sign-in failed \u2014 the account may not be allowed to use this app. If this is a school account, an administrator has to allow this app's client ID under Admin console \u2192 Security \u2192 Access and data control \u2192 API controls."));
-            }
-          });
-          gdClient.requestAccessToken({ prompt: interactive ? "" : "none" });
-        } catch (e) { rej(e); }
-      });
-    });
-  }
-  function gdFetch(url, opts, interactive) {
-    return gdAuth(!!interactive).then(function (tok) {
-      opts = opts || {};
-      opts.headers = Object.assign({ Authorization: "Bearer " + tok }, opts.headers || {});
-      opts.cache = "no-store";
-      return fetch(url, opts);
-    }).then(function (res) {
-      if (res.status === 401) { gdTok = ""; gdTokExp = 0; throw new Error("Google signed this device out \u2014 connect again"); }
-      if (res.status === 403) throw new Error("Google refused the request. If this is a school account, an administrator has to allow this app's client ID under Admin console \u2192 Security \u2192 Access and data control \u2192 API controls.");
-      return res;
-    });
-  }
-  function gdApi(path) { return "https://www.googleapis.com/drive/v3/" + path; }
-
-  /* Which Google account this is matters: a district account is covered by the
-     district's own arrangement with Google, a personal one is not. Show it
-     rather than make him remember. Best effort — if Drive will not tell us,
-     say nothing rather than fail the sync over it. */
-  function gdWhoAmI() {
-    if (!gd || gd.email) return Promise.resolve(gd ? gd.email : "");
-    return gdFetch(gdApi("about?fields=user(emailAddress)")).then(function (r) {
-      if (!r.ok) return "";
-      return r.json().then(function (j) {
-        var e = j && j.user && j.user.emailAddress;
-        if (e) { gd.email = e; gdStore(); }
-        return e || "";
-      });
-    }).catch(function () { return ""; });
-  }
-
-  /* the file this app made, if it is still there */
-  function gdFind() {
-    var q = "name='" + gd.fileName.replace(/'/g, "\\'") + "' and trashed=false";
-    return gdFetch(gdApi("files?spaces=drive&fields=files(id,name,version)&q=" + encodeURIComponent(q)))
-      .then(function (r) {
-        if (!r.ok) throw new Error("Drive returned " + r.status);
-        return r.json();
-      }).then(function (j) { return (j.files && j.files[0]) || null; });
-  }
-  function gdMeta(id) {
-    return gdFetch(gdApi("files/" + id + "?fields=version,modifiedTime")).then(function (r) {
-      if (!r.ok) throw new Error("Drive returned " + r.status);
-      return r.json();
-    });
-  }
-  function gdReadFile(id) {
-    return gdFetch(gdApi("files/" + id + "?alt=media")).then(function (r) {
-      if (r.status === 404) return null;
-      if (!r.ok) throw new Error("Drive returned " + r.status);
-      return r.text();
-    });
-  }
-  function gdCreate(text) {
-    var boundary = "suite" + Date.now();
-    var meta = { name: gd.fileName, mimeType: "application/json" };
-    var body = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" +
-      JSON.stringify(meta) + "\r\n--" + boundary +
-      "\r\nContent-Type: application/json\r\n\r\n" + text + "\r\n--" + boundary + "--";
-    return gdFetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,version", {
-      method: "POST",
-      headers: { "Content-Type": "multipart/related; boundary=" + boundary },
-      body: body
-    }).then(function (r) {
-      if (!r.ok) throw new Error("Drive would not create the file (" + r.status + ")");
-      return r.json();
-    });
-  }
-  function gdUpdate(id, text) {
-    return gdFetch("https://www.googleapis.com/upload/drive/v3/files/" + id + "?uploadType=media&fields=id,version", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: text
-    }).then(function (r) {
-      if (!r.ok) throw new Error("Drive would not save the file (" + r.status + ")");
-      return r.json();
-    });
-  }
-
-  function gdSync(opts) {
-    opts = opts || {};
-    if (!gd) return Promise.resolve([]);
-    if (gdBusy) { if (opts.push) pushPending = true; return Promise.resolve([]); }
-    gdBusy = true;
-    if (!opts.quiet) set("syncing", "");
-    var localKeys = snapshot().keys;
-
-    return Promise.resolve(gd.fileId ? { id: gd.fileId } : gdFind()).then(function (f) {
-      if (!f) {
-        return gdCreate(JSON.stringify({ suite: 1, updatedAt: new Date().toISOString(), keys: localKeys }, null, 1))
-          .then(function (made) {
-            gd.fileId = made.id; gdStore(); gdVersion = made.version || "";
-            writeBase(localKeys); markOk();
-            set("connected", gd.fileName + " in your Drive");
-            return [];
-          });
-      }
-      gd.fileId = f.id; gdStore();
-      return gdReadFile(f.id).then(function (text) {
-        var remoteKeys = null;
-        if (text) {
-          var p = normalise(JSON.parse(text));
-          remoteKeys = p ? p.keys : null;
-        }
-        if (!remoteKeys) {
-          return gdUpdate(f.id, JSON.stringify({ suite: 1, updatedAt: new Date().toISOString(), keys: localKeys }, null, 1))
-            .then(function (u) {
-              gdVersion = u.version || ""; writeBase(localKeys); markOk();
-              set("connected", gd.fileName + " in your Drive");
-              return [];
-            });
-        }
-        var merged = mergeKeys(readBase(), localKeys, remoteKeys);
-        lastReport = merged.report;
-        var changed = [];
-        if (merged.report.changedLocally.length) {
-          changed = apply({ keys: merged.keys, updatedAt: new Date().toISOString() });
-        }
-        if (!merged.report.changedRemotely.length) {
-          writeBase(merged.keys); markOk();
-          set("connected", gd.fileName + " in your Drive");
-          if (changed.length) notifyChanged(changed);
-          return changed;
-        }
-        /* Drive cannot reject a stale write, so check the version did not move
-           while we were merging. If it did, start over on top of theirs. */
-        return gdMeta(f.id).then(function (m) {
-          if (gdVersion && m.version && String(m.version) !== String(gdVersion) && !opts.retried) {
-            gdBusy = false;
-            return gdSync(Object.assign({}, opts, { retried: true }));
-          }
-          return gdUpdate(f.id, JSON.stringify({ suite: 1, updatedAt: new Date().toISOString(), keys: merged.keys }, null, 1))
-            .then(function (u) {
-              gdVersion = u.version || "";
-              writeBase(merged.keys); markOk(); markOk();
-              set("connected", gd.fileName + " in your Drive");
-              if (changed.length) notifyChanged(changed);
-              return changed;
-            });
-        });
-      }).then(function (r) {
-        /* remember the version we are now level with */
-        if (!gdVersion && gd.fileId) return gdMeta(gd.fileId).then(function (m) { gdVersion = m.version || ""; return r; });
-        return r;
-      });
-    }).catch(function (e) {
-      if (e && e.message === SIGNIN_NEEDED) set("needsPermission", "tap to sign in to Google again");
-      else set("error", e.message || String(e));
-      return [];
-    }).then(function (r) { gdBusy = false; drainPending(); return r; });
-  }
-  /* the one tap that turns needsPermission back into connected */
-  function gdSignIn() {
-    if (!gd) return Promise.reject(new Error("Drive is not set up on this device"));
-    return gdAuth(true).then(function () { return gdSync({ force: true, push: true }); });
-  }
-
-  function gdConnect(cfg) {
-    gd = {
-      clientId: String(cfg.clientId || "").trim(),
-      fileName: String(cfg.fileName || "classroom.json").trim() || "classroom.json",
-      fileId: ""
-    };
-    if (!gd.clientId) { gd = null; return Promise.reject(new Error("the OAuth client ID is needed")); }
-    gdTok = ""; gdTokExp = 0; gdVersion = "";
-    return gdAuth(true).then(function () {
-      gdStore();
-      return gdSync({ force: true, push: true });
-    }).then(function (changed) {
-      gdWhoAmI();
-      if (state === "error") throw new Error(detail);
-      gdPoll();
-      return changed;
-    }).catch(function (e) { gd = null; try { localStorage.removeItem(GD_KEY); } catch (e2) { } set("off"); throw e; });
-  }
-  function gdDisconnect() {
-    clearInterval(gdTimer);
-    try {
-      if (gdTok && window.google && window.google.accounts && window.google.accounts.oauth2) {
-        window.google.accounts.oauth2.revoke(gdTok, function () { });
-      }
-    } catch (e) { }
-    gd = null; gdTok = ""; gdTokExp = 0; gdVersion = "";
-    try { localStorage.removeItem(GD_KEY); localStorage.removeItem(BASE_KEY); } catch (e) { }
-    idbSet(BASE_IDB, null); baseCache = {};
-    set("off");
-    return Promise.resolve();
-  }
-  function gdPoll() {
-    clearInterval(gdTimer);
-    if (!gd) return;
-    gdTimer = setInterval(function () {
-      if (!gd || document.hidden || !navigator.onLine) return;
-      gdSync({ quiet: true });
-    }, 25000);
-  }
-
-  /* ============================================================
-     HANDOFF FOLDER
-
-     The Drive API needs an OAuth client, and a district admin can block that
-     — ours is. The Drive *desktop client* is not an API: it syncs an ordinary
-     folder, and nobody can block a folder.
-
-     So the desktop watches one folder. Anything that looks like a suite
+     So the computer watches one folder. Anything that looks like a suite
      payload dropped in there gets merged and then removed, and the folder is
      left holding one current classroom.json. The phone's part is the share
-     sheet it already has: Save a backup, share to Drive, into that folder.
-     Nothing on the desktop to press.
+     sheet it already has: Send, Save to Files, into that folder; and Get,
+     which picks classroom.json. Nothing on the computer to press.
 
      This also works with a folder on a USB stick, a network share, or
      Dropbox. It does not care what is syncing the folder, or whether
      anything is.
      ============================================================ */
   var FOLDER_HANDLE_KEY = "folder";
-  var FOLDER_SUPPORTED = !!window.showDirectoryPicker;
   var CANON = "classroom.json";
   var SEEN_KEY = "suite:folderSeen:v1";
   var folder = null, folderTimer = null, folderBusy = false, lastPickup = null;
@@ -1474,7 +942,7 @@
       return it.next().then(function (step) {
         if (step.done) return out;
         var name = step.value[0], h = step.value[1];
-        if (h.kind === "file" && /\.json$/i.test(name)) out.push({ name: name, handle: h });
+        if (h.kind === "file" && syncFileName(name)) out.push({ name: name, handle: h });
         return walk(it);
       });
     })(folder.entries()).catch(function () { return out; });
@@ -1538,6 +1006,8 @@
     opts = opts || {};
     if (!folder) return Promise.resolve([]);
     if (folderBusy) { if (opts.push) pushPending = true; return Promise.resolve([]); }
+    /* v99: the planner's GitHub round is running; go once it is done */
+    if (laneBusy()) { pushPending = true; return Promise.resolve([]); }
     folderBusy = true;
     if (!opts.quiet) set("syncing", "");
 
@@ -1662,7 +1132,9 @@
     if (name === CANON) { canonStamp = ""; canonKeys = null; }   /* re-read it next round */
     return folder.getFileHandle(name, { create: true }).then(function (h) {
       return h.createWritable().then(function (w) {
-        return w.write(JSON.stringify({ suite: 1, updatedAt: new Date().toISOString(), writer: ownFile(), keys: keys }, null, 1))
+        /* v96: and the name it goes by, so a phone that gets this file can
+           say "Send to Mac" rather than the slug in the file name */
+        return w.write(JSON.stringify({ suite: 1, updatedAt: new Date().toISOString(), writer: ownFile(), fromName: deviceName(), keys: keys }, null, 1))
           .then(function () { return w.close(); });
       });
     });
@@ -1707,12 +1179,9 @@
 
   window.SuiteSync = {
     keys: KEYS,
-    supported: SUPPORTED,
     get state() { return state; },
     get detail() { return detail; },
-    get fileName() { return handle ? handle.name : ""; },
     get backend() { return backend(); },
-    get github() { return gh ? { owner: gh.owner, repo: gh.repo, path: gh.path, branch: gh.branch } : null; },
     folderSupported: FOLDER_SUPPORTED,
     get folderName() { return folder ? folder.name : ""; },
     get lastPickup() { return lastPickup; },
@@ -1727,42 +1196,38 @@
         return folderSync({ force: true });
       });
     },
-    get drive() { return gd ? { fileName: gd.fileName, fileId: gd.fileId, clientId: gd.clientId, email: gd.email || "" } : null; },
     get lastMerge() { return lastReport; },
     /* everything the Setup tab needs to show whether syncing is actually
        healthy, rather than only whether the last request happened to work */
     get lastOk() { return lastOk(); },
     get baseDurable() { return baseDurable; },
-    get tokenDays() { return gh ? ghTokenDays() : null; },
     auditKeys: auditKeys,
     neverSync: NEVER_SYNC,
     get device() { return deviceName(); },
     setDevice: function (n) { try { localStorage.setItem(DEVICE_KEY, String(n || "").trim() || deviceName()); } catch (e) { } },
     init: init,
-    connect: connect,
-    disconnect: disconnect,
-    connectGitHub: ghConnect,
-    disconnectGitHub: ghDisconnect,
-    connectDrive: gdConnect,
-    disconnectDrive: gdDisconnect,
-    signInDrive: gdSignIn,
-    driveAccount: gdWhoAmI,
-    syncNow: function () { return folder ? folderSync({ force: true }) : gd ? gdSync({ force: true, push: true }) : gh ? ghSync({ force: true, push: true }) : pull(true).then(function (c) { return doWrite().then(function () { return c; }); }); },
-    push: function (now) { return folder ? folderSync({ quiet: !now }) : gd ? gdSync({ quiet: !now, push: true }) : gh ? ghSync({ quiet: !now, push: true }) : push(now); },
-    pull: function (force) { return folder ? folderSync({ force: !!force }) : gd ? gdSync({ force: !!force }) : gh ? ghSync({ force: !!force }) : pull(force); },
+    syncNow: function () { return folder ? folderSync({ force: true }) : Promise.resolve([]); },
+    push: function (now) { return folder ? folderSync({ quiet: !now }) : Promise.resolve([]); },
+    pull: function (force) { return folder ? folderSync({ force: !!force }) : Promise.resolve([]); },
+    /* a phone's Send, and Save a sync file */
     exportFile: exportFile,
+    emailFile: emailFile, mailAddress: mailAddress, setMailAddress: setMailAddress, isSyncFileName: syncFileName,
+    /* a phone's Get, and Load a sync file: merges; { replace: true } restores */
     importFile: importFile,
-    /* v77: loading by hand merges; { replace: true } is the old restore */
     importText: importText,
     importBlob: importBlob,
     undoImport: undoImport,
     describeImport: describeImport,
     get canUndoImport() { return undoReady; },
     get lastImport() { return lastImport; },
+    /* v96: when another device's file was last brought in here, and from whom */
+    get lastGet() { return lastGet(); },
     /* when a sync file was last saved here, and whether anything changed since */
     get lastExport() { var e = exportState(); return e ? { at: e.at, dirty: !!e.dirty, name: e.name || "" } : null; },
+    /* v96: the route this device was on before it was removed, until told */
+    get retired() { var r = retired(); return r && !r.told ? r.routes.slice() : null; },
+    retiredTold: retiredTold,
     touchDevice: touchDevice,
-    ensurePermission: function () { return ensure(true); },
     onState: function (f) { listeners.push(f); f(state, detail); },
     onChanged: function (f) { changeHandlers.push(f); },
     /* v80: the same three-way merge, for a tool that holds a copy of its
@@ -1774,6 +1239,32 @@
     get guardReport() { return { merged: guardReport.merged, conflicts: guardReport.conflicts }; },
     merge: function (base, local, remote) {
       return merge3(base, local, remote, { conflicts: 0, kept: 0, additive: false, remoteWins: false, changedLocally: [], changedRemotely: [] });
+    },
+    /* v99: what suite-planner-sync.js needs to run its own round with this
+       file's merge, so there is one merge and one way of applying it */
+    lane: {
+      mergeKeys: mergeKeys,
+      apply: apply,
+      notify: notifyChanged,
+      idbGet: idbGet,
+      idbSet: idbSet,
+      folderBusy: function () { return !!folderBusy; },
+      setBusy: function (f) { otherLane = f; },
+      drain: drainPending
     }
   };
+})();
+
+/* v99: the planner's own route, in its own file so it can be read (and
+   removed) on its own. Loaded from here so every page that syncs gets it,
+   and neither of the teacher's own files needs a new tag. */
+(function () {
+  try {
+    var cs = document.currentScript;
+    if (!cs || !cs.src || window.SuitePlannerSync) return;
+    var s = document.createElement("script");
+    s.src = cs.src.replace(/suite-sync\.js(\?[^#]*)?(#.*)?$/, "suite-planner-sync.js");
+    if (s.src === cs.src) return;
+    (document.head || document.documentElement).appendChild(s);
+  } catch (e) { }
 })();

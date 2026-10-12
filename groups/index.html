@@ -66,38 +66,50 @@
   .board button.primary,.drawer button.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
   .tools{display:flex;gap:8px;flex-wrap:wrap}
   .board button.flag{border-color:#B01E55;color:#B01E55}
+  /* v97: after arranging, the offer to send the groups to the gradebook */
+  .gb-offer{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--card);border:2px solid var(--rule);border-radius:14px;
+    padding:8px 10px 8px 16px;font-size:clamp(.9rem,1.1vw,1.1rem);font-weight:600}
+  .gb-offer[hidden]{display:none}
+  .gb-offer span{flex:1 1 auto}
+  @media print{ .gb-offer{display:none!important} }
 
   .grid{flex:1 1 auto;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:clamp(10px,1.2vw,20px);min-height:0}
   .group{position:relative;display:flex;flex-direction:column;background:var(--card);border:4px solid var(--gc);border-radius:22px;
     padding:clamp(10px,1.2vw,20px);min-height:0;overflow:hidden}
   .group-head{display:flex;align-items:center;gap:clamp(8px,1vw,16px);min-width:0}
-  .medallion{flex:0 0 auto;width:clamp(58px,6.4vw,110px);height:clamp(58px,6.4vw,110px);border-radius:50%;background:var(--gt);
+  .medallion{flex:0 0 auto;width:clamp(40px,min(6.4vw,8.5vh),110px);height:clamp(40px,min(6.4vw,8.5vh),110px);border-radius:50%;background:var(--gt);
     display:grid;place-items:center;border:3px solid var(--gc)}
   .medallion svg{width:78%;height:78%;display:block}
-  .group-name{font-size:clamp(1.8rem,4.4vw,4.6rem);font-weight:700;line-height:.95;color:var(--gc);padding:2px 8px;border-radius:10px;outline:none;min-width:0;overflow-wrap:anywhere}
+  .group-name{font-size:clamp(1.4rem,min(4.4vw,6vh),4.6rem);font-weight:700;line-height:.95;color:var(--gc);padding:2px 8px;border-radius:10px;outline:none;min-width:0;overflow-wrap:anywhere}
   .group-name:focus{background:#F3F7FA;box-shadow:0 0 0 3px #9BC4E8}
 
-  .station-row{margin-top:clamp(8px,1vw,14px);display:flex;align-items:stretch;gap:6px;background:var(--sc);border-radius:16px;padding:6px}
+  .station-row{margin-top:clamp(4px,min(1vw,1.2vh),14px);display:flex;align-items:stretch;gap:6px;background:var(--sc);border-radius:16px;padding:6px}
   .board .station-main{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:clamp(8px,1vw,16px);background:transparent;color:#fff;border:none;
-    border-radius:12px;padding:clamp(4px,.7vw,12px) clamp(6px,1vw,16px);text-align:left;cursor:pointer}
+    border-radius:12px;padding:clamp(3px,min(.7vw,.9vh),12px) clamp(6px,1vw,16px);text-align:left;cursor:pointer}
   .board .station-main:hover{background:rgba(255,255,255,.15)}
-  .station-main svg{flex:0 0 auto;width:clamp(26px,2.9vw,52px);height:clamp(26px,2.9vw,52px)}
-  .station-label{font-size:clamp(1.15rem,2.5vw,2.7rem);font-weight:700;line-height:1.02;overflow-wrap:anywhere}
+  .station-main svg{flex:0 0 auto;width:clamp(20px,min(2.9vw,4vh),52px);height:clamp(20px,min(2.9vw,4vh),52px)}
+  .station-label{font-size:clamp(1rem,min(2.5vw,3.4vh),2.7rem);font-weight:700;line-height:1.02;overflow-wrap:anywhere}
   .page{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#fff;color:var(--sc);
     border-radius:12px;padding:clamp(3px,.5vw,9px) clamp(8px,1vw,18px);min-width:clamp(66px,6.5vw,118px)}
   .page-label{font-size:clamp(.6rem,.85vw,1rem);font-weight:700;line-height:1;opacity:.72}
-  .page-num{font-size:clamp(1.1rem,2.2vw,2.4rem);font-weight:700;line-height:1.05;min-width:1.6ch;text-align:center;border-radius:6px;outline:none}
+  .page-num{font-size:clamp(1rem,min(2.2vw,3vh),2.4rem);font-weight:700;line-height:1.05;min-width:1.6ch;text-align:center;border-radius:6px;outline:none}
   .page-num:focus{box-shadow:0 0 0 3px #9BC4E8}
   .page.blank{background:rgba(255,255,255,.18);color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.65)}
 
-  .names{margin-top:clamp(8px,1vw,14px);padding-top:clamp(6px,.8vw,12px);border-top:2px dashed var(--rule);display:flex;flex-wrap:wrap;
+  .names{margin-top:clamp(5px,min(1vw,1.2vh),14px);padding-top:clamp(4px,min(.8vw,1vh),12px);border-top:2px dashed var(--rule);display:flex;flex-wrap:wrap;
     gap:calc(var(--name-k,1) * clamp(5px,.6vw,10px));align-content:flex-start;overflow:auto;min-height:0;flex:1 1 auto}
+  /* v115: on a wide, short screen (his school computer: 1920x1080 at 125%,
+     about 1536x740 in a window) the headers were sized by width alone and
+     took the height the names needed (names 14px, group names 68px). The
+     medallion, group name, station and gaps now take the smaller of a width
+     size and a height size, and names start bigger, so a short screen gives
+     the names the room. */
   /* Names are read from across the room. They are as big as the board allows:
      fitNames() lowers --name-k (on #grid, so all four groups stay one size)
      only when a group's names would not all show. Padding is in em so a chip
      keeps its shape as it shrinks. */
   .chip{display:inline-flex;align-items:center;gap:6px;background:var(--gt);color:var(--ink);border-radius:999px;
-    padding:.3em .62em;font-size:calc(var(--name-k,1) * clamp(.95rem,1.7vw,1.9rem));font-weight:700;line-height:1.1}
+    padding:.3em .62em;font-size:calc(var(--name-k,1) * clamp(1rem,min(2.2vw,3.6vh),2.2rem));font-weight:700;line-height:1.1}
   .arranging .chip.guest{box-shadow:inset 0 0 0 2px var(--gc)}
   .arranging .chip.guest::after{content:"visitor";font-size:.5em;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--gc);opacity:.85}
   .empty{color:var(--ink-soft);font-size:clamp(.9rem,1.4vw,1.3rem)}
@@ -127,6 +139,12 @@
     text-align:left;font:700 1.05rem var(--font);color:var(--ink);cursor:pointer}
   .picker button:hover{background:#EEF3F7}
   .swatch{width:20px;height:20px;border-radius:6px;flex:0 0 auto;display:inline-block}
+  .swatch.ico{background:none;border-radius:0}
+  .swatch.ico svg{width:100%;height:100%;display:block}
+  .lookbtn{display:inline-flex;align-items:center;gap:4px}
+  .lookbtn span:last-child{margin-left:6px}
+  .lookmark{width:22px;height:22px;display:inline-block;flex:0 0 auto}
+  .lookmark svg{width:100%;height:100%;display:block}
 
   /* ---------- setup drawer ---------- */
   .drawer{display:none;background:var(--card);border:2px solid var(--rule);border-radius:16px;padding:clamp(10px,1.2vw,18px);
@@ -286,6 +304,7 @@
   @media print{ @page{size:letter;margin:.2in} #suitebanner{display:none!important} }
 </style>
 <link rel="stylesheet" href="../suite-theme.css">
+<script src="../suite-edition.js"></script>
 <script src="../suite-sync.js"></script>
 <script src="../suite-names.js"></script>
 <script src="../suite-orf.js"></script>
@@ -321,6 +340,7 @@
       <button id="full" title="Full screen (F)">Full screen</button>
     </div>
   </div>
+  <div class="gb-offer" id="gbOffer" role="status" hidden></div>
 
   <div class="drawer" id="drawer">
     <h2>Sub plans</h2>
@@ -336,11 +356,15 @@
     <h2>Students</h2>
     <p class="note" id="rosterNote"></p>
 
+    <h2>Group look</h2>
+    <div class="row looks" id="lookPick" role="group" aria-label="Group look" style="margin-top:0"></div>
+    <p class="note">Animals are Fox, Bear, Tiger and Lion. Colors are Red, Blue, Yellow and Green, each with its own shape, so a child who can’t tell red from green still finds their group. Switching moves no one. A name you typed yourself stays; one still called Fox or Red switches with the look.</p>
+
     <h2>Station names</h2>
     <div class="fields" id="stationFields"></div>
     <div class="row">
       <button id="lineupBtn">Line up the starting order</button>
-      <span class="note" style="margin:0">Sends Fox to the first station, Bear to the second, and so on.</span>
+      <span class="note" style="margin:0" id="lineupNote">Sends Fox to the first station, Bear to the second, and so on.</span>
     </div>
 
     <h2>Bring in your old math board</h2>
@@ -353,7 +377,7 @@
       <span class="status" id="status" role="status"></span>
     </div>
     <ul class="report" id="report" hidden></ul>
-    <p class="note">Shortcuts: <b>R</b> rotates stations, <b>F</b> goes full screen. Click a coloured station bar to send one group somewhere else. Everything here saves and syncs with the rest of the suite.</p>
+    <p class="note">Shortcuts: <b>R</b> rotates stations, <b>F</b> goes full screen. Click a station bar to send one group somewhere else. Everything here saves and syncs with the rest of the suite.</p>
   </div>
 
   <div class="tray" id="tray" hidden></div>
@@ -411,8 +435,46 @@
   var ORDER = ["fox", "bear", "tiger", "lion"];
   var STATION_COLORS = ["#0F6B6B", "#4B3FA8", "#B01E55", "#2E6B2E"];
 
+  /* v91: the board has a look, animals or colors, and it is the whole
+     board's. Slot i is Fox or Red, Bear or Blue, and so on: placements,
+     stations and pages belong to the slot, so switching moves no one.
+     Each color has a shape too, so a child who can't tell red from green
+     still finds their group, and a non-reader has a picture as the animals
+     gave them. In the colors look the station bars go to one dark slate,
+     so the only color on a card is its group's; the icon and the label
+     still say which station it is. `animal` stays on each group as it
+     always was, the slot's old identity; the look is `math.look`. */
+  var LOOKS = {
+    animals: { label: "Animals", names: ["Fox", "Bear", "Tiger", "Lion"] },
+    colors: { label: "Colors", names: ["Red", "Blue", "Yellow", "Green"], station: "#34424F",
+      slots: [
+        { shape: "circle", color: "#C62828", fill: "#E53935", tint: "#FDE4E2" },
+        { shape: "square", color: "#1F5FAE", fill: "#2F7FE0", tint: "#E1ECFA" },
+        { shape: "triangle", color: "#9A7300", fill: "#F5C400", tint: "#FFF4CC" },
+        { shape: "star", color: "#2E7D32", fill: "#43A047", tint: "#E2F2E3" }
+      ] }
+  };
+  /* A board starts as its build says (suite-edition.js); once a look is
+     saved on the board, that wins. */
+  var EDITION_LOOK = (window.SuiteEdition && LOOKS[window.SuiteEdition.groupLook]) ? window.SuiteEdition.groupLook : "animals";
+  function slotLook(look, i) {
+    if (look === "colors") return LOOKS.colors.slots[i];
+    return ANIMALS[ORDER[i]];
+  }
+  function stationColor(look, i) { return look === "colors" ? LOOKS.colors.station : STATION_COLORS[i]; }
+  /* A name that is still some look's name for its own slot follows the
+     look; a name anyone typed is left alone (standing rule 7). */
+  function followLook(m, from) {
+    if (from === m.look || !LOOKS[from]) return false;
+    var to = LOOKS[m.look].names, changed = false;
+    m.groups.forEach(function (g, i) {
+      if (String(g.name || "").trim().toLowerCase() === LOOKS[from].names[i].toLowerCase()) { g.name = to[i]; changed = true; }
+    });
+    return changed;
+  }
+
   /* ---------------- data ----------------
-     suite:groups:v1 = { v:1, math:{ title, stations[4], pageStations[4],
+     suite:groups:v1 = { v:1, math:{ title, look ("animals"|"colors", v91), stations[4], pageStations[4],
        groups:[{animal,name,station,pages:{stationIndex:text}}] x4,
        place:{ gradebookStudentId: groupIndex },
        guests:{ id:{ name, group } } } }
@@ -425,7 +487,8 @@
       title: "Math Groups",
       stations: ["Teacher Table", "iReady Goal", "Desk Work", "McGraw Hill"],
       pageStations: [false, false, true, false],
-      groups: ORDER.map(function (a, i) { return { animal: a, name: a.charAt(0).toUpperCase() + a.slice(1), station: i, pages: {} }; }),
+      look: EDITION_LOOK,
+      groups: ORDER.map(function (a, i) { return { animal: a, name: LOOKS[EDITION_LOOK].names[i], station: i, pages: {} }; }),
       place: {}, guests: {}
     } };
   }
@@ -434,6 +497,11 @@
     if (!o || typeof o !== "object" || !o.math) return d;
     var m = o.math, out = d.math;
     if (typeof m.title === "string" && m.title.trim()) out.title = m.title;
+    /* v91: a board saved before looks existed takes its build's look, and
+       its names follow if they are still the standard ones. load() saves
+       that once, so sub plans and the other devices see it too. */
+    var hadLook = !!LOOKS[m.look];
+    out.look = hadLook ? m.look : EDITION_LOOK;
     if (Array.isArray(m.stations) && m.stations.length === 4) out.stations = m.stations.map(function (s, i) { return String(s || "Station " + (i + 1)); });
     if (Array.isArray(m.pageStations) && m.pageStations.length === 4) out.pageStations = m.pageStations.map(Boolean);
     if (Array.isArray(m.groups)) out.groups = out.groups.map(function (g, i) {
@@ -449,14 +517,19 @@
       var g = m.guests[k];
       if (g && typeof g.name === "string" && typeof g.group === "number" && g.group >= 0 && g.group < 4) out.guests[k] = { name: g.name.slice(0, 40), group: g.group };
     });
+    /* before v91 every board was animals, so only animal names can be stale */
+    if (!hadLook) followLook(out, "animals");
     return { v: 1, math: out };
   }
 
   var G = defaults();
   var M = function () { return G.math; };
   function load() {
-    try { var raw = localStorage.getItem(KEY); G = normalize(raw ? JSON.parse(raw) : null); } catch (e) { G = defaults(); }
+    var parsed = null;
+    try { var raw = localStorage.getItem(KEY); parsed = raw ? JSON.parse(raw) : null; G = normalize(parsed); } catch (e) { G = defaults(); parsed = null; }
     if (window.SuiteSync && window.SuiteSync.adopted) window.SuiteSync.adopted(KEY);   /* v81 */
+    /* v91: a saved board with no look yet gets one written, once */
+    if (parsed && parsed.math && !LOOKS[parsed.math.look]) save();
   }
   var saveT = null;
   function save() {
@@ -536,12 +609,84 @@
       });
       btns.appendChild(use);
     } else btns.appendChild(mk("span", "note", m.groups.length + " groups: the board has four, so place them by hand."));
+    /* v97 */
+    var now = boardNow().groups, sent = lastSent();
+    var matches = sameGroups(now, m.groups), wasSent = !matches && sameGroups(now, sent && sent.groups);
+    var send = mk("button", null, matches ? "The gradebook has these groups" : wasSent ? "Sent to the gradebook" : "Send the board to the gradebook");
+    send.disabled = matches || wasSent;
+    send.title = "The gradebook pins everyone where the board has them, for " + (gbStdLabel() || "the standard it groups math on");
+    send.addEventListener("click", function () {
+      if (!sendToGb()) return;
+      gbSugRender(); hideOffer(); say("Sent. The gradebook takes these groups the next time it is open, and can undo it.");
+    });
+    btns.appendChild(send);
     if (gbUndo) {
       var un = mk("button", null, "Undo");
       un.addEventListener("click", function () { M().place = JSON.parse(gbUndo); gbUndo = null; save(); render(); gbSugRender(); });
       btns.appendChild(un);
     }
     box.appendChild(btns);
+  }
+
+  /* ---------- v97: and back again ----------
+     After arranging, the board's groups can go to the gradebook. The board
+     never writes the gradebook's data: it leaves a request in
+     suite:boardGroups:v1 (the four groups in slot order, first slot first,
+     and who is not placed), and the gradebook takes it the next time it is
+     open, on whichever device, and pins everyone there. The standard is the
+     one the gradebook is grouping math on, as published in suite:suggest:v1. */
+  var BKEY = "suite:boardGroups:v1";
+  function boardNow() {
+    var m = M(), groups = [[], [], [], []], out = [];
+    roster.forEach(function (s) {
+      var p = m.place[s.id];
+      if (typeof p === "number" && p >= 0 && p < 4) groups[p].push(s.id); else out.push(s.id);
+    });
+    groups.forEach(function (g) { g.sort(); }); out.sort();
+    return { groups: groups, out: out };
+  }
+  function sameGroups(a, b) {
+    if (!a || !b || !Array.isArray(a) || a.length !== 4 || b.length !== 4) return false;
+    var known = {}; roster.forEach(function (s) { known[s.id] = 1; });
+    var norm = function (g) { return (Array.isArray(g) ? g : []).filter(function (id) { return known[id]; }).slice().sort().join(","); };
+    for (var i = 0; i < 4; i++) if (norm(a[i]) !== norm(b[i])) return false;
+    return true;
+  }
+  function lastSent() { try { return JSON.parse(localStorage.getItem(BKEY) || "null"); } catch (e) { return null; } }
+  /* does the gradebook already have these, or have they already been sent? */
+  function gbHasBoard() {
+    var now = boardNow().groups, s = gbSuggest(), sent = lastSent();
+    return sameGroups(now, s && s.math && s.math.groups) || sameGroups(now, sent && sent.groups);
+  }
+  function gbStdLabel() {
+    var s = gbSuggest(), m = s && s.math;
+    if (!m || !m.std) return "";
+    return m.std === "__all" ? "all math standards" : String(m.label || m.std).split(" \u00b7 ")[0];
+  }
+  function sendToGb() {
+    var now = boardNow(), s = gbSuggest(), m = s && s.math;
+    var req = { at: new Date().toISOString(), std: (m && m.std) || "", label: (m && m.label) || "", groups: now.groups, out: now.out };
+    try { localStorage.setItem(BKEY, JSON.stringify(req)); } catch (e) { say("Could not save \u2014 browser storage may be full.", true); return false; }
+    return true;
+  }
+  function hideOffer() { var o = document.getElementById("gbOffer"); if (o) { o.hidden = true; o.textContent = ""; } }
+  function offerSend() {
+    var o = document.getElementById("gbOffer");
+    if (!o || !roster.length || gbHasBoard()) { hideOffer(); return; }
+    var std = gbStdLabel();
+    o.textContent = "";
+    o.appendChild(mk("span", null, "Send these groups to the gradebook" + (std ? ", for " + std : "") + "?"));
+    var go = mk("button", "primary", "Send to gradebook");
+    go.addEventListener("click", function () {
+      if (!sendToGb()) return;
+      o.textContent = "";
+      o.appendChild(mk("span", null, "Sent. The gradebook takes them the next time it is open, and can undo it."));
+      setTimeout(hideOffer, 6000);
+    });
+    var no = mk("button", null, "Not now");
+    no.addEventListener("click", hideOffer);
+    o.appendChild(go); o.appendChild(no);
+    o.hidden = false;
   }
 
   function members(gi) {
@@ -579,6 +724,29 @@
       '<ellipse cx="43" cy="64" rx="10" ry="7.5" fill="#FBF1E2"/><ellipse cx="57" cy="64" rx="10" ry="7.5" fill="#FBF1E2"/>' +
       '<path d="M50 55 L56 61 L44 61 Z" fill="#2B1710"/><circle cx="41" cy="48" r="3.8" fill="#2B1710"/><circle cx="59" cy="48" r="3.8" fill="#2B1710"/>');
   }
+  /* v91: the colors look. Solid, simple shapes: they read from the back of
+     the room and on a projector that washes colors out. */
+  function shapeSVG(i) {
+    var c = LOOKS.colors.slots[i];
+    var s = function (b) { return '<svg viewBox="0 0 100 100" aria-hidden="true">' + b + "</svg>"; };
+    var paint = ' fill="' + c.fill + '" stroke="' + c.color + '" stroke-width="5" stroke-linejoin="round"';
+    if (c.shape === "circle") return s('<circle cx="50" cy="50" r="36"' + paint + "/>");
+    if (c.shape === "square") return s('<rect x="19" y="19" width="62" height="62" rx="7"' + paint + "/>");
+    if (c.shape === "triangle") return s('<path d="M50 14 L87 80 L13 80 Z"' + paint + "/>");
+    var pts = [];
+    for (var k = 0; k < 10; k++) {
+      var r = k % 2 ? 19 : 40, ang = -Math.PI / 2 + k * Math.PI / 5;
+      pts.push((50 + Math.cos(ang) * r).toFixed(1) + " " + (53 + Math.sin(ang) * r).toFixed(1));
+    }
+    return s('<path d="M' + pts.join(" L") + ' Z"' + paint + "/>");
+  }
+  function medallionSVG(look, i) { return look === "colors" ? shapeSVG(i) : animalSVG(ORDER[i]); }
+  /* the station's mark in a picker or a Setup field: its color in the
+     animals look, its icon in the colors look, where the bars are all one color */
+  function stationMark(i) {
+    if (M().look === "colors") return '<span class="swatch ico" style="color:' + LOOKS.colors.station + '">' + stationSVG(i) + "</span>";
+    return '<span class="swatch" style="background:' + STATION_COLORS[i] + '"></span>';
+  }
   function stationSVG(i) {
     var w = 'fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"';
     var o = '<svg viewBox="0 0 24 24" aria-hidden="true">';
@@ -606,17 +774,18 @@
 
     grid.innerHTML = "";
     m.groups.forEach(function (g, gi) {
-      var a = ANIMALS[g.animal], si = g.station;
+      var a = slotLook(m.look, gi), si = g.station;
       var card = document.createElement("section");
       card.className = "group";
       card.dataset.group = gi;
+      card.dataset.look = m.look;
       card.style.setProperty("--gc", a.color);
       card.style.setProperty("--gt", a.tint);
-      card.style.setProperty("--sc", STATION_COLORS[si]);
+      card.style.setProperty("--sc", stationColor(m.look, si));
 
       var head = document.createElement("div");
       head.className = "group-head";
-      head.innerHTML = '<div class="medallion">' + animalSVG(g.animal) + "</div>";
+      head.innerHTML = '<div class="medallion">' + medallionSVG(m.look, gi) + "</div>";
       var nameEl = document.createElement("div");
       nameEl.className = "group-name";
       nameEl.textContent = g.name;
@@ -668,12 +837,14 @@
     });
     renderTray();
     rosterNote();
+    lookNotes();
     fitNames();
   }
 
   /* Every name on the board shows, as big as it can. Starts at full size and
      steps down together until no group's list overflows; a floor keeps a very
-     full board readable (it scrolls past that, as before). */
+     full board readable (it scrolls past that, as before). v115: with room
+     to spare, it steps up instead. */
   function fitNames() {
     if (tab !== "math" || !grid.clientHeight) return;
     var k = 1, guard = 0;
@@ -682,6 +853,17 @@
       return Array.prototype.some.call(grid.querySelectorAll(".names"), function (n) { return n.scrollHeight > n.clientHeight + 1; });
     }
     while (guard++ < 20 && k > 0.5 && over()) { k = Math.round((k - 0.05) * 100) / 100; grid.style.setProperty("--name-k", String(k)); }
+    /* v115: and when they all fit with room to spare, they grow (up to 1.8x)
+       until the fullest group is full: names are what the room reads */
+    if (k === 1 && !over()) {
+      guard = 0;
+      while (guard++ < 16 && k < 1.8) {
+        var next = Math.round((k + 0.05) * 100) / 100;
+        grid.style.setProperty("--name-k", String(next));
+        if (over()) { grid.style.setProperty("--name-k", String(k)); break; }
+        k = next;
+      }
+    }
   }
   window.addEventListener("resize", fitNames);
   document.addEventListener("fullscreenchange", function () { setTimeout(fitNames, 60); });
@@ -791,7 +973,7 @@
     picker.innerHTML = "";
     M().stations.forEach(function (label, i) {
       var b = document.createElement("button");
-      b.innerHTML = '<span class="swatch" style="background:' + STATION_COLORS[i] + '"></span><span>' + esc(label) + "</span>";
+      b.innerHTML = stationMark(i) + "<span>" + esc(label) + "</span>";
       b.addEventListener("click", function () { M().groups[pickerGroup].station = i; save(); render(); closePicker(); });
       picker.appendChild(b);
     });
@@ -810,13 +992,48 @@
   function rotate() { M().groups.forEach(function (g) { g.station = (g.station + 1) % 4; }); save(); render(); }
   function lineUp() { M().groups.forEach(function (g, i) { g.station = i; }); save(); render(); }
 
+  /* v91: switch the whole board's look. Everyone stays where they are. */
+  function setLook(look) {
+    var m = M();
+    if (!LOOKS[look] || m.look === look) return false;
+    var from = m.look;
+    m.look = look;
+    followLook(m, from);
+    save(); render(); buildLookPick(); buildStationFields();
+    return true;
+  }
+  function buildLookPick() {
+    var wrap = document.getElementById("lookPick");
+    if (!wrap) return;
+    wrap.innerHTML = "";
+    Object.keys(LOOKS).forEach(function (k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "lookbtn" + (M().look === k ? " primary" : "");
+      b.setAttribute("aria-pressed", M().look === k ? "true" : "false");
+      b.dataset.look = k;
+      var marks = "";
+      for (var i = 0; i < 4; i++) marks += '<span class="lookmark">' + medallionSVG(k, i) + "</span>";
+      b.innerHTML = marks + "<span>" + esc(LOOKS[k].label) + "</span>";
+      b.title = LOOKS[k].names.join(", ");
+      b.addEventListener("click", function () { setLook(k); });
+      wrap.appendChild(b);
+    });
+  }
+  /* notes in Setup that name the groups say what this board calls them */
+  function lookNotes() {
+    var n = M().groups.map(function (g) { return g.name; });
+    var el = document.getElementById("lineupNote");
+    if (el) el.textContent = "Sends " + n[0] + " to the first station, " + n[1] + " to the second, and so on.";
+  }
+
   function buildStationFields() {
     var wrap = document.getElementById("stationFields"), m = M();
     wrap.innerHTML = "";
     m.stations.forEach(function (label, i) {
       var f = document.createElement("label");
       f.className = "field";
-      f.innerHTML = '<span class="swatch" style="background:' + STATION_COLORS[i] + '"></span>';
+      f.innerHTML = stationMark(i);
       var inp = document.createElement("input");
       inp.type = "text";
       inp.value = label;
@@ -841,7 +1058,7 @@
   function slideModel() {
     var m = M();
     return {
-      title: m.title, stations: m.stations.slice(), pageStations: m.pageStations.slice(),
+      title: m.title, look: m.look, stations: m.stations.slice(), pageStations: m.pageStations.slice(),
       madeOn: new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" }),
       groups: m.groups.map(function (g, gi) {
         return { animal: g.animal, name: g.name, pages: g.pages, names: members(gi).map(function (p) { return p.label; }) };
@@ -858,13 +1075,24 @@
       document.head.appendChild(s);
     });
   }
+  /* v91: the colors look's medallion pictures, only when a colors deck is made */
+  function loadColorMedallions() {
+    if (M().look !== "colors" || window.SUB_DECK_COLORS) return Promise.resolve();
+    return new Promise(function (res, rej) {
+      var s = document.createElement("script");
+      s.src = "sub-deck-colors.js";
+      s.onload = function () { window.SUB_DECK_COLORS ? res() : rej(new Error("The color pictures for the slides are missing.")); };
+      s.onerror = function () { rej(new Error("The color pictures for the slides did not load. Open this page once while online, then try again.")); };
+      document.head.appendChild(s);
+    });
+  }
   function downloadSlides() {
     var out = document.getElementById("slideStatus");
     out.classList.remove("warn");
     out.textContent = "Making the deck\u2026";
     var loose = unplaced().length;
-    loadJSZip().then(function (JSZip) {
-      return window.SubSlides.build(slideModel(), JSZip);
+    Promise.all([loadJSZip(), loadColorMedallions()]).then(function (got) {
+      return window.SubSlides.build(slideModel(), got[0]);
     }).then(function (r) {
       var stamp = new Date();
       var name = "math-groups-sub-" + stamp.getFullYear() + "-" + String(stamp.getMonth() + 1).padStart(2, "0") + "-" + String(stamp.getDate()).padStart(2, "0") + ".pptx";
@@ -970,12 +1198,15 @@
   titleEl.addEventListener("blur", function () { M().title = titleEl.textContent.trim() || "Math Groups"; titleEl.textContent = M().title; save(); });
   titleEl.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); titleEl.blur(); } });
   document.getElementById("rotate").addEventListener("click", rotate);
-  document.getElementById("arrange").addEventListener("click", function () { arranging = !arranging; selected = null; adding = null; render(); });
+  document.getElementById("arrange").addEventListener("click", function () {
+    arranging = !arranging; selected = null; adding = null; render();
+    if (arranging) hideOffer(); else offerSend();          /* v97 */
+  });
   var drawer = document.getElementById("drawer");
   document.getElementById("settings").addEventListener("click", function () {
     gbSugRender();
     drawer.classList.toggle("open");
-    if (drawer.classList.contains("open")) buildStationFields();
+    if (drawer.classList.contains("open")) { buildLookPick(); buildStationFields(); }
   });
   document.getElementById("lineupBtn").addEventListener("click", lineUp);
   document.getElementById("slides").addEventListener("click", downloadSlides);
@@ -1584,7 +1815,7 @@
   /* for tests and the console */
   window.SmallGroups = { state: function () { return G; }, roster: function () { return roster; }, members: members,
     unplaced: unplaced, moveTo: moveTo, rotate: rotate, lineUp: lineUp, importOld: importOld, decodeOld: decodeOld,
-    slideModel: slideModel, refresh: refresh, saveNow: saveNow,
+    slideModel: slideModel, refresh: refresh, saveNow: saveNow, setLook: setLook, looks: LOOKS, editionLook: EDITION_LOOK,
     reading: { state: function () { return R; }, members: function (gid, k) { return rMembers(k ? R.units[k] : cu(), gid); },
       unplaced: function (k) { return rUnplaced(k ? R.units[k] : cu()); }, move: rMove, copyFrom: rCopyFrom,
       importOld: rImport, fillWeeks: fillWeeks, saveNow: rSaveNow, select: function (k) { R.current = k; rRender(); },
