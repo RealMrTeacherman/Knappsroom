@@ -70,22 +70,15 @@
   }
   window.__suiteUnbake = unbake;
 
-  /* If the planner already drew the open day from the old answer and
-     nothing has been typed, draw it again; a day with edits, or saved, is
-     left. The planner boots asynchronously, so wait until it has loaded its
-     subjects (S starts as an empty shell) rather than trust script timing. */
-  function redraw() {
-    var d = g("draft");
-    if (d && !d.saved && d.__key && !g("dirty") && typeof window.render === "function") {
-      try { (0, eval)("draft = null"); window.render(); } catch (e) { }
-    }
-  }
+  /* Wait until the planner has loaded its subjects (S starts as an empty
+     shell) rather than trust script timing. v125: the planner draws for the
+     first time only after this file has run, so the day is never drawn from
+     the old answer and there is nothing to redraw. */
   var tries = 0;
   (function whenLoaded() {
     var S = g("S");
     if (!S || !Array.isArray(S.subjects) || !S.subjects.length) { if (++tries < 80) setTimeout(whenLoaded, 50); return; }
     try { unbake(); } catch (e) { }
-    redraw();
   })();
 })();
 
@@ -184,12 +177,23 @@
     base[k] = now;
     if (!kin(mem, merged) || JSON.stringify(merged) === before) return false;
     adopt(mem, merged);
+    var d = g("draft"), dk = d && d.__key;
     if (k === "lp:days:v2") {
       if (typeof window.invalidateDayCache === "function") window.invalidateDayCache();
       /* the saved day on screen is edited through `draft`; give it the
-         other computer's fields too, or the next keystroke reverts them */
-      var d = g("draft"), dk = d && d.__key;
-      if (d && d.saved && dk && isObj(mem[dk])) { adopt(d, JSON.parse(JSON.stringify(mem[dk]))); d.__key = dk; }
+         other computer's fields too, or the next keystroke reverts them.
+         v124: and a day open here unsaved that the other device has saved
+         becomes that saved day, so edits here go to it, not to a draft */
+      if (d && dk && isObj(mem[dk])) { adopt(d, JSON.parse(JSON.stringify(mem[dk]))); d.__key = dk; }
+    }
+    /* v124: an unsaved day (a draft) on screen takes the other device's
+       edits the same way. Before, only saved days did: the screen kept this
+       device's copy and the next tap stashed it back over the pull and sent
+       it, so a day had to be saved before the other device's edits showed.
+       PENDING is merged three ways above, and every tap here stashes the
+       draft into it first, so this device's own edits are in it already. */
+    if (k === "lp:pending:v1" && d && !d.saved && dk && isObj(mem[dk])) {
+      adopt(d, JSON.parse(JSON.stringify(mem[dk]))); d.__key = dk;
     }
     return true;
   }

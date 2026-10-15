@@ -5,7 +5,7 @@ Three tools that share one roster and one origin:
 | Path | What it is |
 |---|---|
 | `/` | Launcher page with links to all three |
-| `/gradebook/` | Standards gradebook (entry, grouping, iReady, ORF, report card) |
+| `/gradebook/` | Standards gradebook (entry, grouping, iReady, ORF, report card, conference sheets) |
 | `/planner/` | Lesson planner |
 | `/fluency/` | Oral reading fluency assessment |
 
@@ -169,13 +169,25 @@ iReady-derived marks are excluded from both the coverage count and the reteach l
 
 ## Moving between assignments
 
-The Enter tab has a stepper above the roster: arrows for newer and older, a dropdown of every assignment with how many students are marked, and **Next unfinished**, which cycles through the ones still missing somebody. `Alt` with the left and right arrow keys does the same without leaving the roster.
+On a screen 1100px wide or wider (a laptop, the projector), the Enter tab has an **Assignments** list beside the roster: every assignment you have marked, newest first, each with its day, its name, its standard and how many students are done, with a bar. The one open is highlighted. Tap any of them to open it. **New** starts another, **Next unfinished** cycles through the ones still missing somebody, and **Show all** opens the list past the ten most recent.
+
+Enter scores opens on today's date (and today's planned lesson), so the assignment it opens on is often empty. That one is drawn dashed at the top of the list and says *not started*, so a blank roster is never mistaken for marks gone missing: the marks you entered on another day are right under it.
+
+On a narrower screen (a phone, an iPad upright) the same list is a dropdown above the roster, with arrows for newer and older; an unstarted assignment there says *nothing marked yet*. `Alt` with the left and right arrow keys steps through them at any width without leaving the roster.
 
 An assignment was never stored as its own record — it is simply the marks that share a standard, a date and a context ("exit ticket", "worksheet"). The list is rebuilt from that, so nothing needed migrating and everything you have already entered appears. Marks derived from iReady or the ORF tool are left out, since those are not assignments you graded. A student logged as not turning work in counts toward the assignment being finished, which is the point of logging them.
 
-**New assignment** starts one on today's date and puts the cursor in the "what was it?" box. It shows at the top of the list marked *new* until you enter the first mark.
+## Reading goals
+
+The ORF tab's **Reading goals** draws each child as one line on the same scale of words correct per minute: a grey run from their first check to their goal, a dot at their latest check, an upright tick where the aim line was at that check, and a ring at the goal. Beside it, the same thing in words: how they are doing, how far ahead of or behind the aim line, and their start, now and goal. Children who need a change of plan (three checks in a row under the aim line) are listed first, then those under the line, one check only, on track, and at the goal. Tap a name for every check and the aim-line chart. On a phone each child's name, line and words stack.
 
 ---
+
+## A class goal for math
+
+The gradebook's **Class goal** tab shows where the whole class most needs help in math: daily classwork by standard (how many are below 3, using the report card's rule) beside iReady by domain (how many are on or above grade level). The two are kept side by side rather than blended, and a note appears when they point at the same place. Choose **Make this the goal** on any need to draft a goal with a baseline and a suggested target; once started, the tab tracks the class against a straight line to the target, nudges when no marks have gone in on the focus, and keeps your check-ins. **Print goal sheet** gives one black-and-white page for a PLC or administrator with class counts only, never a student's name.
+
+Below it, **Group goals** suggests small groups, putting each child with their biggest classwork need (their lowest standard below 3). **Use these groups** keeps them; **Edit group** renames a group or moves a child. Each group can have its own goal, and its numbers always count whoever is in the group now, so a child's data moves with them. **Print group goals** gives every group's goal on paper, again with counts only.
 
 ## Sub plans
 
