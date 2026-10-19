@@ -27,7 +27,7 @@
   --accent-2:#0B4A43;
   --accent-soft:#E7F0EE;
   --s1:#B4472F; --s1-bg:#FBEDE9; --s1-line:#E9CFC7;
-  --s2:#A87621; --s2-bg:#FAF2E2; --s2-line:#E7D7B4;
+  --s2:#A87621; --s2-bg:#FAF2E2; --s2-line:#E7D7B4; --s2-ink:#7F5A14;
   --s3:#2F7A56; --s3-bg:#E9F3ED; --s3-line:#C6DECF;
   --s4:#35608C; --s4-bg:#E9EFF6; --s4-line:#C8D6E6;
   --warn:#A87621;
@@ -88,6 +88,9 @@ nav.tabs button{
 }
 nav.tabs button:hover{color:var(--ink)}
 nav.tabs button[aria-selected="true"]{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+/* v134: the bar scrolls sideways, which clips anything drawn outside a tab,
+   so the focus ring is drawn inside it (a ring outside showed as two bars) */
+nav.tabs button:focus-visible{outline-offset:-3px}
 main{max-width:1240px;margin:0 auto;padding:16px 20px 90px}
 section.panel[hidden]{display:none}
 
@@ -210,7 +213,7 @@ td.c,th.c{text-align:center}
 .group>h3{padding:10px 15px;background:transparent;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:center}
 .group>h3 .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;letter-spacing:.02em}
 .tag.reteach{background:var(--s1-bg);color:#9A3B26}
-.tag.practice{background:var(--s2-bg);color:var(--s2)}
+.tag.practice{background:var(--s2-bg);color:var(--s2-ink)}
 .tag.extend{background:var(--s4-bg);color:var(--s4)}
 .tag.flag{background:var(--s2-bg);color:#7F5A14}
 .group .body{padding:12px 15px}
@@ -245,22 +248,15 @@ td.c,th.c{text-align:center}
 .stdrow .lbl{flex:1;font-size:13.5px}
 
 /* ---------- report card ---------- */
-.rcline{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line-2)}
 select.override{padding:3px 6px;font-size:13px}
 .pill{font-size:11.5px;border-radius:5px;padding:2px 7px;background:var(--accent-soft);color:var(--accent);font-weight:600}
 
 /* ---------- fluency bar ---------- */
-.wbar{position:relative;height:10px;background:rgba(16,24,32,.09);border-radius:5px;min-width:150px;overflow:visible}
+.wbar{display:block;position:relative;height:10px;background:rgba(16,24,32,.09);border-radius:5px;min-width:150px;overflow:visible}
 .wbar i{position:absolute;top:0;bottom:0;left:0;border-radius:5px}
 .wbar u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);text-decoration:none}
-.wbar b{position:absolute;right:-30px;top:-4px;font-size:11.5px;line-height:18px;color:var(--ink-3);font-weight:500}
 
 /* ---------- toast ---------- */
-/* The report card's column headers are rotated labels set on one line,
-   which ran to about 300px on a phone and 175px on a desktop before the
-   first student. They wrap within their column now, capped at a few lines. */
-@media (max-width: 700px){#panel-report .card > .row > span[style*="flex:1"]{display:none}}   /* v104: the spacer only right-aligns on a wide screen */
-#panel-report th.c > span{white-space:normal !important;display:inline-block;max-height:10em;line-height:1.2}
 /* disclosure summaries ("choose standards") were 18-20px tall */
 summary.tiny,summary.small{padding:4px 0}
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--ink);color:#fff;
@@ -279,7 +275,6 @@ summary.tiny,summary.small{padding:4px 0}
   .card{box-shadow:none;border:0}
   table{font-size:11.5px}
   th{background:#EEE !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  .pgbreak{page-break-after:always}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
 
@@ -326,7 +321,7 @@ summary.tiny,summary.small{padding:4px 0}
 .cg-unit{margin-left:auto;font-size:12px;color:var(--ink-2);white-space:nowrap}
 .cg-meter{height:8px;border-radius:4px;background:var(--s1-bg);border:1px solid var(--line);margin:6px 0 4px;overflow:hidden;display:flex}
 .cg-meter span{display:block;height:100%}
-.cg-at,.cg-on{background:var(--s3)}
+.cg-on{background:var(--s3)}
 .cg-one{background:var(--s2)}
 .cg-two{background:var(--s1)}
 .cg-stack{background:var(--line-2)}
@@ -417,7 +412,6 @@ summary.tiny,summary.small{padding:4px 0}
 .gg-draft textarea{width:100%;font:inherit;font-weight:400;padding:8px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);background:var(--panel);color:var(--ink)}
 .gg-draft .fld,.gg-more .fld{flex-direction:column}
 .gg-draft .cg-statement{font-size:14.5px}
-.gg-rest{margin:8px 0 0}
 .gg-out{margin-top:12px}
 .gg-s-block{break-inside:avoid;page-break-inside:avoid;border-top:1px solid #000;padding-top:4px;margin-top:10px}
 .ggsheet .cg-s-goal{font-size:13px}
@@ -450,7 +444,7 @@ summary.tiny,summary.small{padding:4px 0}
 .cg-bar{display:flex;height:22px;border-radius:5px;overflow:hidden;background:var(--line)}
 .cg-bar>span{display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:600;color:#fff;min-width:0}
 .cg-b1{background:var(--s1)}
-.cg-b2{background:var(--s2)}
+.cg-b2{background:var(--s2);color:#140D04 !important}
 .cg-b3{background:var(--s3)}
 .cg-b4{background:var(--s4)}
 .cg-bnone{background:var(--line-strong);color:var(--ink-2) !important}
@@ -477,34 +471,84 @@ summary.tiny,summary.small{padding:4px 0}
   .cg-ntable .cg-act{text-align:left}
 }
 
-/* ---------- v126: reading goals as tracks ---------- */
-.ot-key{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--accent-soft);color:var(--ink-2)}
-.ot-key span{display:inline-flex;align-items:center;gap:7px}
-.ot-key svg{color:var(--ink)}
-.ot-table td{vertical-align:middle}
-.ot-table .ot-name{white-space:nowrap}
-.ot-table .ot-axis{min-width:260px;width:46%;position:relative}
-.ot-ticks{position:relative;display:block;height:16px;font-weight:400;color:var(--ink-3);font-size:11px}
-.ot-ticks span{position:absolute;transform:translateX(-50%)}
-.ot-cell{min-width:260px}
-.ot-track{position:relative;display:block;height:28px;color:var(--ink)}
-.ot-track>span{position:absolute;display:block}
-.ot-span{top:12px;height:4px;border-radius:2px;background:currentColor;opacity:.14}
-.ot-fill{top:11px;height:6px;border-radius:3px}
-.ot-aim{top:3px;width:2px;height:22px;margin-left:-1px;border-radius:1px;background:currentColor}
-.ot-goal{top:7px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid currentColor;background:var(--panel);box-sizing:border-box}
-.ot-now{top:7px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--panel);box-sizing:border-box}
-.ot-where{min-width:220px}
-.ot-detail{display:block;font-size:12.5px;color:var(--ink-2);line-height:1.35;margin-top:1px}
-@media print{.ot-track{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
-/* on a phone each child is a block: name, then the track across the full
-   width, then where they are. Three columns side by side scrolled sideways. */
+/* ---------- v134: reading progress, one scorecard ----------
+   One row per child (orfScorecardHTML). It replaced v126's tracks (.ot-*)
+   and v130's goals at a glance (.og-*). */
+.sc-tools{gap:8px;align-items:center;flex-wrap:wrap}
+.sc-key{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;padding:8px 12px;border-radius:var(--radius-sm);background:var(--accent-soft);color:var(--ink-2)}
+.sc-key span{display:inline-flex;align-items:center;gap:7px}
+.sc-key svg{color:var(--ink)}
+.sc-table{min-width:980px;margin-top:6px}
+.sc-table th,.sc-table td{vertical-align:middle;padding:9px 8px}
+.sc-table thead th{text-align:left;font-size:12px;vertical-align:bottom;white-space:nowrap}
+.sc-table thead th span{font-weight:400;color:var(--ink-3)}
+.sc-table tr>th:first-child{position:sticky;left:0;z-index:1;background:var(--panel)}
+.sc-table thead tr>th:first-child{z-index:3}
+.sc-name{white-space:nowrap;text-align:left}
+.sc-btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 6px 0 0;border:0;background:transparent;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;text-align:left}
+.sc-btn svg{flex:none;color:var(--ink-2);transition:transform .15s}
+.sc-btn[aria-expanded="true"] svg{transform:rotate(90deg)}
+.sc-table tr.sc-open>*,.sc-table tr.sc-more>td{background:#F6F8F9}
+.sc-table tr.sc-open>*{border-bottom-color:transparent}
+.sc-big{display:block;font-size:24px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}
+.sc-sub{display:block;font-size:12px;color:var(--ink-3);margin-top:2px}
+.sc-num{display:block;font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.sc-pct{display:block;font-weight:600}
+.sc-bands{display:flex;gap:3px;margin-top:5px;color:var(--ink)}
+.sc-bands i{width:16px;height:7px;border-radius:2px;background:currentColor;opacity:.14}
+.sc-bands i.on{opacity:.72}
+.sc-st{display:block;font-size:12.5px;font-weight:600;margin-top:2px;white-space:nowrap}
+.sc-flag{display:inline-block;margin-top:4px}
+.sc-comp{font-weight:400;font-size:11px;color:var(--ink-3)}
+.sc-trackc{min-width:230px;width:28%}
+.sc-track{position:relative;display:block;height:24px;color:var(--ink)}
+.sc-track>span{position:absolute;display:block}
+.sc-span{top:10px;height:4px;border-radius:2px;background:currentColor;opacity:.14}
+.sc-fill{top:9px;height:6px;border-radius:3px}
+.sc-mid{top:6px;width:9px;height:9px;margin-left:-6.5px;transform:rotate(45deg);border:2px solid currentColor;background:var(--panel)}
+.sc-goal{top:5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2.5px solid currentColor;background:var(--panel);box-sizing:border-box}
+.sc-now{top:5px;width:14px;height:14px;margin-left:-7px;border-radius:50%;border:2px solid var(--panel);box-sizing:border-box}
+.sc-more>td{padding:2px 12px 18px 30px}
+.sc-summary{margin:0;max-width:78ch;line-height:1.5}
+.sc-months{list-style:none;margin:10px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:6px}
+.sc-months li{border:1px solid var(--line-strong);border-radius:8px;padding:7px 8px;display:flex;flex-direction:column;gap:1px;background:var(--panel)}
+.sc-months li.sc-k{background:var(--accent-soft)}
+.sc-months li.sc-cur{border:2px solid var(--accent);padding:6px 7px}
+.sc-ml{font-size:12px;font-weight:600;color:var(--ink-2)}
+.sc-mg{font-size:16px;font-weight:600;font-variant-numeric:tabular-nums}
+.sc-mc{font-size:12.5px;font-weight:650;min-height:1.3em;color:var(--ink-3);white-space:nowrap}
+.sc-up{color:var(--s3) !important}.sc-down{color:var(--s1) !important}
+/* the theme makes a phone's tables scroll themselves; this one sits in its
+   own .scroll, which must be the only scroller for the names to stay put */
+#orf-progress .sc-scroll .sc-table{display:table;overflow:visible}
+/* the whole class on the page, not in a box of its own that scrolls */
+#orf-progress .sc-scroll{max-height:none}
+@media print{.sc-track,.sc-bands{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+/* on a phone the table scrolls sideways under a pinned name column; an
+   opened row stays in view instead of scrolling away with it */
 @media (max-width:760px){
-  .ot-table,.ot-table tbody,.ot-table tr,.ot-table td{display:block;width:auto;min-width:0}
-  .ot-table thead{display:none}
-  .ot-table tr{padding:8px 2px;border-top:1px solid var(--line-2)}
-  .ot-table td{border:0;padding:2px 4px}
-  .ot-table .ot-name{font-weight:600}
+  .sc-more .sc-inner{position:sticky;left:12px;max-width:calc(100vw - 72px)}
+  .sc-more>td{padding-left:12px}
+  .sc-tools{width:100%}
+}
+/* the Download PDF sheet: landscape Letter, black and white */
+@page orfwide{size:letter landscape;margin:.45in}
+#printsheet .orfsheet{page:orfwide}
+.orfsheet{background:#fff;color:#000;font-family:var(--sans);font-size:11.5px;line-height:1.3}
+.os-table{width:100%;border-collapse:collapse;margin-top:10px;font-size:11.5px}
+.os-table th,.os-table td{border-bottom:1px solid #8A8F94;padding:4px 5px;text-align:right;vertical-align:top;color:#000;font-variant-numeric:tabular-nums}
+.os-table thead th{border-bottom:1.5px solid #000;font-weight:700;vertical-align:bottom;text-transform:none;letter-spacing:normal;font-size:11.5px;position:static}
+.os-table .os-l{text-align:left}
+.os-table span{display:block;font-weight:400}
+.os-table tbody th{font-weight:600;text-transform:none;letter-spacing:normal;font-size:11.5px;position:static}
+.os-table tr{break-inside:avoid}
+.os-table thead{display:table-header-group}
+.os-key{margin:8px 0 0;font-size:11px;color:#000}
+@media print{
+  #printsheet .os-table th{background:none !important}
+  #printsheet .os-table .os-k{background:#EDEFF1 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #printsheet .orfsheet table{display:table !important;overflow:visible !important;max-width:none !important;white-space:normal}
+  body:has(#printsheet .orfsheet),body:has(#printsheet .orfsheet) main{padding:0 !important}
 }
 
 /* ---------- moving between assignments ---------- */
@@ -612,8 +656,6 @@ summary.tiny,summary.small{padding:4px 0}
   .mg-cell{flex-direction:row;align-items:center;justify-content:space-between;gap:10px;width:auto}
   .mg-cell .scale{margin-top:0;flex:none}
   .mg-all{padding:6px 0 0;border-left:0;border-top:1px dashed var(--line-strong)}
-  .rcline{grid-template-columns:1fr;gap:5px}
-  .rcline select.override{justify-self:start}
   .stdrow{flex-wrap:wrap}
   .sgrow .sgchip{width:100%}
 }
@@ -652,13 +694,11 @@ summary.tiny,summary.small{padding:4px 0}
     <span class="saveflag" id="syncflag" title="Sync status">Saved in this browser</span>
   </div>
   <nav class="tabs" role="tablist">
-    <button role="tab" data-tab="enter" aria-selected="true">Enter scores</button>
-    <button role="tab" data-tab="groups" aria-selected="false">Groups &amp; patterns</button>
-    <button role="tab" data-tab="goal" aria-selected="false">Class goal</button>
+    <button role="tab" data-tab="enter" aria-selected="true">Enter marks</button>
+    <button role="tab" data-tab="groups" aria-selected="false">Skill groups</button>
+    <button role="tab" data-tab="goal" aria-selected="false">Math goal</button>
     <button role="tab" data-tab="students" aria-selected="false">Students</button>
     <button role="tab" data-tab="orf" aria-selected="false">ORF</button>
-    <button role="tab" data-tab="iready" aria-selected="false">iReady</button>
-    <button role="tab" data-tab="report" aria-selected="false">Report card</button>
     <button role="tab" data-tab="conf" aria-selected="false">Conferences</button>
     <button role="tab" data-tab="setup" aria-selected="false">Setup</button>
   </nav>
@@ -670,8 +710,6 @@ summary.tiny,summary.small{padding:4px 0}
   <section class="panel" id="panel-goal" hidden></section>
   <section class="panel" id="panel-students" hidden></section>
   <section class="panel" id="panel-orf" hidden></section>
-  <section class="panel" id="panel-iready" hidden></section>
-  <section class="panel" id="panel-report" hidden></section>
   <section class="panel" id="panel-conf" hidden></section>
   <section class="panel" id="panel-setup" hidden></section>
   <div id="printsheet"></div>
@@ -1118,7 +1156,7 @@ let UI = {
   groupCount: 4,
   studentSel: "",
   reportTerm: "t1",
-  rcLayout: "standard",
+  orfOrder: "need",         /* v134: Reading progress, needs attention first or A-Z */
   studentTerm: "",          /* v104: the term the student page lists assignments for ("" = the current one, "all" = the year) */
   studentUnmarked: false,   /* v104: only the assignments still without this child's mark */   /* v104: the entry sheet, one column per standard or one block per student */
   subDate: null,
@@ -1245,8 +1283,12 @@ function parseHash() {
   }
   return { tab: tab, params: params };
 }
+/* v134: the iReady and Report card tabs are gone; a link to either (a
+   bookmark, an old note) opens Setup, where bringing in iReady now lives */
+const RETIRED_TABS = { iready: "setup", report: "setup" };
 function openTabFromHash() {
-  const { tab, params } = parseHash();
+  let { tab, params } = parseHash();
+  if (RETIRED_TABS[tab]) tab = RETIRED_TABS[tab];
   if (!tab || !document.getElementById("panel-" + tab)) return;
 
   /* Set the subject before the tab renders: the Math/ELA/Both switch decides
@@ -1284,8 +1326,6 @@ function render() {
   if (UI.tab === "goal") renderClassGoal();
   if (UI.tab === "students") renderStudents();
   if (UI.tab === "orf") renderORF();
-  if (UI.tab === "iready") renderIReady();
-  if (UI.tab === "report") renderReport();
   if (UI.tab === "conf") renderConferences();
   if (UI.tab === "setup") renderSetup();
   document.getElementById("metaline").textContent =
@@ -1521,16 +1561,6 @@ function buildNeedGroups(subject, days, lo) {
   seeds.sort((a, b) => b.kids.length * b.stds.length - a.kids.length * a.stds.length);
   return seeds.slice(0, 8);
 }
-function placementRank(p) {
-  if (!p) return null;
-  const s = p.toLowerCase();
-  if (s.indexOf("3 or more") >= 0 || s.indexOf("three or more") >= 0) return -3;
-  if (s.indexOf("2 grade") >= 0 || s.indexOf("two grade") >= 0) return -2;
-  if (s.indexOf("1 grade") >= 0 || s.indexOf("one grade") >= 0) return -1;
-  if (s.indexOf("above") >= 0) return 1;
-  if (s.indexOf("grade level") >= 0 || s.indexOf("on level") >= 0) return 0;
-  return null;
-}
 function classroomAvg(sid, subject, days) {
   const codes = activeCodes(subject);
   const vals = S.scores.filter(x => x.sid === sid && x.source !== "iready" &&
@@ -1765,7 +1795,7 @@ function boardTakenNoteHTML(subj, sel) {
 function boardGroupsArrived() {
   if (!takeBoardGroups()) return;
   render();
-  toast("Took the board\u2019s groups for " + (S.boardTaken.std === "__all" ? "all math standards" : dispCode(S.boardTaken.std)) + " \u00b7 Undo is on Groups & patterns");
+  toast("Took the board\u2019s groups for " + (S.boardTaken.std === "__all" ? "all math standards" : dispCode(S.boardTaken.std)) + " \u00b7 Undo is on Skill groups");
 }
 function renderSkillGroups() {
   const host = document.getElementById("skillgroups");
@@ -1844,7 +1874,7 @@ function printSkillGroups() {
   if (res.out.length) h += '<tr><td>Not placed</td><td>' + res.out.map(r => esc(r.name)).join(" \u00b7 ") + "</td></tr>";
   h += "</tbody></table>";
   document.getElementById("printsheet").innerHTML = h;
-  window.print();
+  suitePrint();
 }
 
 function renderGroups() {
@@ -2094,7 +2124,7 @@ function studentAssignmentsHTML(st) {
     '<label class="row" style="gap:6px"><input type="checkbox" id="sa-unmarked"' + (UI.studentUnmarked ? " checked" : "") + "> Only ones without a mark</label></div>";
   if (!list.length) {
     h += '<p class="hint" style="margin-top:8px">' + (UI.studentUnmarked ? "Every assignment here has a mark." :
-      "No " + esc(subjLabel()) + " assignments " + (term ? "in " + esc(term.name) : "yet") + ". They appear as you mark them in Enter scores.") + "</p></div>";
+      "No " + esc(subjLabel()) + " assignments " + (term ? "in " + esc(term.name) : "yet") + ". They appear as you mark them in Enter marks.") + "</p></div>";
     return h;
   }
   h += '<div style="margin-top:6px">' + list.map(a => {
@@ -2309,9 +2339,13 @@ function normSubject(raw, h) {
   return inferSubject(h || []);
 }
 
+/* v134: the iReady tab's contents, drawn in Setup with the other ways data
+   comes in. Its own box, redrawn on its own. iReady results show up where
+   they are used: Students, Math goal and Skill groups. */
 function renderIReady() {
-  const el = document.getElementById("panel-iready");
-  let html = '<div class="stack">';
+  const el = document.getElementById("setup-iready");
+  if (!el) return;
+  let html = "";
   html += '<div class="card pad"><h2>Bring in iReady diagnostic results</h2>' +
     '<p class="hint" style="margin-top:6px">Export a diagnostic results report from iReady, then choose the file or paste it below. Save it as CSV, or open the Excel file and copy the whole sheet. Title rows above the column headings are fine \u2014 they get skipped.</p>' +
     '<div class="row" style="margin-top:10px"><input type="file" id="ir-file" accept=".csv,.tsv,.txt">' +
@@ -2390,7 +2424,6 @@ function renderIReady() {
           '</td><td class="c"><button class="btn sm ghost" onclick="S.iready=S.iready.filter(x=>x.id!==\'' + r.id + "');syncIreadyScores();renderIReady()\">Remove</button></td></tr>";
       }).join("") + "</tbody></table></div></div>";
   }
-  html += "</div>";
   el.innerHTML = html;
 
   document.getElementById("ir-file").onchange = e => {
@@ -2546,96 +2579,23 @@ function finalStd(sid, code, term) {
   }
   return { v: roundMark(r.raw), over: false, n: r.n, raw: r.raw };
 }
-function renderReport() {
-  const el = document.getElementById("panel-report");
-  if (!S.students.length) return noStudents(el);
-  const term = termOf(UI.reportTerm);
-  const codes = rcCodes();
-  const roster = sortedStudents();
-  const layout = UI.rcLayout === "student" ? "student" : "standard";
-
-  let html = '<div class="stack"><div class="card pad"><div class="row">' +
-    '<label class="fld">Term<select id="r-term">' + S.terms.map(t => '<option value="' + t.id + '"' + (t.id === UI.reportTerm ? " selected" : "") + ">" + esc(t.name) + "</option>").join("") + "</select></label>" +
-    '<label class="fld">How marks are figured<select id="r-rule">' +
-    '<option value="weighted"' + (S.settings.rule === "weighted" ? " selected" : "") + '>Recent work counts more</option>' +
-    '<option value="latest"' + (S.settings.rule === "latest" ? " selected" : "") + '>Most recent mark only</option>' +
-    '<option value="mean"' + (S.settings.rule === "mean" ? " selected" : "") + '>Straight average</option></select></label>' +
-    '<label class="row small" style="gap:6px;align-self:flex-end;padding-bottom:7px"><input type="checkbox" id="r-carry"' + (S.settings.carryForward ? " checked" : "") + '> Carry a mark forward when a standard has no data this term</label>' +
-    '<span style="flex:1"></span>' +
-    '<label class="fld">Entry sheet<select id="r-layout">' +
-    '<option value="standard"' + (layout === "standard" ? " selected" : "") + '>One column per standard</option>' +
-    '<option value="student"' + (layout === "student" ? " selected" : "") + '>One block per student</option></select></label>' +
-    '<button class="btn" onclick="downloadMarks()">Download marks CSV</button>' +
-    '<button class="btn" onclick="downloadDetail()">Download all scores CSV</button>' +
-    '<button class="btn primary" onclick="printSynergy()">Print entry sheet</button>' +
-    "</div>" +
-    '<div class="hint" style="margin-top:10px">' +
-    (S.scores.some(x => x.source === "iready") && !S.settings.ireadyInReport
-      ? 'iReady-derived marks are excluded from these figures \u2014 turn that on in the iReady tab if you want them counted. ' : "") +
-    'One column per standard, as Synergy marks them, in Oregon codes. Marks shown are suggestions from your data; change any of them with the dropdown, and an overridden mark is marked <span class="pill">set by you</span> and stays put. <b>Copy</b> under a standard copies its marks, top to bottom, to paste into Synergy.</div></div>';
-
-  if (!codes.length) {
-    html += '<div class="card pad"><p class="hint">No standards are switched on for ' + esc(subjLabel()) + '. Choose them in Setup \u2192 Standards.</p></div></div>';
-    el.innerHTML = html; wireReport(el, term); return;
-  }
-  html += '<div class="scroll"><table class="rc"><thead><tr><th style="min-width:160px">Student</th>' +
-    codes.map(c => '<th class="c" title="' + esc(c + " \u2014 " + (byCode[c] ? byCode[c].lbl : "")) + '" style="min-width:58px"><span style="writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap"><code class="std">' + esc(c) + "</code></span></th>").join("") +
-    '</tr><tr><th class="tiny muted" style="font-weight:400">Copy a column for Synergy</th>' +
-    codes.map(c => '<th class="c"><button class="btn sm" data-copy="' + esc(c) + '" title="Copy ' + esc(c) + ' marks, in this order">Copy</button></th>').join("") +
-    "</tr></thead><tbody>";
-  roster.forEach(st => {
-    html += "<tr><td>" + nameLink(st, st.last + ", " + st.first) + "</td>";
-    codes.forEach(c => {
-      const r = stdMark(st.id, c, term);
-      const f = finalStd(st.id, c, term);
-      const sugg = f.carried ? f.v : roundMark(r.raw);
-      html += '<td class="c"><select class="override" title="' + esc(c) + '" data-sid="' + st.id + '" data-std="' + esc(c) + '" style="' + (f.over ? "font-weight:700;border-color:var(--accent);background:var(--accent-soft)" : "") + '">' +
-        '<option value="">' + (sugg ? sugg : "\u2013") + "</option>" +
-        [1, 2, 3, 4].map(v => '<option value="' + v + '"' + (f.over && f.v === v ? " selected" : "") + ">" + v + "</option>").join("") +
-        '</select><div class="tiny muted num">' + (f.over ? "set by you" : f.n ? "n=" + f.n : (f.carried ? "carried" : "no data")) + "</div></td>";
-    });
-    html += "</tr>";
-  });
-  html += "</tbody></table></div>";
-
-  const gaps = [];
-  codes.forEach(c => {
-    const fresh = roster.filter(st => stdMark(st.id, c, term).n === 0 && !finalStd(st.id, c, term).over);
-    const carried = fresh.filter(st => finalStd(st.id, c, term).carried).length;
-    const blank = fresh.length - carried;
-    if (blank) gaps.push(c + ": " + blank + " student" + (blank === 1 ? "" : "s") + " with nothing to go on");
-    else if (carried) gaps.push(c + ": " + carried + " student" + (carried === 1 ? "" : "s") + " carried from an earlier term");
-  });
-  const openNow = missingOpen().filter(m => m.date >= term.start && m.date <= term.end);
-  if (openNow.length) gaps.unshift(openNow.length + " piece" + (openNow.length === 1 ? "" : "s") + " of work still not turned in from this term");
-  if (gaps.length) {
-    html += '<div class="card pad"><h3>Gaps before you submit</h3><ul class="small" style="margin:8px 0 0;padding-left:18px">' + gaps.map(g => "<li>" + esc(g) + "</li>").join("") + "</ul></div>";
-  }
-  html += "</div>";
-  el.innerHTML = html;
-  wireReport(el, term);
+/* v134: how a child's marks on a standard become one mark for a marking
+   period. It was set on the Report card tab; that tab is gone and the rule
+   is still read everywhere a mark is figured. */
+function termMarksCardHTML() {
+  const r = S.settings.rule;
+  return '<div class="card pad" id="term-marks"><h2>Term marks</h2>' +
+    '<p class="hint" style="margin-top:4px">How a child\u2019s marks on one standard become one mark for a marking period. Conferences, Math goal and Skill groups all use it.</p>' +
+    '<div class="row" style="margin-top:8px;align-items:flex-end"><label class="fld">How marks are figured<select id="tm-rule">' +
+    '<option value="weighted"' + (r === "weighted" ? " selected" : "") + '>Recent work counts more</option>' +
+    '<option value="latest"' + (r === "latest" ? " selected" : "") + '>Most recent mark only</option>' +
+    '<option value="mean"' + (r === "mean" ? " selected" : "") + '>Straight average</option></select></label>' +
+    '<label class="row small" style="gap:6px;padding-bottom:7px"><input type="checkbox" id="tm-carry"' + (S.settings.carryForward ? " checked" : "") + '> Carry a mark forward when a standard has no marks this term</label></div></div>';
 }
-function wireReport(el, term) {
-  document.getElementById("r-term").onchange = e => { UI.reportTerm = e.target.value; renderReport(); };
-  document.getElementById("r-rule").onchange = e => { S.settings.rule = e.target.value; save(); renderReport(); };
-  document.getElementById("r-carry").onchange = e => { S.settings.carryForward = e.target.checked; save(); renderReport(); };
-  document.getElementById("r-layout").onchange = e => { UI.rcLayout = e.target.value; renderReport(); };
-  el.querySelectorAll("select.override").forEach(sel => {
-    sel.onchange = () => {
-      const k = stdKey(term, sel.dataset.sid, sel.dataset.std);
-      if (sel.value === "") delete S.overrides[k]; else S.overrides[k] = Number(sel.value);
-      save(); renderReport();
-    };
-  });
-  el.querySelectorAll("button[data-copy]").forEach(b => {
-    b.onclick = () => {
-      const text = copyColumn(b.dataset.copy, term);
-      const done = () => { b.textContent = "Copied"; setTimeout(() => { b.textContent = "Copy"; }, 1500); };
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => prompt("Copy these marks:", text));
-      else prompt("Copy these marks:", text);
-    };
-  });
-}
+/* v134: the Report card tab is gone (grading happens in Synergy). The term-
+   mark math above stays: the conference sheets use it, and the export below
+   (downloadMarks, copyColumn) is kept, unwired, for the day calculated marks
+   go to Synergy's report card. How marks are figured is set in Setup. */
 /* one mark per line, in last-name order: a blank line where there is no mark,
    so a pasted column never slides up against the wrong child */
 function copyColumn(code, term) {
@@ -2668,41 +2628,6 @@ function downloadDetail() {
   });
   download("all-standard-scores.csv", rows.join("\n"));
 }
-/* The entry sheet, either way Synergy turns out to lay its screen out: one
-   column per standard (a page holds RC_PER_PAGE of them), or one block per
-   student. Rows and blocks are in last-name order, Synergy's. */
-const RC_PER_PAGE = 12;
-function printSynergy() {
-  const term = termOf(UI.reportTerm);
-  const codes = rcCodes();
-  const roster = sortedStudents();
-  const title = esc(S.settings.teacher || "Grade 2") + " \u2014 " + esc(term.name) + " report card marks";
-  const sub = '<p style="font-size:11px;color:#555;margin-bottom:10px">' + esc(subjLabel()) + ", by standard, in last-name order to match Synergy. Printed " + todayISO() + ".</p>";
-  let h = "";
-  if (UI.rcLayout === "student") {
-    h += '<h2 style="margin-bottom:4px">' + title + "</h2>" + sub + '<div style="columns:2;column-gap:24px">';
-    roster.forEach(st => {
-      h += '<div style="break-inside:avoid;margin:0 0 12px"><b>' + esc(st.last + ", " + st.first) + '</b><table cellspacing="0" cellpadding="2" style="width:100%;border-collapse:collapse;font-size:11px">' +
-        codes.map(c => '<tr><td style="border-bottom:1px solid #ddd">' + esc(c) + '</td><td style="border-bottom:1px solid #ddd;color:#555">' + esc(byCode[c] ? byCode[c].lbl : "") + '</td><td align="center" style="border-bottom:1px solid #ddd;font-weight:700;width:24px">' + (finalStd(st.id, c, term).v || "") + "</td></tr>").join("") +
-        "</table></div>";
-    });
-    h += "</div>";
-  } else {
-    for (let i = 0; i < codes.length; i += RC_PER_PAGE) {
-      const part = codes.slice(i, i + RC_PER_PAGE);
-      h += '<div style="' + (i ? "break-before:page;" : "") + '"><h2 style="margin-bottom:4px">' + title + (codes.length > RC_PER_PAGE ? " (" + (i / RC_PER_PAGE + 1) + " of " + Math.ceil(codes.length / RC_PER_PAGE) + ")" : "") + "</h2>" + sub +
-        '<table border="1" cellspacing="0" cellpadding="3" style="width:100%;border-collapse:collapse"><thead><tr><th style="text-align:left">Student</th>' +
-        part.map(c => '<th style="font-size:9px;width:40px"><div style="writing-mode:vertical-rl;transform:rotate(180deg);white-space:nowrap">' + esc(c) + "</div></th>").join("") + "</tr></thead><tbody>";
-      roster.forEach(st => {
-        h += "<tr><td>" + esc(st.last + ", " + st.first) + "</td>" +
-          part.map(c => '<td align="center" style="font-weight:700">' + (finalStd(st.id, c, term).v || "") + "</td>").join("") + "</tr>";
-      });
-      h += "</tbody></table></div>";
-    }
-  }
-  document.getElementById("printsheet").innerHTML = h;
-  window.print();
-}
 function printStudent() {
   const st = S.students.find(s => s.id === UI.studentSel);
   let h = "<h2>" + esc(fullName(st)) + "</h2><p style=\"font-size:11px;color:#555\">Standards record, printed " + todayISO() + "</p>";
@@ -2716,7 +2641,7 @@ function printStudent() {
     h += "</table>";
   });
   document.getElementById("printsheet").innerHTML = h;
-  window.print();
+  suitePrint();
 }
 
 /* ============================================================
@@ -2878,7 +2803,7 @@ function renderConferences() {
     '<label class="fld">Student<select id="cf-who"><option value="all">Whole class</option>' +
     roster.map(s => '<option value="' + s.id + '"' + (s.id === UI.confWho ? " selected" : "") + ">" + esc(s.last + ", " + s.first) + "</option>").join("") + "</select></label>" +
     '<span style="flex:1"></span><button class="btn primary" id="cf-print">' + (UI.confWho && UI.confWho !== "all" ? "Print this sheet" : "Print all sheets") + "</button></div>" +
-    '<p class="hint" style="margin-top:8px">One page per child, black and white. Math and ELA both, whatever the subject switch says. Each mark is the report card\u2019s for this term.</p></div>' +
+    '<p class="hint" style="margin-top:8px">One page per child, black and white. Math and ELA both, whatever the subject switch says. Each mark is the term mark (Setup \u2192 Term marks).</p></div>' +
     '<div class="cf-preview">' + confRoster().map(st => confSheetHTML(st, term, now)).join("") + "</div></div>";
   el.innerHTML = h;
   document.getElementById("cf-term").onchange = e => { UI.confTerm = e.target.value; renderConferences(); };
@@ -2891,7 +2816,7 @@ function printConferences() {
   /* a toast is fixed, so it would print on every child's page */
   const t = document.getElementById("toast");
   if (t) { clearTimeout(toastT); t.classList.remove("show"); t.style.display = "none"; }
-  window.print();
+  suitePrint();
   if (t) t.style.display = "";
 }
 
@@ -2956,15 +2881,17 @@ function cgMark(sid, codes, asOf, since) {
 }
 /* sids: just these children (a group); omitted, the whole class */
 function cgPopOf(sids) { return sids ? S.students.filter(st => sids.indexOf(st.id) >= 0) : S.students; }
-function cgClassStat(codes, asOf, since, sids) {
-  const pop = cgPopOf(sids);
+/* opt (v129, Extend groups): { bar: 4, codeFor: sid => that child's own
+   standard }, so each child is counted on their own next skill at 4 */
+function cgClassStat(codes, asOf, since, sids, opt) {
+  const pop = cgPopOf(sids), bar = opt && opt.bar || 3;
   const out = { n: pop.length, marked: 0, at: 0, below: [], none: [], pct: null, byMark: [0, 0, 0, 0] };
   pop.forEach(st => {
-    const m = cgMark(st.id, codes, asOf, since);
+    const m = cgMark(st.id, opt && opt.codeFor ? [opt.codeFor(st.id)] : codes, asOf, since);
     if (m == null) { out.none.push(st); return; }
     out.marked++;
     out.byMark[roundMark(m) - 1]++;                         /* v127: the bar on Class goal */
-    if (roundMark(m) >= 3) out.at++; else out.below.push({ st: st, m: m });
+    if (roundMark(m) >= bar) out.at++; else out.below.push({ st: st, m: m });
   });
   out.pct = cgPct(out.at, out.marked);
   return out;
@@ -3065,6 +2992,10 @@ function cgAgreement(nd) {
 function cgActive() { return (S.goals || []).find(g => !g.done && !g.group) || null; }
 /* a group goal counts whoever is in the group now: data follows the child (v123) */
 function cgPop(g) { return g && g.group ? ggMembers(g.group) : null; }
+/* v129: an Extend goal counts each child at 4 on the skill they were
+   working toward when it started (one who joins later: their next skill) */
+function cgGoalOpt(g) { return g && g.bar ? { bar: g.bar, codeFor: sid => (g.targets || {})[sid] || ggExtendTarget(sid) } : null; }
+function cgBarWords(g) { return g && g.bar === 4 ? "at 4 on their next skill" : "at 3 or higher"; }
 function cgFocusCodes(kind, key) {
   if (kind === "std") return byCode[key] ? [key] : [];
   return activeCodes("Math").filter(c => cgDomainOf(c) === key);
@@ -3094,10 +3025,11 @@ function cgGrade() {
 }
 function cgStatement(g) {
   /* a group still named for its need would say the need twice: "this group" */
-  const gname = g.group ? ggName(g) : "", same = g.group && byCode[g.focus.key] && gname === byCode[g.focus.key].lbl;
+  const gname = g.group ? ggName(g) : "", same = g.group && (g.bar === 4 ? gname === "Extend" : byCode[g.focus.key] && gname === byCode[g.focus.key].lbl);
   const who = g.group ? (same ? "the children in this group" : "the children in the " + gname + " group") : "our " + cgGrade();
-  let s = "By " + cgLongDate(g.due) + ", " + g.target + "% of " + who + " will score 3 or higher on " +
-    cgFocusWords(g) + " in daily classwork, up from " + (g.base.pct == null ? "no marks yet" : g.base.pct + "%") +
+  let s = "By " + cgLongDate(g.due) + ", " + g.target + "% of " + who + (g.bar === 4
+    ? " will score 4 on the next skill each is working toward"
+    : " will score 3 or higher on " + cgFocusWords(g)) + " in daily classwork, up from " + (g.base.pct == null ? "no marks yet" : g.base.pct + "%") +
     " on " + cgLongDate(g.started) + ".";
   if (g.ir && g.ir.target != null) {
     const d = cgDom(g.ir.dom);
@@ -3136,7 +3068,7 @@ function cgStartGoal() {
 }
 function cgGoalNow(g) {
   const pop = cgPop(g);
-  const st = cgClassStat(g.codes, null, null, pop);
+  const st = cgClassStat(g.codes, null, null, pop, cgGoalOpt(g));
   const ir = g.ir ? cgIrStat(g.ir.dom, null, pop) : null;
   const t = todayISO(), total = Math.max(1, cgDaysBetween(g.started, g.due));
   const el = Math.max(0, Math.min(total, cgDaysBetween(g.started, t)));
@@ -3154,7 +3086,7 @@ function cgGoalNow(g) {
 }
 function cgPaceWords(g, now) {
   switch (now.pace) {
-    case "met": return "Goal met: " + now.st.pct + "% are at 3 or higher, against a target of " + g.target + "%.";
+    case "met": return "Goal met: " + now.st.pct + "% are " + cgBarWords(g) + ", against a target of " + g.target + "%.";
     case "early": return "Just started. The first check against the line comes after a week of marks.";
     case "on": return "On pace. The line has " + (g.group ? "the group" : "the class") + " at about " + now.expected + "% by today; it is at " + now.st.pct + "%.";
     case "behind": return "Behind pace by " + (now.expected - now.st.pct) + " points. The line has " + (g.group ? "the group" : "the class") + " at about " + now.expected + "% by today; it is at " + now.st.pct + "%.";
@@ -3165,11 +3097,11 @@ function cgPaceWords(g, now) {
 function cgSeries(g) {
   const t = todayISO(), end = g.due < t ? g.due : t, pts = [], pop = cgPop(g);
   for (let d = g.started; d <= end; d = cgAddDays(d, 7)) {
-    const s = cgClassStat(g.codes, d, null, pop);
+    const s = cgClassStat(g.codes, d, null, pop, cgGoalOpt(g));
     if (s.pct != null) pts.push({ date: d, pct: s.pct });
   }
   if (!pts.length || pts[pts.length - 1].date !== end) {
-    const s = cgClassStat(g.codes, end, null, pop);
+    const s = cgClassStat(g.codes, end, null, pop, cgGoalOpt(g));
     if (s.pct != null) pts.push({ date: end, pct: s.pct });
   }
   return pts;
@@ -3219,7 +3151,7 @@ const CG_KEY = "Solid line: classroom marks at 3 or higher, each week. Dashed li
 function cgArrow(t) {
   if (t == null) return "";
   const a = t >= 10 ? "\u2191" : t <= -10 ? "\u2193" : "\u2192";
-  return '<span class="cg-trend" title="Change in the share at 3 or higher over the last 3 weeks">' + a + " " + (t > 0 ? "+" : "") + t + " in 3 wks</span>";
+  return '<span class="cg-trend" title="Change in the share at 3 or higher over the last 3 weeks, in percentage points">' + a + " " + (t > 0 ? "+" : "") + t + " pts in 3 wks</span>";
 }
 /* v127: one row of the classwork table. The bar is the whole class split by
    each child's mark (the report card's rule, rounded as the report card
@@ -3273,13 +3205,13 @@ function cgNeedsHTML(nd, canPick) {
     if (nd.overall.n) h += '<p class="hint" style="margin:6px 0 0">Overall: ' + nd.overall.pct + "% on or above grade level, " + nd.overall.two + " two or more grades below (" + nd.overall.n + " tested).</p>";
     h += "</div>";
   } else {
-    h += '<div class="card pad cg-col cg-irstrip cg-irnone" id="cg-iready"><span class="cg-empty"><b>iReady diagnostic.</b> No iReady math results yet. Bring in a diagnostic export on the iReady tab and it is ranked here, on its own.</span>' +
+    h += '<div class="card pad cg-col cg-irstrip cg-irnone" id="cg-iready"><span class="cg-empty"><b>iReady diagnostic.</b> No iReady math results yet. Bring in a diagnostic export in Setup and it is ranked here, on its own.</span>' +
       '<button class="btn sm" onclick="gotoTab(\'iready\')">Go to iReady</button></div>';
   }
   /* classwork */
   const ag = cgAgreement(nd), bothCodes = [];
   ag.forEach(a => a.rows.forEach(r => bothCodes.push(r.code)));
-  h += '<div class="card pad cg-col" id="cg-classwork"><div class="cg-colhead"><h3>Daily classwork</h3><span class="hint">Standards ranked by how many children are below 3, each child\u2019s mark by the report card\u2019s rule. Each bar is the whole class.</span></div>';
+  h += '<div class="card pad cg-col" id="cg-classwork"><div class="cg-colhead"><h3>Daily classwork</h3><span class="hint">Standards ranked by how many children are below 3, each child\u2019s mark by the term-mark rule (Setup). Each bar is the whole class.</span></div>';
   if (nd.ranked.length) {
     h += '<div class="cg-key"><span><i class="cg-b1"></i>1</span><span><i class="cg-b2"></i>2</span><span><i class="cg-b3"></i>3</span><span><i class="cg-b4"></i>4</span><span><i class="cg-bnone"></i>No mark yet</span></div>' +
       '<div class="cg-tablewrap"><table class="cg-ntable"><thead><tr><th class="cg-rank">#</th><th>Standard</th><th>Children by mark</th><th>Below 3</th><th>Its iReady domain</th><th></th></tr></thead><tbody>' +
@@ -3533,7 +3465,7 @@ function printClassGoal() {
   document.getElementById("printsheet").innerHTML = cgSheetHTML();
   const t = document.getElementById("toast");
   if (t) { clearTimeout(toastT); t.classList.remove("show"); t.style.display = "none"; }
-  window.print();
+  suitePrint();
   if (t) t.style.display = "";
 }
 
@@ -3559,44 +3491,139 @@ function ggGroup(gid) { return (S.ggroups || []).find(x => x.id === gid) || null
 function ggName(g) { const gr = g && g.group ? ggGroup(g.group) : null; return gr ? gr.name : (g && g.groupName) || "this"; }
 function ggOpenGoal(gid) { return (S.goals || []).find(g => g.group === gid && !g.done) || null; }
 function ggHasGroups() { return (S.ggroups || []).length > 0; }
+/* v129: the Extend group, for children at 3 or higher on every focus skill.
+   Its numbers count each child at 4 on their own next skill. */
+function ggIsExtend(gr) { return !!gr && gr.kind === "extend"; }
+function ggOpt(gr) { return ggIsExtend(gr) ? { bar: 4, codeFor: sid => (gr.targets && gr.targets[sid]) || ggExtendTarget(sid) } : null; }
+function ggStat(gr, sids, asOf) { return cgClassStat(ggIsExtend(gr) ? ggFocusCodes() : [gr.std], asOf || null, null, sids, ggOpt(gr)); }
+/* where a child not in any group belongs among the groups there are */
+function ggFit(sid) {
+  const codes = ggFocusCodes(), gs = S.ggroups || [];
+  if (!codes.length || !gs.length) return null;
+  const mk = {};
+  codes.forEach(c => { const m = cgMark(sid, [c], null, null); if (m != null) mk[c] = m; });
+  const p = ggPlaceOf(sid, codes, mk), need = gs.filter(g => !ggIsExtend(g));
+  if (p.extend) { const x = gs.find(ggIsExtend); if (x) return x; }
+  const order = c => { const i = codes.indexOf(c); return i < 0 ? 999 : i; }, at = p.extend ? codes.length : order(p.std);
+  const same = need.find(g => g.std === p.std);
+  if (same) return same;
+  const earlier = need.filter(g => order(g.std) < at).sort((a, b) => order(b.std) - order(a.std))[0];
+  const later = need.filter(g => order(g.std) > at).sort((a, b) => order(a.std) - order(b.std))[0];
+  return earlier || later || gs[0];
+}
+function ggPlaceOut() {
+  const out = S.students.filter(st => !ggGroup((S.ggPlace || {})[st.id]));
+  S.ggPlace = S.ggPlace || {};
+  let n = 0;
+  out.forEach(st => { const g = ggFit(st.id); if (g) { S.ggPlace[st.id] = g.id; n++; } });
+  save(); renderClassGoal(); toast(n + (n === 1 ? " child placed" : " children placed"));
+}
+
+/* v129: the skills a group goal can be about, in the order they build on
+   each other, earliest first. A child's goal area is the first of these
+   they are below 3 on. These are the four strands he spends most time on;
+   fact fluency within 20, measurement, time, money, shapes and data are
+   left out on purpose (the whole grade works on fluency all year), so a
+   low mark there never makes a goal area. Only standards switched on count. */
+const GG_FOCUS = [
+  ["Place value", ["2.NBT.A.1", "2.NBT.A.2", "2.NBT.A.3", "2.NBT.A.4"]],
+  ["Adding and subtracting within 100", ["2.NBT.B.5", "2.OA.A.1"]],
+  ["Extending the operations", ["2.NBT.B.8", "2.NBT.B.6", "2.NBT.B.7", "2.NBT.B.9"]],
+  ["Groundwork for multiplication", ["2.OA.C.3", "2.OA.C.4"]]
+];
+function ggFocusCodes() {
+  const on = activeCodes("Math");
+  return GG_FOCUS.reduce((a, t) => a.concat(t[1]), []).filter(c => on.indexOf(c) >= 0);
+}
+function ggTierOf(code) { const t = GG_FOCUS.find(t => t[1].indexOf(code) >= 0); return t ? t[0] : ""; }
+/* iReady places a child with no marks on these skills: their lower of
+   Number and Operations and Algebra, when below grade level (a tie goes to
+   Number and Operations, which comes first), to that domain's first skill */
+function ggIreadyPlace(sid, codes) {
+  const r = S.iready.filter(x => x.sid === sid && x.subject === "Math" && x.date).sort((a, b) => a.date.localeCompare(b.date)).pop();
+  if (!r) return null;
+  const num = cgDomRank(r, "num"), alg = cgDomRank(r, "alg");
+  if (num == null && alg == null) return null;
+  const first = re => codes.find(c => re.test(c)) || null;
+  const nb = num != null && num < 0, ab = alg != null && alg < 0;
+  if (nb && (!ab || num <= alg)) return { std: first(/\.NBT\./) || codes[0] };
+  if (ab) return { std: first(/\.OA\./) || codes[0] };
+  return { extend: true };
+}
+/* one child: where they go and why. marks are their marks on the focus skills */
+function ggPlaceOf(sid, codes, mk) {
+  const marked = codes.filter(c => mk[c] != null);
+  if (marked.length) {
+    const low = marked.filter(c => roundMark(mk[c]) < 3);
+    if (low.length) return { std: low[0], needs: low, why: "marks" };
+    return { extend: true, why: "marks" };
+  }
+  const ir = ggIreadyPlace(sid, codes);
+  if (ir) return Object.assign({ why: "iready", needs: ir.std ? [ir.std] : [] }, ir);
+  return { std: codes[0], needs: [codes[0]], why: "none" };
+}
+/* an Extend child's next skill: the first focus skill they are below 4 on;
+   at 4 on all they have marks on, the next skill after those; else the last */
+function ggExtendTarget(sid, codes, mk) {
+  codes = codes || ggFocusCodes();
+  if (!mk) { mk = {}; codes.forEach(c => { const m = cgMark(sid, [c], null, null); if (m != null) mk[c] = m; }); }
+  const marked = codes.filter(c => mk[c] != null);
+  const below = marked.find(c => roundMark(mk[c]) < 4);
+  if (below) return below;
+  if (!marked.length) return codes[0];
+  const after = codes.slice(codes.indexOf(marked[marked.length - 1]) + 1)[0];
+  return after || codes[codes.length - 1];
+}
 
 function ggSuggest(win) {
-  const since = cgSuggestSince(win);
-  const codes = activeCodes("Math").filter(c => cgDomainOf(c));
-  const marks = {}, below = {};
+  const since = cgSuggestSince(win), codes = ggFocusCodes(), order = c => codes.indexOf(c);
+  const marks = {}, why = {}, needs = {}, targets = {}, by = {}, extend = [];
   S.students.forEach(st => {
-    marks[st.id] = {};
-    codes.forEach(c => { const m = cgMark(st.id, [c], null, since); if (m != null) marks[st.id][c] = m; });
+    const mk = marks[st.id] = {};
+    codes.forEach(c => { const m = cgMark(st.id, [c], null, since); if (m != null) mk[c] = m; });
   });
-  codes.forEach(c => { below[c] = S.students.filter(st => marks[st.id][c] != null && roundMark(marks[st.id][c]) < 3).length; });
-  const order = c => codes.indexOf(c);
-  const needs = {}, onTrack = [], noMarks = [];
+  if (!codes.length) return { groups: [], codes: codes, marks: marks, why: why, targets: targets };
   S.students.forEach(st => {
-    const mine = Object.keys(marks[st.id]);
-    if (!mine.length) { noMarks.push(st.id); return; }
-    const low = mine.filter(c => roundMark(marks[st.id][c]) < 3)
-      .sort((a, b) => marks[st.id][a] - marks[st.id][b] || below[b] - below[a] || order(a) - order(b));
-    if (!low.length) onTrack.push(st.id); else needs[st.id] = low;
+    const p = ggPlaceOf(st.id, codes, marks[st.id]);
+    why[st.id] = p.why;
+    if (p.extend) { extend.push(st.id); targets[st.id] = ggExtendTarget(st.id, codes, marks[st.id]); return; }
+    needs[st.id] = p.needs.length ? p.needs : [p.std];
+    (by[p.std] = by[p.std] || []).push(st.id);
   });
-  const by = {};
-  Object.keys(needs).forEach(sid => { const c = needs[sid][0]; (by[c] = by[c] || []).push(sid); });
-  /* a child alone with their need joins their next need that has a group */
-  const alone = [];
-  Object.keys(by).filter(c => by[c].length === 1).forEach(c => {
-    const sid = by[c][0];
-    const next = needs[sid].slice(1).find(n => by[n] && by[n].length >= 2);
-    if (next) { by[next].push(sid); delete by[c]; }
-  });
-  Object.keys(by).filter(c => by[c].length === 1).forEach(c => { alone.push({ sid: by[c][0], std: c }); delete by[c]; });
-  const groups = Object.keys(by).map(c => ({ std: c, kids: by[c].sort((a, b) => marks[a][c] - marks[b][c]), marks: marks }))
-    .sort((a, b) => b.kids.length - a.kids.length || order(a.std) - order(b.std));
-  return { groups: groups, alone: alone, onTrack: onTrack, noMarks: noMarks, marks: marks };
+  /* nobody is left on their own while another group could take them: from
+     the latest skill back, a child alone with their need joins the group for
+     their next missing skill, else the nearest earlier group, else the
+     nearest later one. With no other group at all, a group of one stays. */
+  for (let moved = true; moved;) {
+    moved = false;
+    const single = Object.keys(by).filter(c => by[c].length === 1).sort((a, b) => order(b) - order(a));
+    for (const c of single) {
+      const sid = by[c][0], others = Object.keys(by).filter(x => x !== c);
+      if (!others.length) continue;
+      const next = needs[sid].slice(1).find(n => by[n] && by[n].length >= 2);
+      const earlier = others.filter(x => order(x) < order(c)).sort((a, b) => order(b) - order(a))[0];
+      const later = others.filter(x => order(x) > order(c)).sort((a, b) => order(a) - order(b))[0];
+      const to = next || earlier || later;
+      by[to].push(sid); delete by[c]; moved = true; break;
+    }
+  }
+  const lowFirst = c => (a, b) => (marks[a][c] == null) - (marks[b][c] == null) || (marks[a][c] || 0) - (marks[b][c] || 0);
+  const groups = Object.keys(by).sort((a, b) => order(a) - order(b))
+    .map(c => ({ std: c, kind: "need", tier: ggTierOf(c), kids: by[c].sort(lowFirst(c)), marks: marks }));
+  if (extend.length) {
+    const count = {};
+    extend.forEach(sid => { count[targets[sid]] = (count[targets[sid]] || 0) + 1; });
+    const std = Object.keys(count).sort((a, b) => count[b] - count[a] || order(a) - order(b))[0];
+    groups.push({ std: std, kind: "extend", tier: "Extend", kids: extend.slice(), marks: marks, targets: targets });
+  }
+  return { groups: groups, codes: codes, marks: marks, why: why, targets: targets };
 }
 /* the suggestion uses the needs window; kept separate so a test can see it */
 function cgSuggestSince(win) { return cgSince(win); }
 
 function ggUse(sug) {
-  S.ggroups = sug.groups.map(x => ({ id: uid(), name: byCode[x.std].lbl, std: x.std, made: todayISO() }));
+  S.ggroups = sug.groups.map(x => Object.assign({ id: uid(), name: x.kind === "extend" ? "Extend" : byCode[x.std].lbl, std: x.std, made: todayISO(), v: 129 },
+    x.kind === "extend" ? { kind: "extend" } : {}));
   S.ggPlace = {};
   sug.groups.forEach((x, i) => x.kids.forEach(sid => { S.ggPlace[sid] = S.ggroups[i].id; }));
   save(); renderClassGoal(); toast(S.ggroups.length + " groups made");
@@ -3615,34 +3642,43 @@ function ggStart(gid) {
   if (!d.due || d.due <= t) { toast("The goal date needs to be after today"); return; }
   const sids = ggMembers(gid), dom = cgDomainOf(gr.std);
   if (!sids.length) { toast("This group has no children in it"); return; }
-  const base = cgClassStat([gr.std], null, null, sids), irs = cgIrStat(dom, null, sids);
+  /* an Extend goal fixes each child's next skill on the day it starts */
+  const ext = ggIsExtend(gr), targets = {};
+  if (ext) sids.forEach(sid => { targets[sid] = ggExtendTarget(sid); });
+  const base = ext ? cgClassStat(ggFocusCodes(), null, null, sids, { bar: 4, codeFor: sid => targets[sid] }) : cgClassStat([gr.std], null, null, sids), irs = cgIrStat(dom, null, sids);
   const clamp = v => Math.max(0, Math.min(100, Math.round(Number(v) || 0)));
-  S.goals = (S.goals || []).concat([{
-    id: uid(), subject: "Math", group: gid, groupName: gr.name, focus: { kind: "std", key: gr.std }, codes: [gr.std],
+  S.goals = (S.goals || []).concat([Object.assign({
+    id: uid(), subject: "Math", group: gid, groupName: gr.name, focus: { kind: ext ? "extend" : "std", key: gr.std }, codes: ext ? ggFocusCodes() : [gr.std],
     started: t, due: d.due, base: { pct: base.pct, marked: base.marked, n: base.n, at: base.at },
     target: clamp(d.target),
     ir: cgHasIready() ? { dom: dom, base: irs.n ? { pct: irs.pct, n: irs.n, date: irs.to } : null,
       target: d.irTarget == null || d.irTarget === "" ? null : clamp(d.irTarget) } : null,
     actions: String(d.actions || ""), notes: [], done: null
-  }]);
+  }, ext ? { bar: 4, targets: targets } : {})]);
   UI.ggDraft = null; save(); renderClassGoal(); toast("Goal set for " + gr.name);
 }
 
-function ggMemberChips(gid, sids, std, canMove) {
+/* codeFor (v129): an Extend child's own next skill; why: how a suggested
+   child was placed, when it was not by their marks */
+function ggMemberChips(gid, sids, std, canMove, codeFor, why) {
   const others = (S.ggroups || []).filter(x => x.id !== gid);
   return '<div class="gg-kids">' + sids.map(sid => {
-    const st = S.students.find(s => s.id === sid), m = cgMark(sid, [std], null, null);
+    const st = S.students.find(s => s.id === sid), c = codeFor ? codeFor(sid) : std, m = cgMark(sid, [c], null, null);
+    const w = why && why[sid];
     return '<span class="gg-kid" data-sid="' + esc(sid) + '">' + nameLink(st, fullName(st)) +
-      (m != null ? ' <span class="mark v' + roundMark(m) + ' gg-mk" title="Mark on ' + esc(dispCode(std)) + ' by the report card\u2019s rule">' + m.toFixed(1) + "</span>" : "") +
+      (m != null ? ' <span class="mark v' + roundMark(m) + ' gg-mk" title="Mark on ' + esc(dispCode(c)) + ' by the term-mark rule">' + m.toFixed(1) + "</span>" : "") +
+      (codeFor ? ' <span class="tiny muted gg-next">' + esc(dispCode(c)) + "</span>" : "") +
+      (w === "iready" ? ' <span class="tiny muted gg-why">by iReady</span>' : w === "none" ? ' <span class="tiny muted gg-why">no marks or iReady yet</span>' : "") +
       (canMove ? '<select class="gg-move" data-sid="' + esc(sid) + '" aria-label="Move ' + esc(fullName(st)) + '"><option value="">Move\u2026</option>' +
         others.map(o => '<option value="' + esc(o.id) + '">' + esc(o.name) + "</option>").join("") +
         '<option value="-">Out of groups</option></select>' : "") + "</span>";
   }).join("") + "</div>";
 }
-function ggSideBySide(std, sids) {
-  const st = cgClassStat([std], null, null, sids), dom = cgDomainOf(std), ir = cgIrStat(dom, null, sids);
-  return '<div class="gg-sides"><div><span class="hint">Classwork \u00b7 ' + esc(dispCode(std)) + "</span><b>" +
-    (st.marked ? st.at + " of " + st.marked : "\u2013") + "</b><i>at 3 or higher</i></div>" +
+function ggSideBySide(gr, sids) {
+  if (typeof gr === "string") gr = { std: gr };
+  const std = gr.std, ext = ggIsExtend(gr), st = ggStat(gr, sids), dom = cgDomainOf(std), ir = cgIrStat(dom, null, sids);
+  return '<div class="gg-sides"><div><span class="hint">Classwork \u00b7 ' + (ext ? "each child\u2019s next skill" : esc(dispCode(std))) + "</span><b>" +
+    (st.marked ? st.at + " of " + st.marked : "\u2013") + "</b><i>" + (ext ? "at 4" : "at 3 or higher") + "</i></div>" +
     "<div><span class=\"hint\">iReady \u00b7 " + esc(cgDom(dom).name) + "</span><b>" + (ir.n ? ir.on + " of " + ir.n : "\u2013") + "</b><i>" +
     (ir.n ? "on or above grade level" : "no diagnostic yet") + "</i></div></div>";
 }
@@ -3650,36 +3686,44 @@ function ggSideBySide(std, sids) {
    on its standard in the window the suggestion used, which is why they are
    together; said that way rather than as "0 of 3". The all-year figure can
    differ when a shorter window is chosen, and then the count is shown. */
-function ggStartHTML(std, sids) {
-  const st = cgClassStat([std], null, null, sids), dom = cgDomainOf(std), ir = cgIrStat(dom, null, sids);
-  const n = sids.length, all = n === 2 ? "both" : "all " + n;
-  const cw = st.marked === n && st.at === 0
-    ? all + " are below 3 on this standard. That is why they are together."
-    : (st.marked ? st.at + " of " + st.marked + " at 3 or higher on this standard, all year" : "no marks on this standard") + "; below 3 in the window chosen above.";
+function ggStartHTML(gr, sids, why) {
+  if (typeof gr === "string") gr = { std: gr };
+  const std = gr.std, ext = ggIsExtend(gr), st = ggStat(gr, sids), dom = cgDomainOf(std), ir = cgIrStat(dom, null, sids);
+  const n = sids.length, all = n === 2 ? "both" : n === 1 ? "this child" : "all " + n;
+  const byIr = sids.filter(sid => why && why[sid] === "iready").length, none = sids.filter(sid => why && why[sid] === "none").length;
+  const placed = (byIr ? " " + byIr + " placed by iReady, with no marks on these skills yet." : "") + (none ? " " + none + " with no marks or iReady yet, starting here." : "");
+  const cw = ext
+    ? "at 3 or higher on every focus skill they have marks on; each works toward 4 on their next one. " + (st.marked ? st.at + " of " + st.marked + " at 4 on it now." : "") + placed
+    : st.marked && st.at === 0
+    ? (st.marked === n ? all : st.marked === 1 ? "the one with marks" : (st.marked === 2 ? "both" : "all " + st.marked) + " with marks") +
+      (st.marked === 1 ? " is" : " are") + " below 3 on this standard. That is why they are together." + placed
+    : (st.marked ? st.at + " of " + st.marked + " at 3 or higher on this standard, all year" : "no marks on this standard yet") +
+      (st.at > 0 ? "; below 3 in the window chosen above" : "") + "." + placed;
   return '<div class="gg-start"><span class="hint">Where they start</span><div class="gg-sides">' +
     "<div><b>Classwork:</b> " + esc(cw) + "</div>" +
     "<div><b>iReady, " + esc(cgDom(dom).name) + ":</b> " + (ir.n ? ir.on + " of " + ir.n + " on or above grade level." : "no diagnostic yet.") + "</div></div></div>";
 }
 function ggSuggestHTML() {
-  const sug = ggSuggest(UI.cgWin), nm = sid => esc(fullName(S.students.find(s => s.id === sid)));
-  let h = '<div class="card pad gg-suggest" id="gg-suggest"><p class="hint" style="margin-top:0">Each child goes with their biggest classwork need: their lowest standard below 3. A child alone with a need joins their next need that has a group.</p>' +
-    '<p class="gg-legend"><span class="mark v2 gg-mk">2.0</span> beside a name is that child\u2019s mark on the group\u2019s standard, by the report card\u2019s rule.</p>';
-  if (!sug.groups.length) h += '<div class="cg-empty">No two children share a need below 3 yet, so there are no groups to suggest.</div>';
-  else {
-    h += '<div class="grid2">' + sug.groups.map(x => '<div class="gg-card gg-sug" data-std="' + esc(x.std) + '"><h3>' + esc(byCode[x.std].lbl) +
-      ' <span class="tiny muted">' + x.kids.length + (x.kids.length === 1 ? " child" : " children") + "</span></h3><div>" + codeHTML(x.std) + "</div>" +
-      ggMemberChips(null, x.kids, x.std, false) + ggStartHTML(x.std, x.kids) + "</div>").join("") + "</div>";
-  }
-  const line = (label, list) => list.length ? '<p class="hint gg-rest"><b>' + label + "</b> " + list.join(", ") + "</p>" : "";
-  h += line("On their own:", sug.alone.map(a => nm(a.sid) + " (" + esc(dispCode(a.std)) + ")")) +
-    line("No need below 3:", sug.onTrack.map(nm)) + line("No math marks yet:", sug.noMarks.map(nm));
+  const sug = ggSuggest(UI.cgWin);
+  let h = '<div class="card pad gg-suggest" id="gg-suggest"><p class="hint" style="margin-top:0">Every child is in a group. Each goes with the first skill they are below 3 on, in the order these skills build: ' +
+    GG_FOCUS.map(t => esc(t[0].toLowerCase())).join(", then ") + '. Children at 3 or higher on all of them go to <b>Extend</b>, working toward 4 on their next skill. With no marks on these yet, iReady places them; with neither, they start at the first skill.</p>' +
+    '<p class="gg-legend"><span class="mark v2 gg-mk">2.0</span> beside a name is that child\u2019s mark on the group\u2019s standard, by the term-mark rule (Setup).</p>';
+  if (!sug.codes.length) return h + '<div class="cg-empty">None of the focus skills are switched on in Setup, so there are no groups to suggest.</div></div>';
+  h += '<div class="grid2">' + sug.groups.map(x => {
+    const ext = x.kind === "extend", gr = { std: x.std, kind: x.kind, targets: x.targets };
+    return '<div class="gg-card gg-sug" data-std="' + esc(x.std) + '" data-kind="' + x.kind + '"><h3>' + (ext ? "Extend" : esc(byCode[x.std].lbl)) +
+      ' <span class="tiny muted">' + x.kids.length + (x.kids.length === 1 ? " child" : " children") + "</span></h3>" +
+      '<div class="tiny muted gg-tier">' + esc(ext ? "At 3 or higher on every focus skill" : x.tier) + "</div>" +
+      (ext ? "" : "<div>" + codeHTML(x.std) + "</div>") +
+      ggMemberChips(null, x.kids, x.std, false, ext ? (sid => x.targets[sid]) : null, sug.why) + ggStartHTML(gr, x.kids, sug.why) + "</div>";
+  }).join("") + "</div>";
   if (sug.groups.length) h += '<div class="row" style="margin-top:10px"><button class="btn primary" id="gg-use">Use these groups</button></div>';
   return h + "</div>";
 }
 function ggDraftHTML(gr) {
   const d = UI.ggDraft, sids = ggMembers(gr.id), dom = cgDomainOf(gr.std);
-  const base = cgClassStat([gr.std], null, null, sids), ir = cgIrStat(dom, null, sids);
-  const g = { group: gr.id, focus: { kind: "std", key: gr.std }, due: d.due, started: todayISO(), target: Number(d.target) || 0,
+  const base = ggStat(gr, sids), ir = cgIrStat(dom, null, sids);
+  const g = { group: gr.id, bar: ggIsExtend(gr) ? 4 : undefined, focus: { kind: ggIsExtend(gr) ? "extend" : "std", key: gr.std }, due: d.due, started: todayISO(), target: Number(d.target) || 0,
     base: { pct: base.pct }, ir: ir.n && d.irTarget != null && d.irTarget !== "" ? { dom: dom, base: { pct: ir.pct }, target: Number(d.irTarget) } : null };
   return '<div class="gg-draft" data-gid="' + esc(gr.id) + '"><div class="row cg-form">' +
     '<label class="fld">Classwork target (%)<input type="number" min="0" max="100" step="5" class="gg-d-target" value="' + esc(d.target) + '"></label>' +
@@ -3721,8 +3765,9 @@ function ggCardHTML(gr) {
     (editing ? '<input class="gg-name" value="' + esc(gr.name) + '" aria-label="Group name">'
       : '<h3 class="gg-title">' + esc(gr.name) + ' <span class="tiny muted">' + sids.length + "</span></h3>") +
     '<button class="btn sm ' + (editing ? "primary" : "ghost") + ' gg-edit">' + (editing ? "Done" : "Edit group") + "</button></div>" +
-    "<div>" + codeHTML(gr.std) + (lbl !== gr.name ? " " + esc(lbl) : "") + "</div>" +
-    ggSideBySide(gr.std, sids) + ggMemberChips(gr.id, sids, gr.std, editing);
+    (ggIsExtend(gr) ? '<div class="hint">Each child works toward 4 on their next focus skill, shown beside their name.</div>'
+      : "<div>" + codeHTML(gr.std) + (lbl !== gr.name ? " " + esc(lbl) : "") + "</div>") +
+    ggSideBySide(gr, sids) + ggMemberChips(gr.id, sids, gr.std, editing, ggIsExtend(gr) ? ggOpt(gr).codeFor : null);
   if (g) h += ggGoalHTML(g);
   else if (UI.ggDraft && UI.ggDraft.gid === gr.id) h += ggDraftHTML(gr);
   else h += '<div class="row" style="margin-top:8px"><button class="btn gg-set"' + (sids.length ? "" : " disabled") + ">Set a goal for this group</button></div>";
@@ -3732,13 +3777,19 @@ function ggHTML() {
   let h = '<div class="sectionhead" id="gg"><h2>Group goals</h2><span class="spacer"></span>' +
     (ggHasGroups() ? '<button class="btn" id="gg-print">Print group goals</button><button class="btn ghost" id="gg-regroup">Start groups over</button>' : "") + "</div>";
   if (!ggHasGroups()) return h + ggSuggestHTML();
+  /* v129: groups made by the old rule (lowest mark, any standard) stay as
+     they are until he starts over; nothing is regrouped behind his back */
+  if (S.ggroups.some(g => !(g.v >= 129)))
+    h += '<div class="notice gg-oldrule"><b>Made by the old rule</b><span>These groups came from each child\u2019s lowest mark on any standard. <b>Start groups over</b> to regroup everyone by the first focus skill they\u2019re missing, with an Extend group.</span></div>';
   h += '<div class="gg-cards">' + S.ggroups.map(ggCardHTML).join("") + "</div>";
   const out = S.students.filter(st => !ggGroup((S.ggPlace || {})[st.id]));
   if (out.length) {
     h += '<div class="card pad gg-out"><h3>Not in a group <span class="tiny muted">' + out.length + '</span></h3><div class="gg-kids">' +
       out.map(st => '<span class="gg-kid" data-sid="' + esc(st.id) + '">' + nameLink(st, fullName(st)) +
+        (ggFit(st.id) ? ' <span class="tiny muted gg-fit">\u2192 ' + esc(ggFit(st.id).name) + "</span>" : "") +
         '<select class="gg-move" data-sid="' + esc(st.id) + '" aria-label="Add ' + esc(fullName(st)) + '"><option value="">Add to\u2026</option>' +
-        S.ggroups.map(o => '<option value="' + esc(o.id) + '">' + esc(o.name) + "</option>").join("") + "</select></span>").join("") + "</div></div>";
+        S.ggroups.map(o => '<option value="' + esc(o.id) + '">' + esc(o.name) + "</option>").join("") + "</select></span>").join("") + "</div>" +
+      (out.some(st => ggFit(st.id)) ? '<div class="row" style="margin-top:8px"><button class="btn primary" id="gg-place">Place ' + (out.length === 1 ? "them" : "all " + out.length) + " as suggested</button></div>" : "") + "</div>";
   }
   return h;
 }
@@ -3746,6 +3797,7 @@ function ggWire() {
   const P = document.getElementById("panel-goal");
   const q = s => P.querySelector(s), qa = s => P.querySelectorAll(s);
   if (q("#gg-use")) q("#gg-use").onclick = () => ggUse(ggSuggest(UI.cgWin));
+  if (q("#gg-place")) q("#gg-place").onclick = ggPlaceOut;
   if (q("#gg-regroup")) q("#gg-regroup").onclick = ggRegroup;
   if (q("#gg-print")) q("#gg-print").onclick = printGroupGoals;
   qa(".gg-move").forEach(sel => sel.onchange = () => {
@@ -3767,15 +3819,15 @@ function ggWire() {
       c(".gg-name").onkeydown = e => { if (e.key === "Enter") c(".gg-edit").click(); };
     }
     if (c(".gg-set")) c(".gg-set").onclick = () => {
-      const sids = ggMembers(gid), b = cgClassStat([gr.std], null, null, sids), ir = cgIrStat(cgDomainOf(gr.std), null, sids);
+      const sids = ggMembers(gid), b = ggStat(gr, sids), ir = cgIrStat(cgDomainOf(gr.std), null, sids);
       UI.ggDraft = { gid: gid, target: cgSuggest(b.pct), irTarget: ir.n ? cgSuggest(ir.pct) : null, due: cgTermEnd(), actions: "" };
       renderClassGoal();
     };
     if (c(".gg-draft")) {
       const d = UI.ggDraft;
       const preview = () => {
-        const sids = ggMembers(gid), dom = cgDomainOf(gr.std), b = cgClassStat([gr.std], null, null, sids), ir = cgIrStat(dom, null, sids);
-        c(".gg-preview").textContent = cgStatement({ group: gid, focus: { kind: "std", key: gr.std }, due: d.due, started: todayISO(), target: Number(d.target) || 0,
+        const sids = ggMembers(gid), dom = cgDomainOf(gr.std), b = ggStat(gr, sids), ir = cgIrStat(dom, null, sids);
+        c(".gg-preview").textContent = cgStatement({ group: gid, bar: ggIsExtend(gr) ? 4 : undefined, focus: { kind: ggIsExtend(gr) ? "extend" : "std", key: gr.std }, due: d.due, started: todayISO(), target: Number(d.target) || 0,
           base: { pct: b.pct }, ir: ir.n && d.irTarget != null && d.irTarget !== "" ? { dom: dom, base: { pct: ir.pct }, target: Number(d.irTarget) } : null });
       };
       c(".gg-d-target").oninput = e => { d.target = e.target.value; preview(); };
@@ -3825,16 +3877,16 @@ function ggSheetHTML() {
     '<div class="cf-meta">Printed ' + esc(cgLongDate(todayISO())) + "</div></div>";
   S.ggroups.forEach(gr => {
     const sids = ggMembers(gr.id), g = ggOpenGoal(gr.id);
-    h += '<section class="gg-s-block"><h3 class="cg-s-h">' + esc(gr.name) + ' <span class="cg-s-n">' + esc(dispCode(gr.std)) + " \u00b7 " + sids.length + " children</span></h3>";
+    h += '<section class="gg-s-block"><h3 class="cg-s-h">' + esc(gr.name) + ' <span class="cg-s-n">' + (ggIsExtend(gr) ? "each child\u2019s next skill" : esc(dispCode(gr.std))) + " \u00b7 " + sids.length + " children</span></h3>";
     if (!g) {
-      const st = cgClassStat([gr.std], null, null, sids);
-      h += '<p class="cf-none">No goal set yet. ' + (st.marked ? st.at + " of " + st.marked + " at 3 or higher now." : "") + "</p></section>";
+      const st = ggStat(gr, sids);
+      h += '<p class="cf-none">No goal set yet. ' + (st.marked ? st.at + " of " + st.marked + (ggIsExtend(gr) ? " at 4 on their next skill now." : " at 3 or higher now.") : "") + "</p></section>";
       return;
     }
     const now = cgGoalNow(g);
     h += '<p class="cg-s-goal">' + esc(cgStatement(g)) + "</p>" +
       '<table class="cf-table cg-s-nums"><thead><tr><th>Measure</th><th class="cf-c">Baseline</th><th class="cf-c">Now</th><th class="cf-c">Target</th></tr></thead><tbody>' +
-      '<tr><td>Classwork: at 3 or higher</td><td class="cf-c">' + (g.base.pct == null ? "\u2013" : g.base.pct + "%") + '</td><td class="cf-c">' +
+      '<tr><td>Classwork: ' + cgBarWords(g) + '</td><td class="cf-c">' + (g.base.pct == null ? "\u2013" : g.base.pct + "%") + '</td><td class="cf-c">' +
       (now.st.pct == null ? "\u2013" : now.st.pct + "%") + ' <span class="cg-s-n">(' + now.st.at + "/" + now.st.marked + ')</span></td><td class="cf-c">' + g.target + "%</td></tr>" +
       (g.ir ? '<tr><td>iReady: on or above in ' + esc(cgDom(g.ir.dom).name) + '</td><td class="cf-c">' + (g.ir.base && g.ir.base.pct != null ? g.ir.base.pct + "%" : "\u2013") +
         '</td><td class="cf-c">' + (now.ir && now.ir.n ? now.ir.pct + '% <span class="cg-s-n">(' + now.ir.on + "/" + now.ir.n + ")</span>" : "\u2013") + '</td><td class="cf-c">' + (g.ir.target == null ? "\u2013" : g.ir.target + "%") + "</td></tr>" : "") +
@@ -3853,7 +3905,7 @@ function printGroupGoals() {
   document.getElementById("printsheet").innerHTML = ggSheetHTML();
   const t = document.getElementById("toast");
   if (t) { clearTimeout(toastT); t.classList.remove("show"); t.style.display = "none"; }
-  window.print();
+  suitePrint();
   if (t) t.style.display = "";
 }
 
@@ -3995,13 +4047,20 @@ function renderSetup() {
     '<p class="hint">Everything lives in this browser only \u2014 nothing is uploaded. Back it up regularly, and move it between computers with these buttons.</p>' +
     '<div class="row" style="margin-top:10px"><button class="btn" onclick="exportJSON()">Save a backup file</button>' +
     '<label class="btn" style="display:inline-flex">Restore from backup<input type="file" id="imp" accept=".json" hidden></label>' +
+    '<button class="btn" onclick="downloadDetail()">Download all marks (CSV)</button>' +
     '<span style="flex:1"></span><button class="btn danger" onclick="wipe()">Erase everything</button></div>';
+  /* v134: when calculated marks go to Synergy's report card, the button goes
+     here: downloadMarks() and copyColumn() already make what it sends. */
   if (hasPreRestore()) {
     html += '<p class="hint" style="margin-top:10px">A restore replaced what was on this device. ' +
       'The previous state is still here until the next restore.</p>' +
       '<div class="row"><button class="btn" onclick="undoRestore()">Undo the last restore</button></div>';
   }
   html += '</div>';
+
+  html += termMarksCardHTML();                             /* v134 */
+  html += '<div id="setup-iready" class="stack"></div>';     /* v134 */
+  html += '<div id="setup-orfimport" class="stack"></div>';  /* v134 */
 
   html += '<div class="card pad"><h2>Planning prompts</h2>' +
     '<label class="row" style="gap:8px"><input type="checkbox" id="set-mapprompts"' +
@@ -4024,6 +4083,12 @@ function renderSetup() {
   el.innerHTML = html;
   wireUnitMap();
   paintHealth();
+  renderIReady();
+  renderOrfImport();
+  const tr = document.getElementById("tm-rule");
+  if (tr) tr.onchange = e => { S.settings.rule = e.target.value; save(); };
+  const tc = document.getElementById("tm-carry");
+  if (tc) tc.onchange = e => { S.settings.carryForward = e.target.checked; save(); };
 
   const mp = document.getElementById("set-mapprompts");
   if (mp) mp.onchange = e => { S.settings.noMapPrompts = !e.target.checked; save(); };
@@ -4604,8 +4669,8 @@ function orfPeople(db) {
     return { o: o, st: st, name: nm, eld: st ? !!st.eld : (window.SuiteOrf ? window.SuiteOrf.stripEld(o.name).eld : false) };
   }).sort((a, b) => a.name.localeCompare(b.name));
 }
-const ORF_STATUS_COLOR = { start: "var(--muted)", met: "var(--s3)", metBoy: "var(--s4)", on: "var(--s3)", close: "var(--s2)",
-  below: "var(--s1)", "r-green": "var(--s3)", "r-blue": "var(--s4)", "r-yellow": "var(--s2)", "r-red": "var(--s1)" };
+/* v131: text in the amber reads in --s2-ink (6.2:1); --s2 itself stays for fills */
+const ORF_STATUS_INK = c => c === "var(--s2)" ? "var(--s2-ink)" : c;
 function orfDay(t) { const d = new Date(t); return window.SuiteOrf.goals.fmtShort(d); }
 /* the one verdict: the student's own goal and aim line, nothing else */
 function orfVerdict(pl) {
@@ -4653,6 +4718,452 @@ function orfAimSVG(pl) {
   });
   return g + "</svg>";
 }
+/* ============================================================
+   v134: READING PROGRESS — one scorecard for the class
+   One row per child: the latest check and its percentile, this month's
+   goal and where they are against the aim line, the mid-year and end-of-
+   year goals with the percentile each works out to in its own season, and
+   the start-to-goal track. A row opens to the month-by-month goals, the
+   aim-line chart, goal settings and every check. It replaced v126's
+   Reading goals tracks, v130's Goals at a glance and Where the class sits,
+   which said the same things three ways. Every number is the plan's
+   (SuiteOrf.goals.planFor): nothing is recomputed here.
+   ============================================================ */
+function orfOrd(n) { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+/* a WCPM as a percentile of the grade's norms for one season (0 fall, 1
+   winter, 2 spring), read between the published rows as the WIN lists do */
+function orfPctOf(w, se, grade) {
+  const N = window.SuiteOrf.norms(grade), P = [10, 25, 50, 75, 90], v = P.map(p => N[p][se]);
+  if (w < v[0]) return { label: "below 10th", band: 0 };
+  if (w > v[4]) return { label: "above 90th", band: 5 };
+  for (let i = 0; i < 4; i++) if (w >= v[i] && w <= v[i + 1]) {
+    const f = v[i + 1] === v[i] ? 0 : (w - v[i]) / (v[i + 1] - v[i]);
+    return { label: orfOrd(Math.round(P[i] + f * (P[i + 1] - P[i]))), band: i + 1 };
+  }
+  return { label: "50th", band: 3 };
+}
+function orfIso(t) { const d = new Date(t); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+/* The scorecard's words for where a child is (the teacher's, v134):
+   exceeding goal = more than the margin above the aim line, or already at
+   the goal; on track = within the margin of the line either way; needs
+   attention = further below it than that. After the spring check the result
+   words stay (Made the goal, Goal not made...), sorted with the nearest kind.
+   The margin scales with the reader (orfBand): a flat 10 words is about 10%
+   of a 100-word reader and half of a 20-word one. */
+const ORF_KIND = {
+  exceeding: { label: "Exceeding goal", sym: "\u25B2", color: "var(--s4)", rank: 3 },
+  on: { label: "On track", sym: "\u2713", color: "var(--s3)", rank: 2 },
+  attention: { label: "Needs attention", sym: "\u25BC", color: "var(--s1)", rank: 0 },
+  start: { label: "First check", sym: "\u25CB", color: "var(--ink-3)", rank: 1 }
+};
+/* the margin of error around a child's aim line on a day: 10% of the line
+   in whole words, at least ORF_BAND_FLOOR, at most the margin setting (How
+   goals are set). Whole words, because the gap it is compared with is
+   whole words: a +4 is on track at a margin of 4, never by a fraction. The spring results keep the flat setting: they are judged at the
+   grade-level line, 100 in grade 2, where 10 words is the 10%. */
+const ORF_BAND_FLOOR = 3, ORF_BAND_SHARE = 0.10;
+function orfBand(pl, t) {
+  return Math.min(pl.margin, Math.max(ORF_BAND_FLOOR, Math.round(ORF_BAND_SHARE * pl.aim(t))));
+}
+function orfCardStatus(pl) {
+  let kind;
+  const band = pl.status === "start" || pl.result ? null : orfBand(pl, pl.latest.t);
+  if (pl.result) kind = pl.result === "green" || pl.result === "blue" ? "exceeding" : "attention";
+  else if (pl.status === "start") kind = "start";
+  else if (pl.status === "met" || pl.status === "metBoy" || pl.diff > band) kind = "exceeding";
+  else if (pl.diff >= -band) kind = "on";
+  else kind = "attention";
+  const k = ORF_KIND[kind];
+  const label = pl.result ? window.SuiteOrf.goals.statusLabel(pl) : k.label;
+  const gap = pl.result || kind === "start" || !pl.diff ? "" : " (" + (pl.diff > 0 ? "+" : "\u2212") + Math.abs(pl.diff) + ")";
+  return { kind: kind, label: label, gap: gap, sym: k.sym, color: k.color, rank: k.rank, band: band };
+}
+/* the columns every child's months fall into: each month (the aim line at
+   its end), the mid-year checkpoint where it falls, the end-of-year goal */
+function orfMonthCols(withPlan) {
+  const keyOf = mo => mo.checkpoint === "winter" ? "winter" : mo.checkpoint === "spring" ? "spring" : mo.y + "-" + mo.m;
+  const cols = new Map();
+  withPlan.forEach(({ pl }) => pl.months.forEach(mo => {
+    const k = keyOf(mo);
+    if (!cols.has(k)) cols.set(k, { key: k, kind: mo.checkpoint || "month", m: mo.m, t: mo.by.getTime(), by: mo.by });
+  }));
+  return { keyOf: keyOf, list: [...cols.values()].sort((a, b) => a.t - b.t) };
+}
+/* one month's cell: the goal, then that month's latest check (the mid-year
+   one against the mid-year goal) */
+function orfMonthCell(pl, mo, kind) {
+  const ck = mo && mo.checks.length ? mo.checks[mo.checks.length - 1] : null;
+  if (!ck) return { goal: mo ? mo.target : null, check: "", up: null };
+  const start = ck.t === pl.baseDate.getTime(), up = ck.vs >= 0;
+  return { goal: mo.target, check: ck.y + (start ? " start" : up ? " \u2713" : " \u2717"), up: start ? null : up,
+    said: window.SuiteOrf.goals.fmtShort(new Date(ck.t)) + ": " + ck.y + (start ? ", the first check" : ", " +
+      (ck.vs === 0 ? "right on " : Math.abs(ck.vs) + (up ? " above " : " below ")) + (kind === "winter" ? "the mid-year goal" : "the aim line that day")) };
+}
+/* everything one row shows, worked out once for the screen and the sheet */
+function orfRowFacts(p, pl, gs, now) {
+  const G = window.SuiteOrf.goals, grade = gs.grade;
+  const st = orfCardStatus(pl), se = seasonOf(orfIso(pl.latest.t));
+  const f = { st: st, now: pl.latestY, nowDate: G.fmtShort(new Date(pl.latest.t)), se: se, pNow: orfPctOf(pl.latestY, se, grade) };
+  f.month = pl.thisMonth ? pl.thisMonth.target : null;
+  f.mid = pl.winterDue ? pl.winterGoal : null;
+  f.pMid = f.mid != null ? orfPctOf(f.mid, 1, grade) : null;
+  if (f.mid == null) f.midSub = "";
+  else if (pl.winterActual != null) f.midSub = pl.winterActual >= f.mid ? "met: read " + pl.winterActual : "read " + pl.winterActual + ", " + (f.mid - pl.winterActual) + " short";
+  else f.midSub = (f.mid > pl.latestY ? (f.mid - pl.latestY) + " to go" : "already there") + " \u00b7 " + f.pMid.label + " winter";
+  /* on the card the percentile gets its own line; the sentence is for the sheet */
+  f.midLines = pl.winterActual != null || f.mid == null ? [f.midSub] : [f.mid > pl.latestY ? (f.mid - pl.latestY) + " to go" : "already there", f.pMid.label + " for winter"];
+  f.eoy = pl.goal; f.pEoy = orfPctOf(pl.goal, 2, grade);
+  f.eoySub = pl.result ? "read " + pl.springActual : pl.latestY >= pl.goal ? "already there" : pl.perWeekNow != null ? Math.max(0, pl.perWeekNow).toFixed(1) + " words a week" : "";
+  f.flag = pl.belowRun >= 3 ? pl.belowRun + " checks in a row below the aim line: time to change the plan"
+    : pl.flagged ? "below the grade-level line, within the margin of error" : "";
+  return f;
+}
+/* "the 39th percentile", "below the 10th percentile", in a sentence */
+function orfPctWords(pc) {
+  const m = /^(below|above) (.+)$/.exec(pc.label);
+  return m ? m[1] + " the " + m[2] + " percentile" : "the " + pc.label + " percentile";
+}
+function orfSummary(p, pl, f) {
+  const G = window.SuiteOrf.goals;
+  const goal = pl.goal + (pl.comp ? " with all 3 comprehension questions" : "");
+  if (pl.result) return orfVerdict(pl) + " That was " + orfPctWords(orfPctOf(pl.springActual, 2, pl.grade)) + " for spring.";
+  let s = f.st.kind === "start" ? "First check " + pl.base + " on " + f.nowDate + "."
+    : "Latest " + pl.latestY + " on " + f.nowDate + ": " + f.st.label.toLowerCase() + ", " +
+      (pl.diff === 0 ? "right on the aim line" : Math.abs(pl.diff) + (pl.diff > 0 ? " above" : " below") + " the aim line") + ".";
+  s += " Now " + orfPctWords(f.pNow) + " for " + SEASON_NAME[f.se].toLowerCase() + ".";
+  if (f.mid != null && pl.winterActual == null) s += " The mid-year goal of " + f.mid + " is about " + orfPctWords(f.pMid) + " for winter, and the";
+  else s += " The";
+  s += " end-of-year goal of " + goal + " about " + orfPctWords(f.pEoy) + " for spring.";
+  if (pl.status === "met") s += " Already at it.";
+  else if (pl.perWeekNow != null) s += " Getting there by " + G.fmtLong(pl.goalDate) + " takes about " + Math.max(0, pl.perWeekNow).toFixed(1) + " words a week.";
+  return s;
+}
+/* the card's order, which the sheet keeps: A-Z, or the children who need
+   a change first (flagged, then needs attention, first check, on track,
+   exceeding), furthest below the line first within each; no checks last */
+function orfOrderRows(rows, facts) {
+  const rank = x => !x.pl ? 9 : x.pl.belowRun >= 3 || x.pl.flagged ? -1 : facts.get(x.p.o.id).st.rank;
+  return rows.slice().sort((a, b) => UI.orfOrder === "name" ? a.p.name.localeCompare(b.p.name)
+    : rank(a) - rank(b) || (a.pl && b.pl ? a.pl.diff - b.pl.diff : 0) || a.p.name.localeCompare(b.p.name));
+}
+function orfScorecardHTML(rows, now, gs) {
+  const G = window.SuiteOrf.goals, withPlan = rows.filter(x => x.pl);
+  let h = '<div class="card pad" id="orf-progress"><div class="sectionhead"><h2>Reading progress</h2><span class="spacer"></span>' +
+    (withPlan.length ? '<div class="row sc-tools"><span class="small muted">Order</span><span class="segmented">' +
+      '<button type="button" aria-pressed="' + (UI.orfOrder !== "name") + '" onclick="UI.orfOrder=\'need\';renderORF()">Needs attention first</button>' +
+      '<button type="button" aria-pressed="' + (UI.orfOrder === "name") + '" onclick="UI.orfOrder=\'name\';renderORF()">A\u2013Z</button></span>' +
+      '<button type="button" class="btn primary" onclick="printOrfSheet()">Download PDF</button></div>' : "") + "</div>" +
+    '<p class="hint" style="margin-top:4px">Words correct per minute. Every goal comes from the child\u2019s own aim line; percentiles are Hasbrouck &amp; Tindal (2017) grade ' + gs.grade +
+    " norms. On track means within the margin of error of the aim line, either way: 10% of the line, at least " + ORF_BAND_FLOOR + " words and at most " + gs.margin +
+    ". More than that above is exceeding goal; more than that below needs attention. Tap a name to see every check.</p>";
+  /* the card is left open: How goals are set closes it */
+  if (!withPlan.length) return h + '<p class="hint" style="margin-top:6px">No checks this school year yet.</p>';
+  const facts = new Map(withPlan.map(x => [x.p.o.id, orfRowFacts(x.p, x.pl, gs, now)]));
+  const top = Math.max.apply(null, withPlan.map(x => Math.max(x.pl.goal, x.pl.latestY, x.pl.base, x.pl.winterGoal || 0)));
+  const step = top > 150 ? 40 : 20, MAX = Math.ceil(top * 1.05 / step) * step;
+  const P = v => (Math.max(0, Math.min(MAX, v)) / MAX * 100).toFixed(1) + "%";
+  const seasons = [...new Set([...facts.values()].map(f => f.se))];
+  const tm = withPlan.map(x => x.pl.thisMonth).filter(Boolean).sort((a, b) => a.by - b.by)[0];
+  const monthHead = tm ? (tm.checkpoint === "spring" ? "Goal" : G.MONTHS[tm.m] + " goal") + " <span>by " + esc(G.fmtShort(tm.by)) + "</span>" : "This month";
+  const winterDue = withPlan.map(x => x.pl.winterDue).find(Boolean), springDue = withPlan[0].pl.goalDate;
+  const order = orfOrderRows(rows, facts);
+  h += '<div class="sc-key small">' +
+    '<span><svg width="40" height="12" aria-hidden="true"><rect x="0" y="4" width="40" height="4" rx="2" fill="currentColor" opacity=".18"/></svg>Start to end-of-year goal</span>' +
+    '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--s3)" stroke="var(--panel)" stroke-width="2"/></svg>Latest check</span>' +
+    '<span><svg width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="8" height="8" fill="var(--panel)" stroke="currentColor" stroke-width="2" transform="rotate(45 7 7)"/></svg>Mid-year goal</span>' +
+    '<span><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="var(--panel)" stroke="currentColor" stroke-width="2.5"/></svg>End-of-year goal</span>' +
+    '<span><svg width="34" height="10" aria-hidden="true"><rect x="0" y="1" width="9" height="8" rx="1.5" fill="currentColor" opacity=".14"/><rect x="12" y="1" width="9" height="8" rx="1.5" fill="currentColor" opacity=".72"/><rect x="24" y="1" width="9" height="8" rx="1.5" fill="currentColor" opacity=".14"/></svg>Percentile band: under 10th, 10\u201325, 25\u201350, 50\u201375, 75\u201390, 90th+</span></div>';
+  h += '<div class="scroll sc-scroll"><table class="sc-table"><thead><tr><th scope="col">Student</th><th scope="col">Now</th>' +
+    '<th scope="col">Percentile' + (seasons.length === 1 ? " <span>" + SEASON_NAME[seasons[0]].toLowerCase() + "</span>" : "") + "</th>" +
+    '<th scope="col">' + monthHead + "</th>" +
+    '<th scope="col">Mid-year' + (winterDue ? " <span>by " + esc(G.fmtShort(winterDue)) + "</span>" : "") + "</th>" +
+    '<th scope="col">End of year <span>by ' + esc(G.fmtShort(springDue)) + "</span></th>" +
+    '<th scope="col" class="sc-trackh">0 <span>to</span> ' + MAX + " <span>WCPM</span></th></tr></thead><tbody>";
+  order.forEach(({ p, pl }) => {
+    const who = esc(p.name) + (p.eld ? ' <span class="chip eld tiny">ELD</span>' : "") + (p.st ? "" : ' <span class="tiny muted">not on the roster</span>');
+    if (!pl) { h += '<tr class="sc-row" data-orf="' + esc(p.o.id) + '"><th scope="row" class="sc-name"><span class="sc-who">' + who + '</span></th><td colspan="6" class="muted small">no checks this year</td></tr>'; return; }
+    const f = facts.get(p.o.id), open = UI.orfGoalSid === p.o.id, id = esc(p.o.id);
+    const lo = Math.min(pl.base, pl.latestY), hi = Math.max(pl.base, pl.latestY);
+    const track = "Started " + pl.base + ", now " + pl.latestY + (f.mid != null ? ", mid-year goal " + f.mid : "") + ", end-of-year goal " + pl.goal;
+    h += '<tr class="sc-row' + (open ? " sc-open" : "") + '" data-orf="' + id + '">' +
+      '<th scope="row" class="sc-name"><button type="button" class="sc-btn" aria-expanded="' + open + '" aria-controls="sc-more-' + id + '" onclick="orfPickGoal(\'' + id + '\')">' +
+        '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+        esc(p.name) + "</button>" + (p.eld ? ' <span class="chip eld tiny">ELD</span>' : "") + (p.st ? "" : ' <span class="tiny muted">not on the roster</span>') + "</th>" +
+      '<td><span class="sc-big">' + f.now + '</span><span class="sc-sub">' + esc(f.nowDate) + "</span></td>" +
+      '<td><span class="sc-pct">' + esc(f.pNow.label) + (seasons.length === 1 ? "" : ' <span class="sc-sub" style="display:inline">' + SEASON_NAME[f.se].toLowerCase() + "</span>") + "</span>" +
+        '<span class="sc-bands" aria-hidden="true">' + [0, 1, 2, 3, 4, 5].map(i => "<i" + (i === f.pNow.band ? ' class="on"' : "") + "></i>").join("") + "</span></td>" +
+      '<td><span class="sc-num">' + (f.month == null ? "\u2014" : f.month) + '</span><span class="sc-st" style="color:' + ORF_STATUS_INK(f.st.color) + '">' + f.st.sym + " " + esc(f.st.label + f.st.gap) + "</span>" +
+        (f.flag ? '<span class="tag reteach sc-flag" title="' + esc(f.flag) + '">\u2691 ' + (pl.belowRun >= 3 ? pl.belowRun + " in a row below" : "flagged") + "</span>" : "") + "</td>" +
+      '<td><span class="sc-num">' + (f.mid == null ? "\u2014" : f.mid) + "</span>" + f.midLines.map(x => '<span class="sc-sub">' + esc(x) + "</span>").join("") + "</td>" +
+      '<td><span class="sc-num">' + pl.goal + (pl.comp ? ' <span class="sc-comp" title="with 3 of 3 comprehension questions">3/3</span>' : "") + '</span><span class="sc-sub">' + esc(f.eoySub) + "</span></td>" +
+      '<td class="sc-trackc"><span class="sc-track" role="img" aria-label="' + esc(track) + '">' +
+        '<span class="sc-span" style="left:' + P(pl.base) + ";width:" + P(Math.max(pl.goal, pl.latestY) - pl.base) + '"></span>' +
+        '<span class="sc-fill" style="left:' + P(lo) + ";width:" + P(Math.max(0.5, hi - lo)) + ";background:" + f.st.color + '"></span>' +
+        (f.mid != null ? '<span class="sc-mid" style="left:' + P(f.mid) + '"></span>' : "") +
+        '<span class="sc-goal" style="left:' + P(pl.goal) + '"></span>' +
+        '<span class="sc-now" style="left:' + P(pl.latestY) + ";background:" + f.st.color + '"></span></span></td></tr>';
+    if (open) h += '<tr class="sc-more" id="sc-more-' + id + '"><td colspan="7"><div class="sc-inner">' + orfChildHTML(p, pl, f) + "</div></td></tr>";
+  });
+  return h + "</tbody></table></div>";
+}
+/* the opened row: the summary, the months, the chart, the goals, the checks */
+function orfChildHTML(p, pl, f) {
+  const G = window.SuiteOrf.goals, comp = orfCompState(), own = pl.own || {}, notesAll = orfNotesState();
+  const now = UI.orfToday ? new Date(UI.orfToday) : new Date(), nowT = now.getTime() - 864e5;
+  const cur = pl.months.find(mo => mo.checkpoint !== "winter" && mo.by.getTime() >= nowT);
+  let h = '<p class="sc-summary">' + esc(orfSummary(p, pl, f)) + "</p>" +
+    (f.flag ? '<p class="small" style="margin:6px 0 0"><span class="tag reteach">\u2691</span> ' + esc(f.flag.replace(/^./, c => c.toUpperCase())) + ".</p>" : "") +
+    '<ol class="sc-months">' + pl.months.map(mo => {
+      const kind = mo.checkpoint || "month", c = orfMonthCell(pl, mo, kind);
+      const lab = kind === "winter" ? "Mid-year" : kind === "spring" ? "End of year" : G.MONTHS[mo.m].slice(0, 3);
+      return '<li class="' + (kind !== "month" ? "sc-k" : "") + (mo === cur ? " sc-cur" : "") + '"><span class="sc-ml">' + lab + '</span><span class="sc-mg">' + mo.target + "</span>" +
+        '<span class="sc-mc ' + (c.up == null ? "" : c.up ? "sc-up" : "sc-down") + '"' + (c.said ? ' title="' + esc(c.said) + '"' : "") + ">" + esc(c.check || " ") +
+        (c.said ? '<span class="sr-only"> (' + esc(c.said) + ")</span>" : "") + "</span></li>";
+    }).join("") + "</ol>" +
+    '<p class="hint" style="margin-top:6px">Top: the goal for that month (the aim line at the month\u2019s end). Under it: that month\u2019s latest check, \u2713 at or above the aim line the day it was read, \u2717 below. Outlined: this month.</p>';
+  h += orfAimSVG(pl) +
+    '<p class="hint" style="margin-top:4px">Dashed: the aim line to the goal. Dots: checks, red when under the line. How the goal was set: ' + esc(pl.why) + ".</p>" +
+    '<div class="row" style="margin-top:8px">' +
+    (pl.winterDue ? '<label class="fld">Winter goal<input type="number" min="1" max="300" value="' + (own.winter != null ? own.winter : "") + '" placeholder="' + (pl.suggestedWinter || "") + '" onchange="orfSetGoal(\'' + esc(p.o.id) + '\',\'winter\',this.value)"></label>' : "") +
+    '<label class="fld">Spring goal<input type="number" min="1" max="300" value="' + (own.spring != null ? own.spring : "") + '" placeholder="' + pl.suggested + '" onchange="orfSetGoal(\'' + esc(p.o.id) + '\',\'spring\',this.value)"></label>' +
+    (pl.custom ? '<button class="btn sm" onclick="orfSetGoal(\'' + esc(p.o.id) + '\',null)">Use the suggested goals</button>' : "") +
+    '</div><table style="margin-top:10px"><thead><tr><th>Check</th><th class="c">WCPM</th><th class="c">vs aim line</th><th class="c">Comprehension</th></tr></thead><tbody>' +
+    pl.checks.slice().reverse().map(c => {
+      const v = comp.records[c.rec.id], nt = notesAll.records[c.rec.id], NT = window.SuiteOrf.notes;
+      const said = nt && nt.notes.length ? '<tr class="orf-said"><td colspan="4" class="small" style="border-top:0;padding-top:0"><span class="muted">What they said:</span> ' +
+        nt.notes.map(x => esc(NT.text(x))).join(" \u00b7 ") + "</td></tr>" : "";
+      const paused = nt && nt.paused ? ' <span class="tiny" style="display:inline-block;padding:1px 7px;border-radius:5px;background:var(--s2-bg);color:var(--s2-ink);font-weight:600" title="The timer was paused for an interruption. The norms assume one unbroken minute, so read this score with that in mind.">paused ' + esc(NT.paused(nt.paused)) + "</span>" : "";
+      return "<tr><td>" + esc(orfDay(c.t)) + (c.rec.passageTitle ? ' <span class="tiny muted">' + esc(c.rec.passageTitle) + "</span>" : "") + paused + '</td><td class="c num">' + c.y +
+        '</td><td class="c num">' + (c.t === pl.baseDate.getTime() ? "start" : (Math.round(c.y - pl.aim(c.t)) > 0 ? "+" : "") + Math.round(c.y - pl.aim(c.t))) +
+        '</td><td class="c"><select aria-label="Comprehension for ' + esc(orfDay(c.t)) + '" onchange="orfSetComp(\'' + esc(c.rec.id) + '\',this.value)"><option value="">\u2014</option>' +
+        [0, 1, 2, 3].map(n => '<option value="' + n + '"' + (v === n ? " selected" : "") + ">" + n + "/3</option>").join("") + "</select></td></tr>" + said;
+    }).join("") + "</tbody></table>";
+  return h;
+}
+/* The Download PDF button: the whole class on landscape Letter, black and
+   white like every sheet the gradebook prints, through the print dialog
+   (Save as PDF). The header row repeats on each page of a long class. */
+function orfSheetHTML() {
+  const db = readOrfDB();
+  if (!db || !orfGoalsReady()) return "";
+  const G = window.SuiteOrf.goals, gs = orfGoalsForPlans(), comp = orfCompState(), now = UI.orfToday ? new Date(UI.orfToday) : new Date();
+  const rows = orfPeople(db).map(p => ({ p: p, pl: G.planFor(db, p.o.id, gs, now, comp) }));
+  const withPlan = rows.filter(x => x.pl);
+  const facts = new Map(withPlan.map(x => [x.p.o.id, orfRowFacts(x.p, x.pl, gs, now)]));
+  const { keyOf, list } = orfMonthCols(withPlan);
+  const order = orfOrderRows(rows, facts);
+  const head = c => c.kind === "winter" ? "Mid-year<span>" + esc(G.fmtShort(c.by)) + "</span>" : c.kind === "spring" ? "End of year<span>" + esc(G.fmtShort(c.by)) + "</span>" : esc(G.MONTHS[c.m].slice(0, 3)) + "<span>goal</span>";
+  let h = '<article class="orfsheet"><header class="cf-head"><div><h2 class="cf-name">Reading progress</h2><p class="cf-sub">Oral reading fluency, words correct per minute' +
+    (S.settings.teacher ? " \u00b7 " + esc(S.settings.teacher) : "") + (S.settings.year ? " \u00b7 " + esc(S.settings.year) : "") + "</p></div>" +
+    '<p class="cf-meta">As of ' + esc(G.fmtLong(now)) + "<br>Percentiles: Hasbrouck &amp; Tindal (2017), grade " + gs.grade + "</p></header>" +
+    '<table class="os-table"><thead><tr><th class="os-l">Student</th><th>Now</th><th class="os-l">Percentile</th><th class="os-l">Status</th>' +
+    list.map(c => '<th class="' + (c.kind !== "month" ? "os-k" : "") + '">' + head(c) + "</th>").join("") + "<th>Words<span>a week</span></th></tr></thead><tbody>";
+  order.forEach(({ p, pl }) => {
+    const nm = esc(p.name) + (p.eld ? " (ELD)" : "");
+    if (!pl) { h += '<tr><th scope="row" class="os-l">' + nm + '</th><td colspan="' + (list.length + 4) + '" class="os-l">no checks this year</td></tr>'; return; }
+    const f = facts.get(p.o.id), by = {};
+    pl.months.forEach(mo => { by[keyOf(mo)] = mo; });
+    h += '<tr><th scope="row" class="os-l">' + nm + '</th><td><b>' + f.now + "</b><span>" + esc(f.nowDate) + "</span></td>" +
+      '<td class="os-l">' + esc(f.pNow.label) + "<span>" + SEASON_NAME[f.se].toLowerCase() + "</span></td>" +
+      '<td class="os-l"><b>' + f.st.sym + " " + esc(f.st.label + f.st.gap) + "</b>" + (f.flag ? "<span>\u2691 " + esc(pl.belowRun >= 3 ? pl.belowRun + " in a row below" : "flagged") + "</span>" : "") + "</td>" +
+      list.map(c => {
+        const mo = by[c.key], cell = mo ? orfMonthCell(pl, mo, c.kind) : null;
+        return '<td class="' + (c.kind !== "month" ? "os-k" : "") + '">' + (cell ? (c.kind !== "month" ? "<b>" + cell.goal + "</b>" : cell.goal) + (cell.check ? "<span><b>" + esc(cell.check) + "</b></span>" : "") : "\u2013") + "</td>";
+      }).join("") +
+      "<td>" + (pl.perWeekNow != null && !pl.result && pl.latestY < pl.goal ? Math.max(0, pl.perWeekNow).toFixed(1) : "\u2013") + "</td></tr>";
+  });
+  return h + '</tbody></table><p class="os-key">Each month: that month\u2019s goal (the child\u2019s aim line at the month\u2019s end), then that month\u2019s latest check, \u2713 at or above the aim line the day it was read, \u2717 below. ' +
+    "Status compares the latest check with the aim line, give or take the margin of error (10% of the line, at least " + ORF_BAND_FLOOR + " words, at most " + gs.margin +
+    "): \u25B2 exceeding goal (more than the margin above), \u2713 on track (within it), \u25BC needs attention (more than the margin below), \u25CB first check. Shaded: the mid-year and end-of-year goals.</p></article>";
+}
+/* ============================================================
+   v135: DOWNLOAD PDF IN THE IPHONE HOME-SCREEN APP
+   On an iPhone or iPad the suite runs from its home-screen icon as its
+   own app, and there window.print() does nothing at all: no dialog, no
+   error. So there the button builds the PDF itself, from the same sheet
+   the print dialog shows (orfSheetHTML), and hands the file to the share
+   sheet (Save to Files, AirDrop, Mail). Everywhere else it is still the
+   print dialog. A small writer for one kind of page, no library: the
+   standard PDF fonts (Helvetica, its bold, ZapfDingbats for the status
+   marks), so nothing is embedded and the file is a few KB.
+   ============================================================ */
+function pdfIsIosApp() {
+  const n = window.navigator || {};
+  const ios = /iPhone|iPad|iPod/.test(n.userAgent || "") || (n.platform === "MacIntel" && n.maxTouchPoints > 1);
+  const app = n.standalone === true || !!(window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+  return ios && app;
+}
+/* every print button: in the iPhone home-screen app the print screen never
+   opens, so say so instead of doing nothing */
+function suitePrint() {
+  if (pdfIsIosApp()) { toast("The iPhone home-screen app can\u2019t open the print screen. Open the gradebook in Safari, or on your Mac, to print this."); return false; }
+  window.print();
+  return true;
+}
+/* Adobe's widths for Helvetica and Helvetica-Bold, WinAnsi 32-255, per 1000 */
+const PDF_WIDTHS = { H: [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584,350,556,350,222,556,333,1000,556,556,333,1000,667,333,1000,350,611,350,350,222,222,333,333,350,556,1000,333,1000,500,333,944,350,500,667,278,333,556,556,556,556,260,556,333,737,370,556,584,333,737,333,400,584,333,333,333,556,537,278,333,333,365,556,834,834,834,611,667,667,667,667,667,667,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,500,556,556,556,556,278,278,278,278,556,556,556,556,556,556,556,584,611,556,556,556,556,500,556,500], B: [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584,350,556,350,278,556,500,1000,556,556,333,1000,667,333,1000,350,611,350,350,278,278,500,500,350,556,1000,333,1000,556,333,944,350,500,667,278,333,556,556,556,556,280,556,333,737,370,556,584,333,737,333,400,584,333,333,333,611,556,278,333,333,365,556,834,834,834,611,722,722,722,722,722,722,1000,722,667,667,667,667,278,278,278,278,722,722,778,778,778,778,778,584,778,722,722,722,722,667,667,611,556,556,556,556,556,556,889,556,556,556,556,556,278,278,278,278,611,611,611,611,611,611,611,584,611,611,611,611,611,556,611,556] };
+const PDF_WIN = { "\u20AC": 128, "\u201A": 130, "\u0192": 131, "\u201E": 132, "\u2026": 133, "\u2020": 134, "\u2021": 135, "\u02C6": 136, "\u2030": 137, "\u0160": 138, "\u2039": 139, "\u0152": 140,
+  "\u017D": 142, "\u2018": 145, "\u2019": 146, "\u201C": 147, "\u201D": 148, "\u2022": 149, "\u2013": 150, "\u2014": 151, "\u02DC": 152, "\u2122": 153, "\u0161": 154, "\u203A": 155, "\u0153": 156, "\u017E": 158, "\u0178": 159, "\u2212": 45, "\u00A0": 32 };
+/* the status marks, drawn in ZapfDingbats: check, ballot x, triangles, circle */
+const PDF_DINGBATS = { "\u2713": "3", "\u2717": "7", "\u25B2": "s", "\u25BC": "t", "\u25CB": "m" };
+function pdfCode(ch) {
+  const c = ch.charCodeAt(0);
+  if (PDF_WIN[ch] != null) return PDF_WIN[ch];
+  return (c >= 32 && c <= 126) || (c >= 160 && c <= 255) ? c : 63;
+}
+/* a line of text as runs, each in one font: H, B (bold) or Z (dingbats) */
+function pdfRuns(text, bold) {
+  const runs = [];
+  for (const ch of String(text).replace(/\u2691/g, "!")) {
+    const z = PDF_DINGBATS[ch], f = z ? "Z" : bold ? "B" : "H", code = z ? z.charCodeAt(0) : pdfCode(ch);
+    const last = runs[runs.length - 1];
+    if (last && last.f === f) last.codes.push(code); else runs.push({ f: f, codes: [code] });
+  }
+  return runs;
+}
+function pdfWidth(runs, size) {
+  let w = 0;
+  runs.forEach(r => r.codes.forEach(c => { w += r.f === "Z" ? 790 : PDF_WIDTHS[r.f][c - 32] || 556; }));
+  return w * size / 1000;
+}
+function pdfStr(codes) {
+  return "(" + codes.map(c => c === 40 || c === 41 || c === 92 ? "\\" + String.fromCharCode(c) : c < 32 || c > 126 ? "\\" + c.toString(8).padStart(3, "0") : String.fromCharCode(c)).join("") + ")";
+}
+function pdfText(x, y, runs, size) {
+  let s = "BT " + x.toFixed(1) + " " + y.toFixed(1) + " Td ";
+  runs.forEach(r => { s += "/F" + r.f + " " + size + " Tf " + pdfStr(r.codes) + " Tj "; });
+  return s + "ET\n";
+}
+/* words onto lines no wider than w */
+function pdfWrap(text, bold, size, w) {
+  const out = []; let cur = "";
+  String(text).split(/\s+/).forEach(word => {
+    const t = cur ? cur + " " + word : word;
+    if (cur && pdfWidth(pdfRuns(t, bold), size) > w) { out.push(cur); cur = word; } else cur = t;
+  });
+  if (cur) out.push(cur);
+  return out;
+}
+/* a sheet cell as lines: what is outside a <span> first, then each <span> */
+function pdfCellLines(cell) {
+  const head = cell.tagName === "TH", lines = [];
+  let first = "", firstBold = head, any = false;
+  cell.childNodes.forEach(n => {
+    if (n.nodeType === 1 && n.tagName === "SPAN") return;
+    const t = n.textContent; if (!t.trim()) return;
+    first += t; any = true;
+    if (n.nodeType === 1 && n.tagName === "B") firstBold = true;
+  });
+  if (any) lines.push({ t: first.trim(), b: firstBold });
+  cell.querySelectorAll(":scope > span").forEach(sp => lines.push({ t: sp.textContent.trim(), b: !!sp.querySelector("b") }));
+  return lines;
+}
+/* the sheet (orfSheetHTML) as a PDF: landscape Letter, the title on the
+   first page, the header row on every page, Page n of N, the key last */
+function orfPdfBytes(html) {
+  const box = document.createElement("div");
+  box.innerHTML = html;
+  const PW = 792, PH = 612, M = 34, W = PW - 2 * M;
+  const title = (box.querySelector("h2") || {}).textContent || "Reading progress";
+  const sub = (box.querySelector(".cf-sub") || {}).textContent || "";
+  const meta = box.querySelector(".cf-meta") ? box.querySelector(".cf-meta").innerHTML.split(/<br\s*\/?>/i).map(x => { const d = document.createElement("div"); d.innerHTML = x; return d.textContent.trim(); }) : [];
+  const key = (box.querySelector(".os-key") || {}).textContent || "";
+  const tr = [...box.querySelectorAll("table.os-table tr")];
+  const rows = tr.map(r => [...r.children].map(c => ({ lines: pdfCellLines(c), span: c.colSpan || 1, left: c.classList.contains("os-l"), shade: c.classList.contains("os-k") })));
+  const headRow = rows[0], body = rows.slice(1), ncol = headRow.length;
+  /* columns as wide as their widest line; shrink the type to fit the page */
+  let size = 8, cw;
+  const natural = sz => {
+    const w = new Array(ncol).fill(0);
+    rows.forEach(r => { let i = 0; r.forEach(c => { if (c.span === 1) c.lines.forEach(l => { w[i] = Math.max(w[i], pdfWidth(pdfRuns(l.t, l.b), sz) + 8); }); i += c.span; }); });
+    return w;
+  };
+  for (; size >= 6; size -= 0.5) { cw = natural(size); if (cw.reduce((a, b) => a + b, 0) <= W) break; }
+  const spare = W - cw.reduce((a, b) => a + b, 0);
+  if (spare > 0) cw = cw.map(x => x + spare / ncol);
+  const LH = size + 2.2, rowH = r => Math.max(...r.map(c => c.lines.length)) * LH + 6;
+  const pages = []; let ops = "", y = 0;
+  const startPage = firstPage => {
+    if (ops) pages.push(ops);
+    ops = ""; y = PH - M;
+    if (firstPage) {
+      ops += pdfText(M, y - 16, pdfRuns(title, true), 16); y -= 22;
+      ops += pdfText(M, y - 9, pdfRuns(sub, false), 9);
+      meta.forEach((m, i) => { const r = pdfRuns(m, false); ops += pdfText(PW - M - pdfWidth(r, 8.5), PH - M - 10 - i * 11, r, 8.5); });
+      y -= 16;
+      ops += "0 G 1.2 w " + M + " " + y.toFixed(1) + " m " + (PW - M) + " " + y.toFixed(1) + " l S\n"; y -= 8;
+    }
+    drawRow(headRow, true);
+  };
+  const drawRow = (r, head) => {
+    const h = rowH(r); let x = M, i = 0;
+    r.forEach(c => {
+      let w = 0; for (let k = 0; k < c.span; k++) w += cw[i + k];
+      if (c.shade) ops += "0.93 g " + x.toFixed(1) + " " + (y - h).toFixed(1) + " " + w.toFixed(1) + " " + h.toFixed(1) + " re f 0 g\n";
+      const lines = head ? c.lines : c.lines, base = head ? y - h + 4 + (lines.length - 1) * LH : y - 3 - size;
+      lines.forEach((l, k) => {
+        const runs = pdfRuns(l.t, l.b), lw = pdfWidth(runs, size), ly = head ? y - h + 4 + (lines.length - 1 - k) * LH : y - 3 - size - k * LH;
+        ops += pdfText(c.left ? x + 4 : x + w - 4 - lw, ly, runs, size);
+      });
+      x += w; i += c.span;
+    });
+    y -= h;
+    ops += (head ? "0 G 1 w " : "0.55 G 0.5 w ") + M + " " + y.toFixed(1) + " m " + (PW - M) + " " + y.toFixed(1) + " l S\n";
+  };
+  startPage(true);
+  body.forEach(r => { if (y - rowH(r) < M + 18) startPage(false); drawRow(r, false); });
+  const keyLines = pdfWrap(key, false, 7.5, W);
+  if (y - 10 - keyLines.length * 9.5 < M + 18) startPage(false);
+  y -= 12;
+  keyLines.forEach(l => { ops += pdfText(M, y, pdfRuns(l, false), 7.5); y -= 9.5; });
+  pages.push(ops);
+  /* the file: catalog, page tree, three standard fonts, then each page */
+  const objs = [], n = pages.length;
+  objs[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+  objs[2] = "<< /Type /Pages /Count " + n + " /Kids [" + pages.map((_, i) => (6 + 2 * i) + " 0 R").join(" ") + "] >>";
+  objs[3] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>";
+  objs[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>";
+  objs[5] = "<< /Type /Font /Subtype /Type1 /BaseFont /ZapfDingbats >>";
+  pages.forEach((p, i) => {
+    const foot = pdfRuns("Page " + (i + 1) + " of " + n, false);
+    const content = p + pdfText(PW - M - pdfWidth(foot, 7.5), M - 14, foot, 7.5);
+    objs[6 + 2 * i] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 " + PW + " " + PH + "] /Resources << /Font << /FH 3 0 R /FB 4 0 R /FZ 5 0 R >> >> /Contents " + (7 + 2 * i) + " 0 R >>";
+    objs[7 + 2 * i] = "<< /Length " + content.length + " >>\nstream\n" + content + "endstream";
+  });
+  let out = "%PDF-1.4\n", xref = [];
+  for (let i = 1; i < objs.length; i++) { xref[i] = out.length; out += i + " 0 obj\n" + objs[i] + "\nendobj\n"; }
+  const at = out.length;
+  out += "xref\n0 " + objs.length + "\n0000000000 65535 f \n" + xref.slice(1).map(o => String(o).padStart(10, "0") + " 00000 n \n").join("") +
+    "trailer\n<< /Size " + objs.length + " /Root 1 0 R /Info << /Title " + pdfStr(pdfRuns(title, false)[0].codes) + " /Producer (Classroom suite) >> >>\nstartxref\n" + at + "\n%%EOF\n";
+  const bytes = new Uint8Array(out.length);
+  for (let i = 0; i < out.length; i++) bytes[i] = out.charCodeAt(i) & 255;
+  return bytes;
+}
+/* the file to the share sheet (Save to Files, AirDrop, Mail); where files
+   cannot be shared, a plain download */
+async function orfSharePdf() {
+  const html = orfSheetHTML();
+  if (!html) { toast("No ORF checks to save yet"); return; }
+  const name = "reading-progress-" + todayISO() + ".pdf";
+  const file = new File([orfPdfBytes(html)], name, { type: "application/pdf" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: "Reading progress" }); return; }
+  } catch (e) { if (e && e.name === "AbortError") return; }
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+}
+function printOrfSheet() {
+  if (pdfIsIosApp()) { orfSharePdf(); return; }   /* v135: no print screen there */
+  const h = orfSheetHTML();
+  if (!h) { toast("No ORF checks to print yet"); return; }
+  document.getElementById("printsheet").innerHTML = h;
+  const t = document.getElementById("toast");
+  if (t) { clearTimeout(toastT); t.classList.remove("show"); t.style.display = "none"; }
+  suitePrint();
+  if (t) t.style.display = "";
+}
 function orfAnalysisHTML(db) {
   if (!db || !orfGoalsReady()) return "";
   const G = window.SuiteOrf.goals, gs = orfGoalsForPlans(), comp = orfCompState(), now = UI.orfToday ? new Date(UI.orfToday) : new Date();
@@ -4660,90 +5171,8 @@ function orfAnalysisHTML(db) {
   const rows = people.map(p => ({ p: p, pl: G.planFor(db, p.o.id, gs, now, comp) }));
   let h = "";
 
-  /* ---- the class ----
-     v126: one track per child instead of a table of numbers. Every track is
-     on the same scale: the grey run is start to goal, the coloured run and
-     dot are where the latest check landed, the upright tick is the aim line
-     at that check, and the ring is the goal. Children who need a change
-     come first. */
-  h += '<div class="card pad"><div class="sectionhead"><h2>Reading goals</h2><span class="spacer"></span>' +
-    '<span class="hint">Words correct per minute. Goal by ' + esc(G.fmtLong(G.dueIn(now, gs.springDue, gs.seasons.fall))) + ", from each child\u2019s first check. Tap a name to see every check.</span></div>";
-  const withPlan = rows.filter(x => x.pl);
-  if (!withPlan.length) h += '<p class="hint" style="margin-top:6px">No checks this school year yet.</p>';
-  else {
-    const top = Math.max.apply(null, withPlan.map(x => Math.max(x.pl.goal, x.pl.latestY, x.pl.base)));
-    const step = top > 150 ? 40 : 20, MAX = Math.ceil(top * 1.05 / step) * step;
-    const P = v => (Math.max(0, Math.min(MAX, v)) / MAX * 100).toFixed(1) + "%";
-    h += '<div class="ot-key small">' +
-      '<span><svg width="40" height="12" aria-hidden="true"><rect x="0" y="4" width="40" height="4" rx="2" fill="currentColor" opacity=".18"/></svg>Start to goal</span>' +
-      '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="var(--s3)" stroke="var(--panel)" stroke-width="2"/></svg>Latest check</span>' +
-      '<span><svg width="6" height="20" aria-hidden="true"><rect x="2" y="0" width="2" height="20" rx="1" fill="currentColor"/></svg>Aim line: where they needed to be at that check</span>' +
-      '<span><svg width="14" height="14" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="var(--panel)" stroke="currentColor" stroke-width="2"/></svg>Goal</span></div>';
-    const RANK = { below: 1, "r-red": 1, close: 2, "r-yellow": 2, start: 3, on: 4, metBoy: 5, "r-blue": 5, met: 6, "r-green": 6 };
-    const rank = pl => (pl.belowRun >= 3 || pl.flagged) ? 0 : (RANK[pl.status] == null ? 4 : RANK[pl.status]);
-    const order = rows.slice().sort((a, b) => (a.pl ? rank(a.pl) : 9) - (b.pl ? rank(b.pl) : 9) || a.p.name.localeCompare(b.p.name));
-    let ticks = "";
-    for (let v = 0; v <= MAX; v += step) ticks += '<span style="left:' + P(v) + '">' + v + "</span>";
-    h += '<div class="scroll"><table class="ot-table" style="margin-top:4px"><thead><tr><th>Student</th><th class="ot-axis"><span class="sr-only">Start to goal</span><span class="ot-ticks" aria-hidden="true">' + ticks + "</span></th>" +
-      "<th>Where they are</th></tr></thead><tbody>";
-    order.forEach(({ p, pl }) => {
-      const sel = UI.orfGoalSid === p.o.id;
-      const who = esc(p.name) + (p.eld ? ' <span class="chip eld tiny">ELD</span>' : "") + (p.st ? "" : ' <span class="tiny muted">not on the roster</span>');
-      if (!pl) { h += "<tr><td>" + who + '</td><td colspan="2" class="muted small">no checks this year</td></tr>'; return; }
-      const col = ORF_STATUS_COLOR[pl.status] || "var(--ink-3)";
-      const flag = pl.belowRun >= 3 || pl.flagged;
-      const first = pl.status === "start";
-      const goalTxt = pl.goal + (pl.comp ? " with 3/3" : "");
-      const pace = first || pl.result ? "" : pl.diff === 0 ? "on the aim line" : Math.abs(pl.diff) + (pl.diff > 0 ? " ahead of" : " behind") + " the aim line";
-      const nums = first ? "First check " + pl.base + ", goal " + goalTxt : "Started " + pl.base + ", now " + pl.latestY + ", goal " + goalTxt;
-      const detail = (pace ? pace + " \u00b7 " : "") + nums + (pl.latestComp == null ? "" : " \u00b7 comp. " + pl.latestComp + "/3");
-      const lo = Math.min(pl.base, pl.latestY), hi = Math.max(pl.base, pl.latestY);
-      const aimAt = !first && !pl.result ? pl.aim(pl.latest.t) : null;
-      h += '<tr class="clickable' + (sel ? " sel" : "") + '" onclick="orfPickGoal(\'' + esc(p.o.id) + '\')" style="cursor:pointer' + (sel ? ";background:var(--s4-bg)" : "") + '">' +
-        '<td class="ot-name">' + who + "</td>" +
-        '<td class="ot-cell"><span class="ot-track" role="img" aria-label="' + esc(nums + (pace ? ", " + pace : "")) + '">' +
-          '<span class="ot-span" style="left:' + P(pl.base) + ";width:" + P(Math.max(pl.goal, pl.latestY) - pl.base) + '"></span>' +
-          '<span class="ot-fill" style="left:' + P(lo) + ";width:" + P(Math.max(0.5, hi - lo)) + ";background:" + col + '"></span>' +
-          (aimAt != null ? '<span class="ot-aim" style="left:' + P(aimAt) + '"></span>' : "") +
-          '<span class="ot-goal" style="left:' + P(pl.goal) + '"></span>' +
-          '<span class="ot-now" style="left:' + P(pl.latestY) + ";background:" + col + '"></span>' +
-        "</span></td>" +
-        '<td class="ot-where"><span style="color:' + col + ';font-weight:600">' + esc(G.statusLabel(pl)) + "</span>" +
-        (flag ? ' <span class="tag reteach" title="' + (pl.flagged ? "below the grade-level line, within the margin of error" : pl.belowRun + " checks in a row below the aim line") + '">\u2691 ' +
-          (pl.flagged ? "flagged" : pl.belowRun + " in a row below: change the plan") + "</span>" : "") +
-        '<span class="ot-detail">' + esc(detail) + "</span></td></tr>";
-    });
-    h += "</tbody></table></div>";
-    const flagged = withPlan.filter(x => x.pl.belowRun >= 3);
-    if (flagged.length) h += '<p class="small" style="margin-top:8px"><span class="tag reteach">\u2691</span> Three or more checks in a row below the aim line: ' +
-      flagged.map(x => esc(x.p.name)).join(", ") + ".</p>";
-  }
-
-  /* ---- one child ---- */
-  const pick = rows.find(x => x.p.o.id === UI.orfGoalSid && x.pl);
-  if (pick) {
-    const { p, pl } = pick, own = pl.own || {}, notesAll = orfNotesState();
-    h += '<div class="divider"></div><div class="sectionhead"><h3>' + esc(p.name) + "</h3><span class=\"spacer\"></span>" +
-      '<button class="btn sm" onclick="orfPickGoal(null)">Close</button></div>' +
-      '<p style="margin:6px 0 0;border-left:3px solid ' + (ORF_STATUS_COLOR[pl.status] || "var(--accent)") + ';padding:4px 0 4px 10px">' + esc(orfVerdict(pl)) + "</p>" +
-      orfAimSVG(pl) +
-      '<p class="hint" style="margin-top:4px">Dashed: the aim line to the goal. Dots: checks, red when under the line. How the goal was set: ' + esc(pl.why) + ".</p>" +
-      '<div class="row" style="margin-top:8px">' +
-      (pl.winterDue ? '<label class="fld">Winter goal<input type="number" min="1" max="300" value="' + (own.winter != null ? own.winter : "") + '" placeholder="' + (pl.suggestedWinter || "") + '" onchange="orfSetGoal(\'' + esc(p.o.id) + '\',\'winter\',this.value)"></label>' : "") +
-      '<label class="fld">Spring goal<input type="number" min="1" max="300" value="' + (own.spring != null ? own.spring : "") + '" placeholder="' + pl.suggested + '" onchange="orfSetGoal(\'' + esc(p.o.id) + '\',\'spring\',this.value)"></label>' +
-      (pl.custom ? '<button class="btn sm" onclick="orfSetGoal(\'' + esc(p.o.id) + '\',null)">Use the suggested goals</button>' : "") +
-      '</div><table style="margin-top:10px"><thead><tr><th>Check</th><th class="c">WCPM</th><th class="c">vs aim line</th><th class="c">Comprehension</th></tr></thead><tbody>' +
-      pl.checks.slice().reverse().map(c => {
-        const v = comp.records[c.rec.id], nt = notesAll.records[c.rec.id], NT = window.SuiteOrf.notes;
-        const said = nt && nt.notes.length ? '<tr class="orf-said"><td colspan="4" class="small" style="border-top:0;padding-top:0"><span class="muted">What they said:</span> ' +
-          nt.notes.map(x => esc(NT.text(x))).join(" \u00b7 ") + "</td></tr>" : "";
-        const paused = nt && nt.paused ? ' <span class="tiny" style="display:inline-block;padding:1px 7px;border-radius:5px;background:var(--s2-bg);color:var(--s2);font-weight:600" title="The timer was paused for an interruption. The norms assume one unbroken minute, so read this score with that in mind.">paused ' + esc(NT.paused(nt.paused)) + "</span>" : "";
-        return "<tr><td>" + esc(orfDay(c.t)) + (c.rec.passageTitle ? ' <span class="tiny muted">' + esc(c.rec.passageTitle) + "</span>" : "") + paused + '</td><td class="c num">' + c.y +
-          '</td><td class="c num">' + (c.t === pl.baseDate.getTime() ? "start" : (Math.round(c.y - pl.aim(c.t)) > 0 ? "+" : "") + Math.round(c.y - pl.aim(c.t))) +
-          '</td><td class="c"><select aria-label="Comprehension for ' + esc(orfDay(c.t)) + '" onchange="orfSetComp(\'' + esc(c.rec.id) + '\',this.value)"><option value="">\u2014</option>' +
-          [0, 1, 2, 3].map(n => '<option value="' + n + '"' + (v === n ? " selected" : "") + ">" + n + "/3</option>").join("") + "</select></td></tr>" + said;
-      }).join("") + "</tbody></table>";
-  }
+  /* ---- v134: the class, one row each; a row opens to the child ---- */
+  h += orfScorecardHTML(rows, now, gs);
 
   /* ---- how goals are set ---- */
   h += '<details style="margin-top:12px"><summary class="small">How goals are set</summary><div class="row" style="margin-top:8px">' +
@@ -4752,7 +5181,7 @@ function orfAnalysisHTML(db) {
     '<label class="fld">Grade-level line<input type="number" min="1" max="300" value="' + (gs.expectation || "") + '" placeholder="' + window.SuiteOrf.HT[gs.grade][50][2] + '" onchange="orfSetting(\'expectation\',this.value)"></label>' +
     '<label class="fld">Margin of error<input type="number" min="0" max="30" value="' + gs.margin + '" onchange="orfSetting(\'margin\',this.value)"></label>' +
     '<label class="row small" style="gap:6px"><input type="checkbox"' + (gs.rowUp ? " checked" : "") + ' onchange="orfSetting(\'rowUp\',this.checked)"> Below the 25th starts one row up</label>' +
-    '</div><p class="hint" style="margin-top:6px">Winter checkpoint ' + esc(G.fmtLong(G.dueIn(now, gs.winterDue, gs.seasons.fall))) + ", spring goal date " +
+    '</div><p class="hint" style="margin-top:6px">The margin of error is the most a check can sit off the aim line and still be on track; for a slower reader it is 10% of their line, at least ' + ORF_BAND_FLOOR + ' words. The spring results use it as set, around the grade-level line. Winter checkpoint ' + esc(G.fmtLong(G.dueIn(now, gs.winterDue, gs.seasons.fall))) + ", spring goal date " +
     esc(G.fmtLong(G.dueIn(now, gs.springDue, gs.seasons.fall))) + ': set on the school calendar in <a href="#setup" onclick="document.querySelector(\'[data-tab=setup]\').click();return false">Setup</a>.</p></details></div>';
 
   /* ---- suggested groups ---- */
@@ -4866,7 +5295,7 @@ function calendarCardHTML() {
   const cal = suiteCalendar(), dc = districtCalendar();
   const fmt = iso => new Date(iso + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" });
   return '<div class="card pad" id="calendar-card"><h2>School calendar</h2>' +
-    '<p class="hint" style="margin-top:4px">The one calendar for the suite: the report card, the ORF marks and goals, sub plans and Walk to WIN all read these.</p>' +
+    '<p class="hint" style="margin-top:4px">The one calendar for the suite: the term marks, the ORF marks and goals, sub plans and Walk to WIN all read these.</p>' +
     (districtDiffers(dc) ? '<div class="notice warn" style="margin-top:8px"><p class="small" style="margin:0">The planner\u2019s district calendar has school from <strong>' + fmt(dc.first) + "</strong> to <strong>" + fmt(dc.last) +
       "</strong>" + (dc.grading.length ? ", with grading days " + dc.grading.map(fmt).join(", ") : "") + ". The dates below are different.</p>" +
       '<div class="row" style="margin-top:8px"><button class="btn primary" onclick="useDistrictCalendar()">Use the district\u2019s dates</button>' +
@@ -4895,7 +5324,16 @@ function calendarCardHTML() {
     '<label class="fld">Spring goal date<input type="date" data-cal="orfSpringDue" value="' + calIso(cal.springDue) + '"></label></div>' +
     '<p class="hint" style="margin-top:6px">The windows decide which norms a check is read against, and the fall window is where a new school year begins for the ORF goals. Only the month and day are kept, so these carry over from year to year.</p></div>';
 }
-function orfPickGoal(sid) { UI.orfGoalSid = sid; renderORF(); }
+/* v134: a name opens its row and closes it again; focus stays on the name */
+function orfPickGoal(sid) {
+  UI.orfGoalSid = sid && UI.orfGoalSid !== sid ? sid : null;
+  renderORF();
+  if (sid) {
+    const b = [...document.querySelectorAll("#orf-progress tr.sc-row")].find(r => r.dataset.orf === sid);
+    const btn = b && b.querySelector(".sc-btn");
+    if (btn) btn.focus({ preventScroll: true });
+  }
+}
 function orfSetGoal(sid, which, val) {
   if (which == null) { orfWrite(ORF_GOALS_KEY, g => { delete g.goals[sid]; }); renderORF(); return; }
   const v = String(val).trim() === "" ? null : Math.round(+val);
@@ -4945,16 +5383,92 @@ function renderORF() {
     html += '<div class="row" style="margin-top:10px"><button class="btn primary" onclick="syncFromOrf(false)">Bring in readings</button>' +
       '<button class="btn" onclick="importOrfRoster()">Bring the roster over</button></div>';
   } else {
-    html += '<p class="hint" style="margin-top:4px">Not found in this browser. The live link works when both files are opened on the same computer in the same browser, which is how Chrome and Edge treat local files. If yours does not connect, the file import below does the same job.</p>';
+    html += '<p class="hint" style="margin-top:4px">Not found in this browser. The live link works when both files are opened on the same computer in the same browser, which is how Chrome and Edge treat local files. If yours does not connect, the file import in Setup does the same job.</p>';
   }
   html += "</div>";
 
   /* v86: goals, aim line, groups, patterns, read live */
   html += orfAnalysisHTML(db);
 
-  /* import card */
-  html += '<div class="card pad"><h2>Or bring in a file</h2>' +
-    '<p class="hint" style="margin-top:6px">Drop in the backup file your ORF tool saves, or a CSV with a name, a date, and a WCPM column. The shape of the file does not matter \u2014 the fields are detected and you confirm them before anything is imported.</p>' +
+  /* v131: the file import and the 1-4 settings are drawn here but placed
+     after the class's data, so the data cards read together */
+  const setupAt = html.length;
+  /* conversion settings */
+  html += '<div class="card pad"><div class="sectionhead"><h3>How WCPM becomes a 1\u20134</h3><span class="spacer"></span>' +
+    '<label class="row small" style="gap:6px"><input type="checkbox" id="orf-auto"' + (S.settings.orfAutoScore ? " checked" : "") + "> Turn readings into marks automatically</label></div>" +
+    '<label class="fld" style="margin-top:8px">Grade every check against<select id="orf-against">' +
+      '<option value="eoy"' + (orfBasis() === "eoy" ? " selected" : "") + '>End-of-year expectations (as report cards are graded)</option>' +
+      '<option value="season"' + (orfBasis() === "season" ? " selected" : "") + '>The norms for the season it was taken in</option></select></label>' +
+    '<p class="hint">' + (orfBasis() === "eoy"
+      ? "Every check is measured against the spring norms, whenever it was read, because report card marks are graded against end-of-year expectations. A 3 is the end-of-year 50th percentile, so fall and winter marks run lower by design."
+      : "Each check is measured against the norms for its own season, read from its date using the windows on the school calendar (Setup).") +
+    ' Percentiles come from Hasbrouck &amp; Tindal (2017) grade 2 norms. Change the cut points if Creswell uses different ones.</p>' +
+    '<table style="margin-top:10px"><thead><tr><th>Mark</th><th>Student is at or above</th>' +
+    (orfBasis() === "eoy" ? '<th class="c">End of year</th>' : '<th class="c">Fall</th><th class="c">Winter</th><th class="c">Spring</th>') + '</tr></thead><tbody>' +
+    [4, 3, 2].map(mk => {
+      const p = cuts[mk];
+      return "<tr><td>" + markHTML(mk) + '</td><td><select data-cut="' + mk + '">' +
+        [90, 75, 50, 25, 10].map(x => '<option value="' + x + '"' + (x === p ? " selected" : "") + ">" + x + "th percentile</option>").join("") +
+        '</select></td>' + (orfBasis() === "eoy" ? '<td class="c num">' + normAt(p, 2) + "</td>"
+          : '<td class="c num">' + normAt(p, 0) + '</td><td class="c num">' + normAt(p, 1) + '</td><td class="c num">' + normAt(p, 2) + "</td>") + "</tr>";
+    }).join("") +
+    "<tr><td>" + markHTML(1) + '</td><td colspan="' + (orfBasis() === "eoy" ? 2 : 4) + '" class="muted small">anything below the cut for a 2</td></tr>' +
+    "</tbody></table>" +
+    '<div class="row" style="margin-top:12px">' +
+    '<label class="fld">These marks land on<select id="orf-std">' +
+    CATALOG.filter(s => s.s === "ELA" && s.d === "Foundational Skills").map(s => '<option value="' + s.c + '"' + (S.settings.orfStandard === s.c ? " selected" : "") + ">" + esc(s.c + " \u2014 " + s.lbl) + "</option>").join("") +
+    "</select></label></div></div>";
+  const setupHTML = html.slice(setupAt);
+  html = html.slice(0, setupAt);
+
+  /* every reading brought in. v134: "Where the class sits" (the latest
+     check against the 50th, its band and mark) is the Reading progress
+     scorecard now; each check's mark is in this list. */
+  if (S.orf.length && S.students.length) {
+    html += '<div class="card pad"><div class="sectionhead"><h3>All readings</h3><span class="spacer"></span>' +
+      '<button class="btn sm danger" onclick="if(confirm(\'Remove every imported reading?\')){S.orf=[];syncOrfScores();renderORF()}">Clear all</button></div>' +
+      '<div class="scroll" style="max-height:44vh"><table><thead><tr><th>Student</th><th>Date</th><th>Passage</th><th class="c">WCPM</th><th class="c">Accuracy</th><th>Season</th><th class="c">Mark</th><th class="c">Use it</th></tr></thead><tbody>' +
+      S.orf.filter(r => !r.gone).sort((a, b) => b.date.localeCompare(a.date)).map(r => {
+        const st = S.students.find(s => s.id === r.sid), se = seasonOf(r.date);
+        return "<tr><td>" + esc(st ? fullName(st) : "?") + "</td><td>" + esc(r.date) + '</td><td class="tiny muted">' + esc(r.passage || "") + '</td><td class="c num">' + r.wcpm +
+          '</td><td class="c num">' + (r.accuracy ? r.accuracy + "%" : "\u2013") + "</td><td>" + SEASON_NAME[se] +
+          '</td><td class="c">' + markHTML(wcpmToMark(r.wcpm, se)) + '</td><td class="c"><input type="checkbox" data-orfuse="' + r.id + '"' + (r.exclude ? "" : " checked") + "></td></tr>";
+      }).join("") + "</tbody></table></div></div>";
+  }
+
+  html += '<div class="divider"></div>' + setupHTML;
+  html += "</div>";
+  el.innerHTML = html;
+
+  document.getElementById("orf-auto").onchange = e => { S.settings.orfAutoScore = e.target.checked; syncOrfScores(); renderORF(); };
+  document.getElementById("orf-autolink").onchange = e => { S.settings.orfAutoLink = e.target.checked; save(); };
+  document.getElementById("orf-std").onchange = e => { S.settings.orfStandard = e.target.value; syncOrfScores(); renderORF(); };
+  const ag = document.getElementById("orf-against");
+  if (ag) ag.onchange = () => { S.settings.orfAgainst = ag.value === "season" ? "season" : "eoy"; syncOrfScores(); renderORF(); };
+  el.querySelectorAll("[data-cut]").forEach(sl => {
+    sl.onchange = () => {
+      S.settings.orfCuts[Number(sl.dataset.cut)] = Number(sl.value);
+      const c = S.settings.orfCuts;
+      if (!(c[4] >= c[3] && c[3] >= c[2])) { toast("Cut points must go 4 \u2265 3 \u2265 2"); }
+      syncOrfScores(); renderORF();
+    };
+  });
+  el.querySelectorAll("[data-orfuse]").forEach(cb => {
+    cb.onchange = () => {
+      const r = S.orf.find(x => x.id === cb.dataset.orfuse);
+      r.exclude = !cb.checked; syncOrfScores(); renderORF();
+    };
+  });
+}
+
+/* v134: the ORF file import, moved from the ORF tab to Setup with the
+   other ways data comes in. Drawn into its own box so a redraw here leaves
+   the rest of Setup (and anything half-typed there) alone. */
+function renderOrfImport() {
+  const el = document.getElementById("setup-orfimport");
+  if (!el) return;
+  let html = '<div class="card pad" id="orf-import"><h2>Bring in ORF readings from a file</h2>' +
+    '<p class="hint" style="margin-top:6px">For readings that are not in the ORF tool on this device. Drop in the backup file an ORF tool saves, or a CSV with a name, a date, and a WCPM column. The shape of the file does not matter \u2014 the fields are detected and you confirm them before anything is imported.</p>' +
     '<div class="row" style="margin-top:10px"><input type="file" id="orf-file" accept=".json,.csv,.tsv,.txt"><span class="hint">or paste below</span></div>' +
     '<textarea id="orf-paste" rows="4" style="width:100%;margin-top:10px;font-family:ui-monospace,monospace;font-size:12px" placeholder="Paste JSON or CSV rows here"></textarea>' +
     '<div class="row" style="margin-top:10px"><button class="btn primary" onclick="orfRead()">Read this file</button>' +
@@ -4983,124 +5497,22 @@ function renderORF() {
     }).join("");
     html += '<table style="margin-top:12px"><thead><tr><th>In file</th><th>Matched to</th><th>Date</th><th class="c">WCPM</th><th>Season</th><th class="c">Mark</th></tr></thead><tbody>' + prev + "</tbody></table>";
     html += '<div class="row" style="margin-top:12px"><button class="btn primary" onclick="orfImport()">Import ' + c.arr.length + ' readings</button>' +
-      '<button class="btn" onclick="UI.orfCand=null;renderORF()">Cancel</button></div></div>';
+      '<button class="btn" onclick="UI.orfCand=null;renderOrfImport()">Cancel</button></div></div>';
   }
 
-  /* conversion settings */
-  html += '<div class="card pad"><div class="sectionhead"><h3>How WCPM becomes a 1\u20134</h3><span class="spacer"></span>' +
-    '<label class="row small" style="gap:6px"><input type="checkbox" id="orf-auto"' + (S.settings.orfAutoScore ? " checked" : "") + "> Turn readings into marks automatically</label></div>" +
-    '<label class="fld" style="margin-top:8px">Grade every check against<select id="orf-against">' +
-      '<option value="eoy"' + (orfBasis() === "eoy" ? " selected" : "") + '>End-of-year expectations (the report card)</option>' +
-      '<option value="season"' + (orfBasis() === "season" ? " selected" : "") + '>The norms for the season it was taken in</option></select></label>' +
-    '<p class="hint">' + (orfBasis() === "eoy"
-      ? "Every check is measured against the spring norms, whenever it was read, because report card marks are graded against end-of-year expectations. A 3 is the end-of-year 50th percentile, so fall and winter marks run lower by design."
-      : "Each check is measured against the norms for its own season, read from its date using the windows on the school calendar (Setup).") +
-    ' Percentiles come from Hasbrouck &amp; Tindal (2017) grade 2 norms. Change the cut points if Creswell uses different ones.</p>' +
-    '<table style="margin-top:10px"><thead><tr><th>Mark</th><th>Student is at or above</th>' +
-    (orfBasis() === "eoy" ? '<th class="c">End of year</th>' : '<th class="c">Fall</th><th class="c">Winter</th><th class="c">Spring</th>') + '</tr></thead><tbody>' +
-    [4, 3, 2].map(mk => {
-      const p = cuts[mk];
-      return "<tr><td>" + markHTML(mk) + '</td><td><select data-cut="' + mk + '">' +
-        [90, 75, 50, 25, 10].map(x => '<option value="' + x + '"' + (x === p ? " selected" : "") + ">" + x + "th percentile</option>").join("") +
-        '</select></td>' + (orfBasis() === "eoy" ? '<td class="c num">' + normAt(p, 2) + "</td>"
-          : '<td class="c num">' + normAt(p, 0) + '</td><td class="c num">' + normAt(p, 1) + '</td><td class="c num">' + normAt(p, 2) + "</td>") + "</tr>";
-    }).join("") +
-    "<tr><td>" + markHTML(1) + '</td><td colspan="' + (orfBasis() === "eoy" ? 2 : 4) + '" class="muted small">anything below the cut for a 2</td></tr>' +
-    "</tbody></table>" +
-    '<div class="row" style="margin-top:12px">' +
-    '<label class="fld">These marks land on<select id="orf-std">' +
-    CATALOG.filter(s => s.s === "ELA" && s.d === "Foundational Skills").map(s => '<option value="' + s.c + '"' + (S.settings.orfStandard === s.c ? " selected" : "") + ">" + esc(s.c + " \u2014 " + s.lbl) + "</option>").join("") +
-    "</select></label></div></div>";
-
-  /* current fluency picture */
-  if (S.orf.length && S.students.length) {
-    const latestByStudent = {};
-    S.orf.filter(r => !r.exclude && !r.gone).forEach(r => {
-      const cur = latestByStudent[r.sid];
-      if (!cur || r.date > cur.date) latestByStudent[r.sid] = r;
-    });
-    const rows = sortedStudents().map(st => {
-      const r = latestByStudent[st.id];
-      if (!r) return { st: st, none: true };
-      const se = seasonOf(r.date), target = normAt(50, se);
-      return { st: st, r: r, se: se, target: target, gap: Math.round(r.wcpm - target), mark: wcpmToMark(r.wcpm, se), band: pctBand(r.wcpm, se) };
-    });
-    const below = rows.filter(x => !x.none && x.gap <= -10);
-    html += '<div class="divider"></div><div class="card pad"><div class="sectionhead"><h2>Where the class sits</h2><span class="spacer"></span>' +
-      '<span class="hint">Bar shows the latest WCPM against the 50th percentile for that season.</span></div>';
-    html += '<table style="margin-top:6px"><thead><tr><th>Student</th><th class="c">WCPM</th><th>Against the 50th</th><th class="c">Gap</th><th class="c">Percentile band</th><th class="c">Mark</th><th>Checked</th></tr></thead><tbody>';
-    rows.forEach(x => {
-      if (x.none) {
-        html += "<tr><td>" + esc(fullName(x.st)) + '</td><td colspan="6" class="muted small">no readings yet</td></tr>';
-        return;
-      }
-      const pctW = Math.max(3, Math.min(100, (x.r.wcpm / (x.target * 1.6)) * 100));
-      const col = x.gap >= 0 ? "var(--s3)" : (x.gap <= -10 ? "var(--s1)" : "var(--s2)");
-      html += "<tr><td>" + esc(fullName(x.st)) + (x.st.eld ? ' <span class="chip eld tiny">ELD</span>' : "") + "</td>" +
-        '<td class="c num"><strong>' + x.r.wcpm + "</strong></td>" +
-        '<td><span class="wbar"><i style="width:' + pctW.toFixed(1) + "%;background:" + col + '"></i><u style="left:' + (100 / 1.6).toFixed(1) + '%"></u><b>' + x.target + "</b></span></td>" +
-        '<td class="c num" style="color:' + col + ';font-weight:650">' + (x.gap > 0 ? "+" : "") + x.gap + "</td>" +
-        '<td class="c small">' + (x.band ? x.band + "th+" : "below 10th") + "</td>" +
-        '<td class="c">' + markHTML(x.mark) + "</td>" +
-        '<td class="tiny muted">' + esc(x.r.date) + " \u00b7 " + SEASON_NAME[x.se] + "</td></tr>";
-    });
-    html += "</tbody></table>";
-    if (below.length) {
-      html += '<div class="group" style="margin-top:14px"><h3><span class="tag reteach">Fluency group</span> 10 or more words below the 50th percentile</h3><div class="body">' +
-        '<div class="namelist">' + below.map(x => "<span>" + esc(fullName(x.st)) + " <span class=\"tiny muted\">" + x.gap + "</span></span>").join("") + "</div>" +
-        '<p class="small muted" style="margin:0">Hasbrouck and Tindal suggest this margin as the point where a fluency-building program is worth putting in place.</p></div></div>';
-    }
-    html += "</div>";
-
-    /* v86: "Growth since the first check" is the Reading goals card now */
-
-    /* record list */
-    html += '<div class="card pad"><div class="sectionhead"><h3>All readings</h3><span class="spacer"></span>' +
-      '<button class="btn sm danger" onclick="if(confirm(\'Remove every imported reading?\')){S.orf=[];syncOrfScores();renderORF()}">Clear all</button></div>' +
-      '<div class="scroll" style="max-height:44vh"><table><thead><tr><th>Student</th><th>Date</th><th>Passage</th><th class="c">WCPM</th><th class="c">Accuracy</th><th>Season</th><th class="c">Mark</th><th class="c">Use it</th></tr></thead><tbody>' +
-      S.orf.filter(r => !r.gone).sort((a, b) => b.date.localeCompare(a.date)).map(r => {
-        const st = S.students.find(s => s.id === r.sid), se = seasonOf(r.date);
-        return "<tr><td>" + esc(st ? fullName(st) : "?") + "</td><td>" + esc(r.date) + '</td><td class="tiny muted">' + esc(r.passage || "") + '</td><td class="c num">' + r.wcpm +
-          '</td><td class="c num">' + (r.accuracy ? r.accuracy + "%" : "\u2013") + "</td><td>" + SEASON_NAME[se] +
-          '</td><td class="c">' + markHTML(wcpmToMark(r.wcpm, se)) + '</td><td class="c"><input type="checkbox" data-orfuse="' + r.id + '"' + (r.exclude ? "" : " checked") + "></td></tr>";
-      }).join("") + "</tbody></table></div></div>";
-  }
-
-  html += "</div>";
   el.innerHTML = html;
-
   document.getElementById("orf-file").onchange = e => {
     const f = e.target.files[0]; if (!f) return;
     const rd = new FileReader();
     rd.onload = () => { document.getElementById("orf-paste").value = rd.result; orfRead(); };
     rd.readAsText(f);
   };
-  document.getElementById("orf-auto").onchange = e => { S.settings.orfAutoScore = e.target.checked; syncOrfScores(); renderORF(); };
-  document.getElementById("orf-autolink").onchange = e => { S.settings.orfAutoLink = e.target.checked; save(); };
-  document.getElementById("orf-std").onchange = e => { S.settings.orfStandard = e.target.value; syncOrfScores(); renderORF(); };
-  const ag = document.getElementById("orf-against");
-  if (ag) ag.onchange = () => { S.settings.orfAgainst = ag.value === "season" ? "season" : "eoy"; syncOrfScores(); renderORF(); };
-  el.querySelectorAll("[data-cut]").forEach(sl => {
-    sl.onchange = () => {
-      S.settings.orfCuts[Number(sl.dataset.cut)] = Number(sl.value);
-      const c = S.settings.orfCuts;
-      if (!(c[4] >= c[3] && c[3] >= c[2])) { toast("Cut points must go 4 \u2265 3 \u2265 2"); }
-      syncOrfScores(); renderORF();
-    };
-  });
-  el.querySelectorAll("[data-orfuse]").forEach(cb => {
-    cb.onchange = () => {
-      const r = S.orf.find(x => x.id === cb.dataset.orfuse);
-      r.exclude = !cb.checked; syncOrfScores(); renderORF();
-    };
-  });
   const arrSel = document.getElementById("orf-arr");
-  if (arrSel) arrSel.onchange = () => { UI.orfCandIdx = Number(arrSel.value); orfPickCandidate(); renderORF(); };
+  if (arrSel) arrSel.onchange = () => { UI.orfCandIdx = Number(arrSel.value); orfPickCandidate(); renderOrfImport(); };
   el.querySelectorAll("[data-omap]").forEach(sl => {
-    sl.onchange = () => { UI.orfMap[sl.dataset.omap] = sl.value; renderORF(); };
+    sl.onchange = () => { UI.orfMap[sl.dataset.omap] = sl.value; renderOrfImport(); };
   });
 }
-
 function orfRead() {
   const txt = document.getElementById("orf-paste").value.trim();
   if (!txt) { toast("Paste the file or choose one first"); return; }
@@ -5123,7 +5535,7 @@ function orfRead() {
   }
   UI.orfCands = cands; UI.orfCandIdx = 0; UI.orfPeople = buildPeopleIndex(root);
   orfPickCandidate();
-  renderORF();
+  renderOrfImport();
 }
 function orfPickCandidate() {
   const c = UI.orfCands[UI.orfCandIdx];
@@ -5158,7 +5570,7 @@ function orfImport() {
     added++;
   });
   UI.orfCand = null;
-  syncOrfScores(); renderORF();
+  syncOrfScores(); renderOrfImport();
   toast("Imported " + added + " readings" + (missed ? " \u00b7 " + missed + " unmatched" : "") + (bad ? " \u00b7 " + bad + " without a usable WCPM" : ""));
 }
 function orfTemplate() {
@@ -5274,7 +5686,7 @@ function printMissing() {
       "</table></div>";
   });
   document.getElementById("printsheet").innerHTML = h;
-  window.print();
+  suitePrint();
 }
 function missingSummary(sid) {
   const all = S.missing.filter(m => m.sid === sid && !m.excused);
@@ -5679,9 +6091,9 @@ function ireadyMappingCardHTML() {
   const c = ireadyCuts();
   let h = '<div class="card pad"><div class="sectionhead"><h2>Turn iReady into standards marks</h2><span class="spacer"></span>' +
     '<label class="row small" style="gap:6px"><input type="checkbox" id="ir-auto"' + (on ? " checked" : "") + "> On</label></div>";
-  h += '<p class="hint">A domain placement covers a wide band of skills, so treating it as evidence about one standard is a stretch. These marks show up in the class picture, grouping and student pages, but stay out of report card marks unless you tick the box below.</p>';
+  h += '<p class="hint">A domain placement covers a wide band of skills, so treating it as evidence about one standard is a stretch. These marks show up in the class picture, grouping and student pages, but stay out of term marks unless you tick the box below.</p>';
   h += '<label class="row small" style="gap:6px;margin-top:8px"><input type="checkbox" id="ir-inreport"' + (S.settings.ireadyInReport ? " checked" : "") +
-    "> Let these count toward report card marks</label>";
+    "> Let these count toward term marks</label>";
 
   h += '<table style="margin-top:12px"><thead><tr><th>Mark</th><th>When the domain places the student</th></tr></thead><tbody>' +
     [4, 3, 2].map(mk => "<tr><td>" + markHTML(mk) + '</td><td><select data-ircut="' + mk + '">' +
@@ -5891,9 +6303,6 @@ function reloadFromStorage() {
     paintSubjSwitch();
     syncIreadyScores();
   } catch (e) { }
-}
-function pushToFile(now) {
-  if (window.SuiteSync) window.SuiteSync.push(!!now);
 }
 
 function plannerDayCount() {
@@ -6303,90 +6712,6 @@ function stopMapPrompts() {
   dismissMapPrompt();
 }
 
-/* ---------- Reveal Math pacing ----------
-   The twelve units against what the planner recorded: the guide's days for
-   each (flex days included), the days actually spent, and for the unit in
-   hand every lesson with its standards and how many students have a mark
-   on them since it was taught. Nothing here is stored. */
-function revealPacingHTML(lp) {
-  const R = window.RevealPacing;
-  const sb = lp && lp.subjects.find(x => x.id === "math");
-  if (!R || !R.on(sb)) return "";
-  const days = lp.days || {}, per = {}, lessonDate = {};
-  let here = null, hereDate = "";
-  Object.keys(days).sort().forEach(k => {
-    const r = days[k];
-    if (!r || !r.saved || r.noSchool || !r.entries) return;
-    const e = r.entries.math;
-    if (!e || !e.taught || !e.pos || !R.unit(e.pos.unit)) return;
-    const u = Number(e.pos.unit);
-    const o = per[u] = per[u] || { n: 0, from: k, to: k };
-    o.n++; o.to = k;
-    const st = R.find(e.pos);
-    if (st) { if (!lessonDate[st.i]) lessonDate[st.i] = k; here = st; hereDate = k; }
-  });
-  let html = '<div class="card pad"><div class="sectionhead"><h2>Reveal Math pacing</h2><span class="spacer"></span>' +
-    '<span class="hint">' + R.TOTAL + " days in the guide</span></div>";
-  html += '<div style="overflow-x:auto"><table><thead><tr><th>Unit</th><th class="c">Guide</th><th class="c">Taught</th><th>When</th></tr></thead><tbody>' +
-    R.UNITS.map(u => {
-      const a = per[u.u], mine = here && here.u === u.u;
-      const over = a ? a.n - u.total : 0;
-      return "<tr" + (mine ? ' style="font-weight:650"' : "") + "><td>" + u.u + " \u00b7 " + esc(u.title) + (mine ? ' <span class="chip tiny">now</span>' : "") + "</td>" +
-        '<td class="c num">' + u.total + '</td><td class="c num">' + (a ? a.n : "\u2014") +
-        (over > 0 ? ' <span class="tiny muted">+' + over + "</span>" : "") + "</td>" +
-        '<td class="tiny muted">' + (a ? esc(a.from.slice(5) + " \u2013 " + a.to.slice(5)) : "") + "</td></tr>";
-    }).join("") + "</tbody></table></div>";
-  if (here) {
-    const U = R.unit(here.u);
-    html += '<h3 style="margin-top:14px">Unit ' + U.u + " \u00b7 " + esc(U.title) + '</h3><p class="hint">Last recorded: ' + esc(R.name(here)) + " on " + esc(hereDate) + ".</p>";
-    html += '<div style="overflow-x:auto"><table><thead><tr><th>Lesson</th><th>Standards</th><th class="c">Marked</th></tr></thead><tbody>' +
-      U.steps.filter(s => s.k === "L" || s.k === "assess").map(s => {
-        const codes = R.oregon(s).filter(c => byCode[c]);
-        const since = lessonDate[s.i];
-        const n = since && S.students.length ? new Set(S.scores.filter(x => !x.source && codes.includes(x.std) && x.date >= since).map(x => x.sid)).size : null;
-        return "<tr><td>" + (s.k === "L" ? '<span class="num">' + s.u + "-" + s.n + "</span> " : "") + esc(s.k === "L" ? s.t : "Unit assessment") +
-          (s.tg && s.tg.length ? '<div class="tiny muted">' + s.tg.map(esc).join(" ") + "</div>" : "") + "</td>" +
-          "<td>" + (codes.length ? codes.map(c => codeHTML(c)).join(" ") : '<span class="tiny muted">grade 1 review</span>') + "</td>" +
-          '<td class="c num">' + (n == null ? '<span class="tiny muted">' + (since ? "" : "not yet") + "</span>" : n + " of " + S.students.length) + "</td></tr>";
-      }).join("") + "</tbody></table></div>";
-  } else {
-    html += '<p class="hint">Once the planner has a saved day of Math, the unit in hand shows here lesson by lesson.</p>';
-  }
-  return html + "</div>";
-}
-
-/* ---------- Benchmark Advance: the unit in hand ----------
-   The latest saved Reading position's unit, its three weeks, and for each
-   the standards and how many students have a mark on them. */
-function benchmarkHTML(lp) {
-  const B = window.BenchmarkScope;
-  const sb = lp && lp.subjects.find(x => x.id === "reading");
-  if (!B || !B.on(sb)) return "";
-  let at = null;
-  Object.keys(lp.days || {}).sort().forEach(k => {
-    const w = benchmarkWeekOn(k, lp);
-    if (w && lp.days[k].saved) at = { k: k, w: w };
-  });
-  let html = '<div class="card pad"><div class="sectionhead"><h2>Benchmark Advance</h2><span class="spacer"></span>' +
-    '<span class="hint">standards matched from the skill names</span></div>';
-  if (!at) return html + '<p class="hint">Once the planner has a saved day of Reading, the unit in hand shows here week by week.</p></div>';
-  const U = at.w.unit;
-  html += "<h3>Unit " + U.u + " \u00b7 " + esc(U.title) + '</h3><p class="hint">' + esc(U.eq) + " Last recorded: Week " + at.w.week.w + " on " + esc(at.k) + ".</p>";
-  html += '<div style="overflow-x:auto"><table><thead><tr><th>Week</th><th>Reading</th><th>Writing and grammar</th><th class="c">Marked</th></tr></thead><tbody>' +
-    U.weeks.map(w => {
-      const P = B.parts(U.u, w), rc = [], wc = [];
-      P.reading.forEach(x => x.codes.forEach(c => { if (byCode[c] && rc.indexOf(c) < 0) rc.push(c); }));
-      P.writing.forEach(x => x.codes.forEach(c => { if (byCode[c] && wc.indexOf(c) < 0) wc.push(c); }));
-      const all = rc.concat(wc);
-      const n = S.students.length ? new Set(S.scores.filter(x => !x.source && all.includes(x.std)).map(x => x.sid)).size : null;
-      return "<tr" + (w.w === at.w.week.w ? ' style="font-weight:650"' : "") + "><td>" + w.w + '<div class="tiny muted">' + esc((w.anchor || []).map(a => a.t).join(" \u00b7 ")) + "</div></td>" +
-        "<td>" + rc.map(c => codeHTML(c)).join(" ") + "</td><td>" + wc.map(c => codeHTML(c)).join(" ") +
-        '<div class="tiny muted">' + esc(w.writing) + "</div></td>" +
-        '<td class="c num">' + (n == null ? "" : n + " of " + S.students.length) + "</td></tr>";
-    }).join("") + "</tbody></table></div>";
-  return html + "</div>";
-}
-
 /* ============================================================
    TAB — PLANNING
    ============================================================ */
@@ -6432,7 +6757,7 @@ function planningAnalysisHTML() {
       html += '<table style="margin-top:6px"><thead><tr><th>Unit</th><th>Standard</th><th class="c">Students with a mark</th></tr></thead><tbody>' +
         thin.slice(0, 25).map(x => "<tr><td>" + esc((x.sb ? x.sb.name : x.t.sbId) + " \u00b7 Unit " + x.t.unit) +
           '</td><td>' + codeHTML(x.code) + " " + esc(byCode[x.code].lbl) +
-          '</td><td class="c num" style="color:' + (x.n ? "var(--s2)" : "var(--s1)") + ';font-weight:650">' +
+          '</td><td class="c num" style="color:' + (x.n ? "var(--s2-ink)" : "var(--s1)") + ';font-weight:650">' +
           x.n + " of " + S.students.length + "</td></tr>").join("") + "</tbody></table>";
     }
     if (gaps.length) {
