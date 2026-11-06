@@ -119,6 +119,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-vis
   border-radius:var(--radius-sm);background:var(--panel);margin:10px 0}
 .notice b{font-weight:600}
 .notice.warn{border-left:4px solid var(--s2)}
+.wl-table td{vertical-align:top}.wl-who{white-space:nowrap}
+.wl-list{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.wl-list .tag.flag{padding:1px 8px;border-radius:12px;margin-right:4px}
 .notice.ok{border-left:4px solid var(--accent)}
 .btn.ghost{border-color:transparent;background:transparent;color:var(--accent);box-shadow:none;font-weight:500}
 .btn.ghost:hover{background:var(--accent-soft)}
@@ -153,6 +156,8 @@ code.std{font-family:var(--sans);font-weight:600;font-size:12.5px;color:var(--ac
 .scale button[data-v="4"][aria-pressed="true"]{background:var(--s4);border-color:var(--s4);color:#fff}
 .mark{display:inline-flex;align-items:center;justify-content:center;width:25px;height:23px;border-radius:5px;font-weight:600;font-size:13px;border:1px solid transparent}
 .mark.v1{background:var(--s1-bg);color:var(--s1);border-color:var(--s1-line)}
+/* v149: the idle "no work" toggle reads as a button, not a green status */
+.btn.ghost[data-miss],.btn.ghost[data-miss-all]{border:1px solid var(--line-strong);color:var(--ink-2,#475569);font-weight:500}
 /* Text on a mark's own pale tint takes a deeper ink of the same hue: the gold
    at #A87621 is 3.57:1 on its tint. The fill and border keep the mark colour. */
 .mark.v2{background:var(--s2-bg);color:#7F5A14;border-color:var(--s2-line)}
@@ -265,6 +270,74 @@ summary.tiny,summary.small{padding:4px 0}
 #toast.show{opacity:1}
 
 /* ---------- print: everything flattens ---------- */
+/* v143: Report card */
+.rc-top{flex-wrap:wrap;align-items:flex-end;gap:10px}
+.rc-wrap{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}
+.rc-grid{flex:999 1 600px;min-width:0;padding:0;overflow:hidden}
+.rc-scroll{overflow-x:auto}
+table.rc-table{border-collapse:separate;border-spacing:0;width:100%;font-size:13.5px}
+.rc-table th,.rc-table td{border-bottom:1px solid var(--line-2);padding:4px 5px}
+/* v144: every th on the page sticks to the top (the global th rule). Here the
+   names are th too, one per row: they stick to the left only, or they pile up
+   under the header as the box scrolls. The header stays in front of the marks
+   (each .rc-cell is positioned), and its corner in front of both. */
+.rc-table thead th{vertical-align:bottom;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:2}
+.rc-table th.rc-name{text-align:left;padding:7px 12px;white-space:nowrap;position:sticky;left:0;background:var(--panel);z-index:1;font-weight:500;font-size:13.5px;letter-spacing:0;text-transform:none;color:var(--ink)}
+.rc-table tbody th.rc-name{top:auto}
+.rc-table thead th.rc-name{z-index:3;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.rc-table tbody tr:hover th.rc-name{background:#F7F9FA}
+/* the theme makes a phone's tables scroll themselves; this one has its own
+   box, which must be the only scroller for the names and header to stay put */
+#panel-report .rc-scroll table.rc-table{display:table;overflow:visible}
+.rc-col{min-width:88px;padding:10px 5px 6px !important}
+.rc-col code.std,.rc-col .rc-lbl,.rc-col .rc-dist{display:block;margin:0 auto;text-align:center}
+.rc-lbl{font-size:11.5px;color:var(--ink-2);font-weight:400;line-height:1.25;max-width:104px;margin:3px auto 5px !important}
+.rc-dist{display:flex !important;width:64px;height:6px;border-radius:3px;overflow:hidden;background:var(--paper);margin-bottom:3px !important}
+.rc-dist span{display:block;height:100%}
+.rc-col .btn{font-size:12px;padding:2px 6px}
+.rc-cell{position:relative;border:0;background:transparent;padding:4px;border-radius:8px;cursor:pointer;min-width:40px;min-height:34px;font:inherit}
+.rc-cell:hover{background:var(--accent-soft)}
+.rc-cell.on{outline:2px solid var(--accent);outline-offset:-1px;background:var(--accent-soft)}
+.rc-cell:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.rc-cell .mark{width:28px;height:25px}
+.mark.rc-thin{border-style:dashed !important;border-color:var(--s2) !important}
+.mark.rc-over{border:2px solid var(--ink) !important}
+/* v149: from iReady alone = hollow (no fill), dotted in its own colour, so it can't be
+   mistaken for the filled, dashed "fewer than 3 scores" mark */
+.mark.rc-ir{background:var(--panel) !important;border-style:dotted !important;border-width:2px !important;border-color:currentColor !important}
+.rc-i,.rc-ikey{position:absolute;top:0;right:1px;font-size:9.5px;font-weight:700;color:var(--s4);line-height:11px}
+.rc-ikey{position:static;font-size:12px}
+.rc-legend{display:flex;gap:18px;flex-wrap:wrap;align-items:center;padding:10px 12px 12px;font-size:12px;color:var(--ink-2);border-top:1px solid var(--line-2)}
+.rc-legend .mark{width:21px;height:19px;font-size:11px;vertical-align:middle;margin-right:3px}
+.rc-change{color:var(--accent);font-weight:500}
+.rc-why{flex:1 1 320px;min-width:280px;max-width:430px;display:flex;flex-direction:column;gap:10px}
+.rc-whyhead{display:flex;flex-direction:column;gap:2px}
+.rc-eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.rc-who{font-size:17px;font-weight:600}
+.rc-result{display:flex;align-items:center;gap:14px;background:var(--paper);border-radius:10px;padding:11px 13px}
+.mark.rc-big{width:46px;height:42px;font-size:21px;border-radius:9px;flex:none}
+.rc-how{display:flex;flex-direction:column;gap:2px;font-size:13px}
+.rc-thinnote{margin:0;font-size:12.5px}
+.rc-chart{width:100%;height:auto;display:block;margin-top:2px}
+.rc-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--ink-3);margin:-4px 0 0 22px}
+.rc-ev{display:flex;flex-direction:column}
+.rc-evrow{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid var(--line-2);font-size:13px}
+.rc-evrow.early{opacity:.75}
+.rc-date{width:46px;color:var(--ink-2);flex:none}
+.rc-tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--paper);color:var(--ink-2);flex:none}
+.rc-tag.iready{background:var(--s4-bg);color:var(--s4)}
+.rc-tag.orf{background:var(--s3-bg);color:var(--s3)}
+.rc-what{flex:1;min-width:0}
+.rc-set{display:flex;align-items:center;gap:6px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:11px}
+.rc-set .muted{margin-right:4px}
+.rc-setgrp{display:flex;gap:6px}
+.rc-setbtn{width:44px;height:44px;border-radius:8px;border:1px solid var(--line-strong);background:var(--panel);font:inherit;font-weight:600;font-size:15px;cursor:pointer}
+.rc-setbtn.s1{color:var(--s1)}.rc-setbtn.s2{color:var(--s2-ink)}.rc-setbtn.s3{color:var(--s3)}.rc-setbtn.s4{color:var(--s4)}
+.rc-setbtn[aria-pressed="true"].s1{background:var(--s1);color:#fff;border-color:var(--s1)}
+.rc-setbtn[aria-pressed="true"].s2{background:var(--s2);color:#fff;border-color:var(--s2)}
+.rc-setbtn[aria-pressed="true"].s3{background:var(--s3);color:#fff;border-color:var(--s3)}
+.rc-setbtn[aria-pressed="true"].s4{background:var(--s4);color:#fff;border-color:var(--s4)}
+@media (max-width:760px){.rc-why{max-width:none}}
 #printsheet{display:none}
 @media print{
   header.app,nav.tabs,.noprint,#suitenav{display:none !important}
@@ -287,7 +360,17 @@ summary.tiny,summary.small{padding:4px 0}
 .cf-name{font-family:var(--serif);font-size:24px;font-weight:600;margin:0;color:#000}
 .cf-sub{color:#333;margin-top:2px}
 .cf-meta{color:#333;font-size:12px;text-align:right}
-.cf-reading,.cf-stds{margin-top:12px}
+.cf-reading{margin-top:6px}
+.cf-subj{margin-top:12px}
+.cf-subjhead{font-size:15px !important;border-bottom:1px solid #000;padding-bottom:2px}
+.cf-minor{font-size:13px;font-weight:600;margin:0;color:#000}
+.cf-ir{margin:4px 0 0;font-size:12.5px}
+.cf-home{border:1.5px solid #000;padding:5px 10px 6px;margin-top:8px;break-inside:avoid;page-break-inside:avoid}
+.cf-homehead{font-weight:600}
+.cf-home ul{margin:3px 0 0 18px;padding:0}
+.cf-home li{margin:1px 0}
+.cf-pick{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:#444}
+.cf-pick select{font:inherit;font-size:12px;max-width:100%;color:#000;background:#fff;border:1px solid #888;border-radius:4px;padding:3px 4px}
 .cf-hint{color:#444;margin:1px 0 0;font-size:12px}
 .cf-chart{display:block;width:100%;height:auto;margin-top:4px}
 .cf-key{color:#444;font-size:11.5px;margin:4px 0 0}
@@ -299,17 +382,18 @@ summary.tiny,summary.small{padding:4px 0}
 .cf-table tr{break-inside:avoid}
 .cf-table .cf-c{text-align:center;width:44px}
 .cf-mark{display:inline-block;min-width:22px;border:1px solid #000;font-weight:700;font-variant-numeric:tabular-nums;line-height:18px}
-.cf-arrow{font-size:16px;width:28px !important}
 .cf-none{color:#444;margin:8px 0 0}
-.cf-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-width:760px){
   .confsheet{padding:18px 16px;font-size:13px}
+  .cf-pick select{font-size:16px;min-height:40px}
   .cf-name{font-size:20px}
 }
 @media print{
   #printsheet .confsheet{border:0;border-radius:0;padding:0;max-width:none;break-after:page;page-break-after:always}
   #printsheet .confsheet:last-child{break-after:auto;page-break-after:auto}
   #printsheet .cf-table th{background:none !important}
+  #printsheet .cf-table td{padding:1.5px 0}
+  #printsheet .cf-subj{margin-top:9px;break-inside:avoid;page-break-inside:avoid}
 }
 
 /* ---------- v122: class goal ---------- */
@@ -637,7 +721,10 @@ body.gg-dragging,body.gg-dragging *{cursor:grabbing !important;-webkit-user-sele
    wide. Nothing below changes a desktop render. */
 @media (max-width:760px){
   main{padding:12px 12px 96px}
-  header.app{padding:0 12px}
+  /* v149: on a phone the header (three rows of tabs) took a quarter of the
+     screen and stayed there, leaving room for three children while grading.
+     It scrolls away now; the tabs still wrap, so none is ever out of sight. */
+  header.app{padding:0 12px;position:relative;top:auto}
   /* The title, the year and the save flag are all things you already know.
      The subject switch drives every tab, so it is the one that stays. */
   .brandrow{gap:8px;padding:8px 0 6px}
@@ -740,6 +827,7 @@ body.gg-dragging,body.gg-dragging *{cursor:grabbing !important;-webkit-user-sele
     <button role="tab" data-tab="students" aria-selected="false">Students</button>
     <button role="tab" data-tab="orf" aria-selected="false">ORF</button>
     <button role="tab" data-tab="conf" aria-selected="false">Conferences</button>
+    <button role="tab" data-tab="report" aria-selected="false">Report card</button>
     <button role="tab" data-tab="setup" aria-selected="false">Setup</button>
   </nav>
 </header>
@@ -751,6 +839,7 @@ body.gg-dragging,body.gg-dragging *{cursor:grabbing !important;-webkit-user-sele
   <section class="panel" id="panel-students" hidden></section>
   <section class="panel" id="panel-orf" hidden></section>
   <section class="panel" id="panel-conf" hidden></section>
+  <section class="panel" id="panel-report" hidden></section>
   <section class="panel" id="panel-setup" hidden></section>
   <div id="printsheet"></div>
 </main>
@@ -772,6 +861,14 @@ const CATALOG = [
 /* ---------------- MATH ---------------- */
 {c:"2.OA.A.1",s:"Math",d:"Operations",lvl:1,lbl:"Add/subtract word problems to 100",t:"Use addition and subtraction within 100 to solve one- and two-step problems in authentic contexts by using drawings and equations with a symbol for the unknown."},
 {c:"2.OA.B.2",s:"Math",d:"Operations",lvl:1,lbl:"Fluency within 20",t:"Fluently add and subtract within 20 using accurate, efficient, and flexible strategies and algorithms based on place value and properties of operations."},
+/* v145: his split, not Oregon's. 2.OA.B.2 is one standard in the 2021 Oregon
+   standards; he marks adding and subtracting apart. Both count toward
+   2.OA.B.2 on the report card (rcParent), which stays the Synergy row.
+   v148: not any more. He grades them apart in Synergy too, so each half is
+   its own report card line (RC_OWN_LINE).
+   `shown`: listed in Setup like a main standard, sub-standards on or off. */
+{c:"2.OA.B.2a",s:"Math",d:"Operations",lvl:2,shown:1,lbl:"Add fluently within 20",t:"Fluently add within 20 using accurate, efficient, and flexible strategies and algorithms based on place value and properties of operations."},
+{c:"2.OA.B.2b",s:"Math",d:"Operations",lvl:2,shown:1,lbl:"Subtract fluently within 20",t:"Fluently subtract within 20 using accurate, efficient, and flexible strategies and algorithms based on place value and properties of operations."},
 {c:"2.OA.C.3",s:"Math",d:"Operations",lvl:1,lbl:"Odd and even",t:"Determine whether a group up to 20 objects has an odd or even number by pairing objects or counting them by 2s; record using drawings and equations including expressing an even number as a sum of two equal addends."},
 {c:"2.OA.C.4",s:"Math",d:"Operations",lvl:1,lbl:"Arrays as repeated addition",t:"Use addition to find the total number of objects arranged in rectangular arrays with up to 5 rows and up to 5 columns; write an equation to express the total as a sum of equal addends."},
 
@@ -922,6 +1019,8 @@ const DEFAULT_RC = [
 const PARENT_WORDS = {
 "2.OA.A.1":"Solves story problems with adding and subtracting up to 100",
 "2.OA.B.2":"Adds and subtracts within 20 quickly and accurately",
+"2.OA.B.2a":"Adds within 20 quickly and accurately",
+"2.OA.B.2b":"Subtracts within 20 quickly and accurately",
 "2.OA.C.3":"Tells whether a number is odd or even",
 "2.OA.C.4":"Uses adding to count objects in rows and columns",
 "2.NBT.A.1":"Understands hundreds, tens, and ones",
@@ -1107,7 +1206,90 @@ function hydrate(p) {
   if (!out.seeded || typeof out.seeded !== "object") out.seeded = {};
   seedRevealUnits(out);
   seedBenchmarkUnits(out);
+  /* v143: report cards are figured by power law over the year so far, iReady
+     included, as he asked. Once, and flagged: a later change in Setup stays. */
+  if (!out.seeded.rcPowerLaw) {
+    out.settings.rule = "powerlaw";
+    out.settings.rcYTD = true;
+    out.settings.ireadyInReport = true;
+    out.seeded.rcPowerLaw = 1;
+  }
+  /* v148: a standard with no scores takes its mark from iReady alone. On
+     once, as he asked; turning it off in Setup stays off. */
+  if (!out.seeded.rcIreadyFill) {
+    out.settings.rcIreadyFill = true;
+    out.seeded.rcIreadyFill = 1;
+  }
+  splitFluency20(out);
+  /* v148: 2.OA.B.2's halves are separate report card lines now. A mark he
+     set on the old combined line goes to both halves, once. */
+  if (!out.seeded.fl20RcLines) {
+    Object.keys(out.overrides || {}).forEach(k => {
+      const m = /^(.*\|std:)2\.OA\.B\.2$/.exec(k);
+      if (!m) return;
+      [FL20_ADD, FL20_SUB].forEach(c => { if (!out.overrides[m[1] + c]) out.overrides[m[1] + c] = out.overrides[k]; });
+      delete out.overrides[k];
+    });
+    out.seeded.fl20RcLines = 1;
+  }
+  /* v149: a "no work" logged before the assignment got its name kept the old
+     name (names only relabelled marks then). Where one name is on that
+     standard and date, give the "no work" that name, once. */
+  if (!out.seeded.missCtx) {
+    (out.missing || []).forEach(m => {
+      const names = [...new Set((out.scores || []).filter(x => x.std === m.std && x.date === m.date && !x.source).map(x => x.ctx || ""))];
+      if (names.length === 1 && (m.ctx || "") !== names[0]) m.ctx = names[0];
+    });
+    out.seeded.missCtx = 1;
+  }
   return out;
+}
+/* v145: "Fluency within 20" (2.OA.B.2) became two, adding (2.OA.B.2a) and
+   subtracting (2.OA.B.2b). Every mark made so far was on adding, his word,
+   so hand marks and their missing-work records move to 2.OA.B.2a; iReady's
+   rows stay on 2.OA.B.2 (they rebuild, and its Algebra score is neither
+   half). Report card overrides stay on 2.OA.B.2, still the report card's
+   row (until v148, which gives each half its own line). Lists of standards (class goals, year goals) take both halves; a
+   group, its goal and its pins take adding, as their marks were.
+   Once, and flagged: anything he changes afterwards stays. */
+const FL20 = "2.OA.B.2", FL20_ADD = "2.OA.B.2a", FL20_SUB = "2.OA.B.2b";
+function fl20Codes(codes) {
+  if (!Array.isArray(codes) || codes.indexOf(FL20) < 0) return codes;
+  const out = [];
+  codes.forEach(c => { (c === FL20 ? [FL20_ADD, FL20_SUB] : [c]).forEach(x => { if (out.indexOf(x) < 0) out.push(x); }); });
+  return out;
+}
+function splitFluency20(st) {
+  if (st.seeded.fluency20Split) return;
+  st.scores.forEach(x => { if (x && x.std === FL20 && !x.source) x.std = FL20_ADD; });
+  st.missing.forEach(x => { if (x && x.std === FL20) x.std = FL20_ADD; });
+  if (st.active[FL20]) { st.active[FL20_ADD] = true; st.active[FL20_SUB] = true; delete st.active[FL20]; }
+  Object.keys(st.groupPins).forEach(k => {
+    const m = /^(.*)\|2\.OA\.B\.2$/.exec(k);
+    if (!m) return;
+    const to = m[1] + "|" + FL20_ADD;
+    if (!st.groupPins[to]) st.groupPins[to] = st.groupPins[k];
+    delete st.groupPins[k];
+  });
+  Object.keys(st.unitMap).forEach(k => {
+    const cur = st.unitMap[k];
+    if (!Array.isArray(cur) || cur.indexOf(FL20) < 0) return;
+    const R = window.RevealPacing, u = /^math\|(\d+)$/.exec(k);
+    const halves = u && R ? R.unitOregon(Number(u[1])).filter(c => c === FL20_ADD || c === FL20_SUB) : [];
+    const out = [];
+    cur.forEach(c => { (c === FL20 ? (halves.length ? halves : [FL20_ADD, FL20_SUB]) : [c]).forEach(x => { if (out.indexOf(x) < 0) out.push(x); }); });
+    st.unitMap[k] = out;
+  });
+  st.goals.forEach(g => {
+    if (!g) return;
+    g.codes = fl20Codes(g.codes);
+    /* a group goal follows its group, which goes to adding; a class goal
+       keeps 2.OA.B.2 as its name and counts both halves */
+    if (g.group && g.focus && g.focus.kind === "std" && g.focus.key === FL20) { g.focus.key = FL20_ADD; g.codes = (g.codes || []).filter(c => c !== FL20_SUB); }
+  });
+  st.ggroups.forEach(g => { if (g && g.std === FL20) g.std = FL20_ADD; });
+  if (st.yearGoals) st.yearGoals.groups.forEach(g => { if (g) g.codes = fl20Codes(g.codes); });
+  st.seeded.fluency20Split = 1;
 }
 /* The unit -> standards map was left empty because only he knew what his
    units covered. The district's Reveal pacing guide now says, lesson by
@@ -1144,6 +1326,8 @@ function seedBenchmarkUnits(st) {
 function blankState() {
   const active = {};
   CATALOG.forEach(s => { if (s.lvl === 1) active[s.c] = true; });
+  /* v145: fluency within 20 is marked as its two halves */
+  delete active[FL20]; active[FL20_ADD] = true; active[FL20_SUB] = true;
   const y = new Date().getMonth() >= 6 ? new Date().getFullYear() : new Date().getFullYear() - 1;
   return {
     v: 1,
@@ -1167,12 +1351,12 @@ function blankState() {
     terms: splitYear(y + "-09-01", (y + 1) + "-06-11", 4),
     overrides: {},
     groupPins: {},
-    settings: { rule: "weighted", teacher: "", year: y + "\u2013" + (y + 1), showSubs: false,
+    settings: { rule: "powerlaw", rcYTD: true, teacher: "", year: y + "\u2013" + (y + 1), showSubs: false,
       orfAutoScore: true, orfStandard: "2.RF.4", orfCuts: { 4: 75, 3: 50, 2: 25 }, orfAgainst: "eoy",
       orfSeason: { fall: "08-01", winter: "12-01", spring: "03-01" }, orfAutoLink: true,
       yearStart: y + "-09-01", yearEnd: (y + 1) + "-06-11", carryForward: true, studentGrade: 2, subject: "Math",
-      ireadyAutoScore: true, ireadyInReport: false, ireadyCuts: { 4: 1, 3: 0, 2: -1 }, ireadyMap: null,
-      noMapPrompts: false, mathCodes: "oregon" }
+      ireadyAutoScore: true, ireadyInReport: true, ireadyCuts: { 4: 1, 3: 0, 2: -1 }, ireadyMap: null,
+      noMapPrompts: false, mathCodes: "oregon", rcIreadyFill: true }
   };
 }
 let S = blankState();
@@ -1200,7 +1384,8 @@ let UI = {
   groupStd: "",
   groupCount: 4,
   studentSel: "",
-  reportTerm: "t1",
+  reportTerm: "",           /* v143: "" = the term we are in */
+  rcSel: null,              /* v143: { sid, code } the why panel shows */
   orfOrder: "need",         /* v134: Reading progress, needs attention first or A-Z */
   studentTerm: "",          /* v104: the term the student page lists assignments for ("" = the current one, "all" = the year) */
   studentUnmarked: false,   /* v104: only the assignments still without this child's mark */   /* v104: the entry sheet, one column per standard or one block per student */
@@ -1252,6 +1437,9 @@ function fullName(st) { return st ? (st.first + " " + st.last).trim() : ""; }
 /* the other names a child goes by (v76): Setup → Roster → Also called */
 function akaOf(st) { return window.SuiteNames ? window.SuiteNames.akaList(st && st.aka) : []; }
 function nickHint(st) { const f = String(st.first || ""); return f.length > 4 ? f.slice(0, 3) : "a nickname"; }
+/* listed in Setup and the mapping pickers: main standards, sub-standards
+   when "Show sub-standards" is on, and any marked `shown` (v145) */
+function stdListed(s) { return !!(S.settings.showSubs || s.lvl === 1 || s.shown); }
 function activeCodes(subject) {
   return CATALOG.filter(s => S.active[s.c] && (!subject || subject === "All" || s.s === subject)).map(s => s.c);
 }
@@ -1266,9 +1454,31 @@ function inWindow(sc, days) {
 }
 function markHTML(v) { return '<span class="mark ' + (v ? "v" + v : "vnone") + '">' + (v || "\u2013") + "</span>"; }
 function avg(a) { return a.length ? a.reduce((x, y) => x + y, 0) / a.length : null; }
+/* v143: Marzano's power law. Scores in date order are fitted to y = a\u00b7x^b
+   (least squares on the logs, x = 1, 2, 3, \u2026) and the curve is read at the
+   newest score: where the child is now, with later work counting more. It
+   needs a trend to fit, so with fewer than POWER_MIN scores the plain
+   average stands in (and the report card flags it). Clamped to 1\u20134. */
+const POWER_MIN = 3;
+function powerFit(vals) {
+  const n = vals.length;
+  const xs = vals.map((_, i) => Math.log(i + 1)), ys = vals.map(v => Math.log(Math.max(0.1, v)));
+  const mx = avg(xs), my = avg(ys);
+  let sxx = 0, sxy = 0;
+  xs.forEach((x, i) => { sxx += (x - mx) * (x - mx); sxy += (x - mx) * (ys[i] - my); });
+  const b = sxx ? sxy / sxx : 0, a = my - b * mx;
+  return { a: a, b: b, at: i => Math.max(1, Math.min(4, Math.exp(a + b * Math.log(i + 1)))), n: n };
+}
+function powerLaw(vals) {
+  if (!vals.length) return null;
+  if (vals.length < POWER_MIN) return Math.round(avg(vals) * 100) / 100;
+  const f = powerFit(vals);
+  return Math.round(f.at(vals.length - 1) * 100) / 100;
+}
 function computeMark(vals) {
   if (!vals.length) return null;
   const rule = S.settings.rule;
+  if (rule === "powerlaw") return powerLaw(vals);
   if (rule === "latest") return vals[vals.length - 1];
   if (rule === "mean") return Math.round(avg(vals) * 10) / 10;
   let num = 0, den = 0;
@@ -1330,7 +1540,7 @@ function parseHash() {
 }
 /* v134: the iReady and Report card tabs are gone; a link to either (a
    bookmark, an old note) opens Setup, where bringing in iReady now lives */
-const RETIRED_TABS = { iready: "setup", report: "setup" };
+const RETIRED_TABS = { iready: "setup" };   /* v143: Report card is back */
 function openTabFromHash() {
   let { tab, params } = parseHash();
   if (RETIRED_TABS[tab]) tab = RETIRED_TABS[tab];
@@ -1372,6 +1582,7 @@ function render() {
   if (UI.tab === "students") renderStudents();
   if (UI.tab === "orf") renderORF();
   if (UI.tab === "conf") renderConferences();
+  if (UI.tab === "report") renderReport();
   if (UI.tab === "setup") renderSetup();
   document.getElementById("metaline").textContent =
     S.students.length + " students \u00b7 " + S.scores.length + " marks \u00b7 " + (S.settings.year || "");
@@ -1453,13 +1664,14 @@ function renderEnter() {
       "</div>" +
       (sib.length ? '<div class="row" style="margin-top:8px;gap:8px;align-items:center"><span class="tiny muted">\u201c' + esc(UI.enterCtx) + "\u201d on this date also covers " +
         esc(sib.map(c => dispCode(c)).join(", ")) + '.</span><button class="btn sm" data-multi="' + esc([UI.enterStd].concat(sib).join(" ")) + '">Grade all ' + (sib.length + 1) + " together</button></div>" : "") +
+      sameDayHTML() +
       "</div>";
     html += '<div id="rosterlist">';
     roster.forEach(st => {
-      const todayScore = S.scores.find(x => x.sid === st.id && x.std === UI.enterStd && x.date === UI.enterDate);
+      const todayScore = S.scores.find(x => x.sid === st.id && x.std === UI.enterStd && x.date === UI.enterDate && !x.source && sameCtx(x, (UI.enterCtx || "")));
       const prior = scoresFor(st.id, UI.enterStd).filter(x => x.date !== UI.enterDate);
       const prev = prior.length ? prior[prior.length - 1] : null;
-      const miss = missingFor(st.id, UI.enterStd, UI.enterDate);
+      const miss = missingFor(st.id, UI.enterStd, UI.enterDate, (UI.enterCtx || ""));
       html += '<div class="entryrow"' + (miss ? ' style="background:var(--s1-bg)"' : "") + ">" +
         '<span class="nm">' + nameLink(st, fullName(st)) + (st.eld ? ' <span class="chip eld">ELD</span>' : "") + "</span>" +
         '<span class="prev">' + (prev ? "was " + markHTML(prev.v) + ' <span class="tiny">' + esc(prev.date.slice(5)) + "</span>" : '<span class="tiny muted">no prior</span>') + "</span>" +
@@ -1504,8 +1716,9 @@ function renderEnter() {
   if (back) back.onclick = () => chooseLesson("");
   const ctx = document.getElementById("e-ctx");
   if (ctx) {
+    UI.ctxWas = UI.enterCtx || "";
     ctx.oninput = e => { UI.enterCtx = e.target.value; };
-    ctx.onchange = () => renderEnter();
+    ctx.onchange = () => { renameCtx(UI.ctxWas, (UI.enterCtx || "").trim() === "" ? "" : UI.enterCtx); renderEnter(); };
   }
 
   if (multi) wireMulti(el, multi);
@@ -1534,16 +1747,53 @@ function renderEnter() {
   });
   el.querySelectorAll("input.note[data-sid]").forEach(inp => {
     inp.onchange = () => {
-      const rec = S.scores.find(x => x.sid === inp.dataset.sid && x.std === UI.enterStd && x.date === UI.enterDate);
+      const rec = S.scores.find(x => x.sid === inp.dataset.sid && x.std === UI.enterStd && x.date === UI.enterDate && !x.source && sameCtx(x, (UI.enterCtx || "")));
       if (rec) { rec.note = inp.value; save(); } else if (inp.value) { toast("Give a mark first, then the note saves with it"); }
     };
   });
 }
 
+/* v149: each "What was it?" is its own assignment, with its own marks, so an
+   exit ticket and a small-group check on the same skill and day both count.
+   Name the others on this standard and date, so it is plain this one is apart. */
+function sameDayHTML() {
+  const cur = UI.enterCtx || "";
+  const other = S.scores.filter(x => x.std === UI.enterStd && x.date === UI.enterDate && !x.source && (x.ctx || "") !== cur);
+  if (!other.length) return "";
+  const names = [...new Set(other.map(x => x.ctx || "no name"))];
+  return '<p class="notice samedaynote" role="note" style="margin:8px 0 0">Also on this standard and date: ' +
+    names.map(n => "\u201c" + esc(n) + "\u201d").join(" and ") + ". Its marks are kept apart from this one\u2019s.</p>";
+}
+/* v149: changing the name of an assignment already being graded renames its
+   marks with it, rather than leaving them behind as a second assignment.
+   Typing the name of one that already has marks opens that one instead. */
+function renameCtx(from, to) {
+  if (from === to) return;
+  const codes = UI.enterMulti ? (multiCodes() || [UI.enterStd]) : [UI.enterStd];
+  const mine = x => codes.indexOf(x.std) >= 0 && x.date === UI.enterDate && !x.source;
+  const olds = S.scores.filter(x => mine(x) && (x.ctx || "") === from);
+  if (!olds.length) return;
+  if (S.scores.some(x => mine(x) && (x.ctx || "") === to)) {
+    toast("\u201c" + (to || "no name") + "\u201d already has marks on this date, so it is open now");
+    return;
+  }
+  olds.forEach(x => { x.ctx = to; });
+  S.missing.forEach(m => { if (codes.indexOf(m.std) >= 0 && m.date === UI.enterDate && (m.ctx || "") === from) m.ctx = to; });
+  UI.undo = []; UI.lastAll = null;
+  save();
+  toast("Renamed: " + olds.length + (olds.length === 1 ? " mark" : " marks") + " now under \u201c" + (to || "no name") + "\u201d");
+}
 function setScore(sid, code, v) {
   UI.lastAll = null;
-  const i = S.scores.findIndex(x => x.sid === sid && x.std === code && x.date === UI.enterDate);
+  const ctx = (UI.enterCtx || "");
+  const i = S.scores.findIndex(x => x.sid === sid && x.std === code && x.date === UI.enterDate && !x.source && sameCtx(x, ctx));
   const st = S.students.find(x => x.id === sid);
+  /* v149: Undo puts back exactly what this tap replaced. It used to pop the
+     newest record, which after a change or a clear was someone else's mark. */
+  (UI.undo = UI.undo || []).push({ sid: sid, code: code, date: UI.enterDate, ctx: ctx,
+    prev: i >= 0 ? Object.assign({}, S.scores[i]) : null,
+    miss: S.missing.filter(m => m.sid === sid && m.std === code && m.date === UI.enterDate && sameCtx(m, ctx)).map(m => Object.assign({}, m)) });
+  if (UI.undo.length > 50) UI.undo.shift();
   if (i >= 0 && S.scores[i].v === v) {
     S.scores.splice(i, 1);
     UI.log.push("Cleared " + fullName(st) + " \u2014 " + code);
@@ -1554,13 +1804,17 @@ function setScore(sid, code, v) {
     S.scores.push({ id: uid(), sid: sid, std: code, v: v, date: UI.enterDate, note: "", ctx: UI.enterCtx || "" });
     UI.log.push(fullName(st) + " \u2014 " + code + " = " + v);
   }
-  clearMissingOnScore(sid, code, UI.enterDate);
+  clearMissingOnScore(sid, code, UI.enterDate, ctx);
   save(); renderEnter();
 }
 function undoLast() {
   if (UI.lastAll) { undoAll(); return; }
-  if (!S.scores.length) return;
-  S.scores.pop(); UI.log.push("Undid last entry"); save(); renderEnter();
+  const u = (UI.undo || []).pop();
+  if (!u) return;
+  S.scores = S.scores.filter(x => !(x.sid === u.sid && x.std === u.code && x.date === u.date && !x.source && sameCtx(x, u.ctx)));
+  if (u.prev) S.scores.push(u.prev);
+  S.missing = S.missing.filter(m => !(m.sid === u.sid && m.std === u.code && m.date === u.date && sameCtx(m, u.ctx))).concat(u.miss);
+  UI.log.push("Undid last entry"); save(); renderEnter();
 }
 
 /* ============================================================
@@ -1999,15 +2253,22 @@ function renderGroups() {
   if (!flags.length) {
     html += '<div class="notice ok"><b>Nothing flagged.</b><span>Come back after a few more entries.</span></div>';
   } else {
-    const slipping = flags.filter(f => f.t === "down").length;
-    html += '<div class="notice warn"><b>Worth a look</b><span>' +
-      (slipping
-        ? slipping + " student" + (slipping === 1 ? "" : "s") + " slipped on a standard" +
-          (flags.length > slipping ? ", and " + (flags.length - slipping) + " other flag" + (flags.length - slipping === 1 ? "" : "s") : "")
-        : flags.length + " flag" + (flags.length === 1 ? "" : "s") + " to read") +
-      ".</span></div>";
-    html += '<div class="card"><table><thead><tr><th>Student</th><th>What stands out</th></tr></thead><tbody>' +
-      flags.slice(0, 30).map(f => '<tr><td><span class="tag flag" style="padding:1px 8px;border-radius:12px">' + (f.t === "down" ? "Slipping" : f.t === "mix" ? "Mismatch" : f.t === "growth" ? "Flat growth" : "Thin data") + "</span> " + esc(f.who) + "</td><td>" + esc(f.why) + "</td></tr>").join("") +
+    /* v149: one row per child, every flag of theirs together, most flagged
+       first; it listed each flag on its own row, the same child up to three
+       times, and counted flags as students */
+    const TAG = { down: "Slipping", mix: "Mismatch", growth: "Flat growth", thin: "Thin data" };
+    const byKid = new Map();
+    flags.forEach(f => { if (!byKid.has(f.who)) byKid.set(f.who, []); byKid.get(f.who).push(f); });
+    const rows = [...byKid.entries()].sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]));
+    const slip = rows.filter(r => r[1].some(f => f.t === "down")).length;
+    html += '<div class="notice warn"><b>Worth a look</b><span>' + rows.length + (rows.length === 1 ? " child" : " children") +
+      (slip ? ", " + slip + " slipping on a standard" : "") + ".</span></div>";
+    html += '<div class="card"><table class="wl-table"><thead><tr><th>Student</th><th>What stands out</th></tr></thead><tbody>' +
+      rows.map(([who, fs]) => {
+        const st = S.students.find(x => fullName(x) === who);
+        return '<tr data-wl="' + esc(who) + '"><td class="wl-who">' + (st ? nameLink(st, who) : esc(who)) + "</td><td><ul class=\"wl-list\">" +
+          fs.map(f => '<li><span class="tag flag">' + TAG[f.t] + "</span> " + esc(f.why) + "</li>").join("") + "</ul></td></tr>";
+      }).join("") +
       "</tbody></table></div>";
   }
 
@@ -2054,6 +2315,14 @@ function renderStudents() {
   /* surfaced here, where the roster is, rather than left for report cards */
   let html = '<div class="stack">' + duplicateNoticeHTML() + '<div class="card pad"><div class="row">' +
     '<label class="fld">Student<select id="st-sel">' + roster.map(s => '<option value="' + s.id + '"' + (s.id === UI.studentSel ? " selected" : "") + ">" + esc(s.last + ", " + s.first) + "</option>").join("") + "</select></label>" +
+    /* v149: step child by child without reopening the list */
+    (function () {
+      const i = roster.findIndex(s => s.id === UI.studentSel), p = roster[i - 1], n = roster[i + 1];
+      return '<span class="row st-step" style="gap:6px;align-self:flex-end">' +
+        '<button type="button" class="btn sm" data-st-step="' + (p ? esc(p.id) : "") + '"' + (p ? ' aria-label="Previous student: ' + esc(p.first + " " + p.last) + '"' : ' disabled aria-label="Previous student"') + '>\u2190</button>' +
+        '<span class="small muted num">' + (i + 1) + " of " + roster.length + "</span>" +
+        '<button type="button" class="btn sm" data-st-step="' + (n ? esc(n.id) : "") + '"' + (n ? ' aria-label="Next student: ' + esc(n.first + " " + n.last) + '"' : ' disabled aria-label="Next student"') + '>\u2192</button></span>';
+    })() +
     '<span style="flex:1"></span><button class="btn sm" onclick="printStudent()">Print this student</button></div></div>';
   html += studentAssignmentsHTML(st);
 
@@ -2121,6 +2390,12 @@ function renderStudents() {
   html += "</div>";
   el.innerHTML = html;
   document.getElementById("st-sel").onchange = e => { UI.studentSel = e.target.value; renderStudents(); };
+  el.querySelectorAll("[data-st-step]").forEach(b => b.onclick = () => {
+    if (!b.dataset.stStep) return;
+    UI.studentSel = b.dataset.stStep; renderStudents();
+    const again = [...el.querySelectorAll("[data-st-step]")].find(x => x.textContent === b.textContent && !x.disabled);
+    if (again) again.focus();
+  });
   const ts = document.getElementById("sa-term");
   if (ts) ts.onchange = e => { UI.studentTerm = e.target.value; renderStudents(); };
   const un = document.getElementById("sa-unmarked");
@@ -2154,9 +2429,9 @@ function studentAssignmentsHTML(st) {
     else if (!seen[k].ctx && a.ctx) seen[k].ctx = a.ctx;
   });
   list.sort((a, b) => b.date.localeCompare(a.date) || a.std.localeCompare(b.std));
-  const markOf = a => S.scores.find(x => x.sid === st.id && x.std === a.std && x.date === a.date) || null;
+  const markOf = a => S.scores.find(x => x.sid === st.id && x.std === a.std && x.date === a.date && !x.source && sameCtx(x, a.ctx || "")) || null;
   const marked = list.filter(a => markOf(a)).length;
-  const missing = list.filter(a => missingFor(st.id, a.std, a.date)).length;
+  const missing = list.filter(a => missingFor(st.id, a.std, a.date, a.ctx || "")).length;
   const total = list.length;   /* before "only ones without a mark" narrows it */
   if (UI.studentUnmarked) list = list.filter(a => !markOf(a));
   let h = '<div class="card pad"><div class="sectionhead"><h3>Assignments</h3><span class="spacer"></span>' +
@@ -2173,7 +2448,7 @@ function studentAssignmentsHTML(st) {
     return h;
   }
   h += '<div style="margin-top:6px">' + list.map(a => {
-    const m = markOf(a), miss = missingFor(st.id, a.std, a.date);
+    const m = markOf(a), miss = missingFor(st.id, a.std, a.date, a.ctx || "");
     const d = new Date(a.date + "T12:00:00");
     const when = isNaN(d) ? a.date : d.getDate() + " " + ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
     return '<div class="asgrow"><div class="what"><span class="when">' + esc(when) + "</span>" + codeHTML(a.std) + " " + esc(a.label) +
@@ -2185,11 +2460,11 @@ function studentAssignmentsHTML(st) {
   return h;
 }
 function gradeFor(sid, std, date, ctx, v) {
-  const i = S.scores.findIndex(x => x.sid === sid && x.std === std && x.date === date);
+  const i = S.scores.findIndex(x => x.sid === sid && x.std === std && x.date === date && !x.source && sameCtx(x, ctx || ""));
   if (i >= 0 && S.scores[i].v === v) S.scores.splice(i, 1);
   else if (i >= 0) S.scores[i].v = v;
   else S.scores.push({ id: uid(), sid: sid, std: std, v: v, date: date, note: "", ctx: ctx || "" });
-  clearMissingOnScore(sid, std, date);
+  clearMissingOnScore(sid, std, date, ctx || "");
   save(); renderStudents();
 }
 /* Each ORF check in detail, read live from the ORF tool's own records (the
@@ -2581,7 +2856,10 @@ function ireadyImport() {
    ============================================================ */
 function termOf(id) { return S.terms.find(t => t.id === id) || S.terms[0]; }
 function reportable(x) { return x.source !== "iready" || !!S.settings.ireadyInReport; }
+/* v148: sub-standards graded on their own line in Synergy */
+const RC_OWN_LINE = ["2.OA.B.2a", "2.OA.B.2b"];
 function rcParent(code) {
+  if (RC_OWN_LINE.indexOf(code) >= 0) return code;
   const s = byCode[code];
   if (!s || s.lvl !== 2) return code;
   const p = code.replace(/[a-z]$/, "");
@@ -2595,22 +2873,40 @@ function rcCodes() {
   return CATALOG.filter(s => want.has(s.c)).map(s => s.c);
 }
 function stdScores(sid, code) {
-  return S.scores.filter(x => x.sid === sid && reportable(x) && rcParent(x.std) === code);
+  return S.scores.filter(x => x.sid === sid && reportable(x) &&
+    (rcParent(x.std) === code || (x.std === FL20 && (code === FL20_ADD || code === FL20_SUB))));
+}
+/* v143: the scores a term's mark is figured from: that term's, or with
+   "year to date" every score from the start of the year to the term's end */
+function stdEvidence(sid, code, term) {
+  const from = S.settings.rcYTD ? "" : term.start;
+  return stdScores(sid, code).filter(x => x.date && x.date >= from && x.date <= term.end)
+    .sort((a, b) => a.date.localeCompare(b.date));
+}
+/* v148: reading fluency is marked by the most recent score alone, whatever
+   the rule in Setup ("at least for now"). Most recent graded score: an
+   iReady domain mark only if there is nothing else. */
+const RC_LATEST_ONLY = ["2.RF.4"];
+function rcLatestOnly(code) { return RC_LATEST_ONLY.indexOf(code) >= 0; }
+function rcCalc(code, ev) {
+  if (!ev.length) return null;
+  if (!rcLatestOnly(code)) return computeMark(ev.map(x => x.v));
+  const g = ev.filter(x => x.source !== "iready");
+  return (g.length ? g : ev)[(g.length ? g : ev).length - 1].v;
 }
 function stdMark(sid, code, term) {
-  const vals = stdScores(sid, code).filter(x => x.date >= term.start && x.date <= term.end)
-    .sort((a, b) => a.date.localeCompare(b.date)).map(x => x.v);
-  return { raw: computeMark(vals), n: vals.length };
+  const ev = stdEvidence(sid, code, term);
+  return { raw: rcCalc(code, ev), n: ev.length };
 }
 function carriedStd(sid, code, term) {
   const vals = stdScores(sid, code).filter(x => x.date < term.start).sort((a, b) => a.date.localeCompare(b.date));
   if (!vals.length) return null;
   const earlier = S.terms.filter(t => t.end < term.start).sort((a, b) => b.end.localeCompare(a.end));
   for (const t of earlier) {
-    const inT = vals.filter(x => x.date >= t.start && x.date <= t.end).map(x => x.v);
-    if (inT.length) return { v: roundMark(computeMark(inT)), from: t.name, n: inT.length };
+    const inT = vals.filter(x => x.date >= t.start && x.date <= t.end);
+    if (inT.length) return { v: roundMark(rcCalc(code, inT)), from: t.name, n: inT.length };
   }
-  return { v: roundMark(computeMark(vals.map(x => x.v))), from: "earlier work", n: vals.length };
+  return { v: roundMark(rcCalc(code, vals)), from: "earlier work", n: vals.length };
 }
 /* an override is keyed term|student|std:CODE, beside v103's term|student|lineId */
 function stdKey(term, sid, code) { return term.id + "|" + sid + "|std:" + code; }
@@ -2618,11 +2914,95 @@ function finalStd(sid, code, term) {
   const k = stdKey(term, sid, code);
   const r = stdMark(sid, code, term);
   if (S.overrides[k]) return { v: S.overrides[k], over: true, n: r.n };
-  if (r.n === 0 && S.settings.carryForward) {
+  if (r.n === 0 && S.settings.carryForward && !S.settings.rcYTD) {
     const c = carriedStd(sid, code, term);
     if (c && c.v) return { v: c.v, over: false, n: 0, carried: c.from };
   }
-  return { v: roundMark(r.raw), over: false, n: r.n, raw: r.raw };
+  if (!rcGraded(sid, code, term)) {
+    const ir = rcIreadyFill(sid, code, term);
+    if (ir) return { v: ir.v, over: false, n: 0, ir: ir };
+  }
+  return { v: roundMark(r.raw), over: false, n: r.n, raw: r.raw, latest: rcLatestOnly(code) };
+}
+/* ============================================================
+   v148: A STANDARD WITH NO SCORES, MARKED FROM iREADY ALONE
+   His rule, for a standard nobody has scored for this child, taught yet
+   or not: the latest iReady diagnostic (up to the term's end) places
+   Mid 2 or higher -> 3, Grade 1 or Early 2 -> 2, Grade K -> 1. Never a 4.
+   Written against the grade in Setup, so for 2nd grade it is exactly that.
+   "No scores" means no assignment or ORF score: the iReady tab's own domain
+   marks (Turn iReady into standards marks) don't count as grades, so a
+   standard with only those is marked by this rule instead.
+   The placement used is the domain the standard belongs to (2.OA ->
+   Algebra and Algebraic Thinking, 2.RF.3 -> Phonics, ...), the overall
+   placement when no domain fits or the domain is missing. Math and
+   reading only: writing, speaking/listening and conventions (L.1-L.3)
+   are never filled. Any score at all on the standard and this is not
+   used; an override (Set it yourself) beats it. Nothing is stored.
+   ============================================================ */
+const RC_IR_FILL = [
+  [/\.OA\./, [/algebra/]],
+  [/\.NBT\./, [/number/]],
+  [/\.GM\.A\./, [/geometry/]],
+  [/\.GM\.[B-D]\./, [/measurement/]],
+  [/\.DR\./, [/measurement/]],
+  [/\.RF\.2[a-z]?$/, [/phonological/]],
+  [/\.RF\.3[a-z]?$/, [/\bphonics\b/, /high.?frequency/]],
+  [/\.RF\.4[a-z]?$/, []],
+  [/\.RL\./, [/literature/, /comprehension(: | )?overall|^comprehension$/]],
+  [/\.RI\./, [/informational/, /comprehension(: | )?overall|^comprehension$/]],
+  [/\.L\.[456][a-z]?$/, [/vocab/]]
+];
+/* graded: an assignment or ORF score counts. The domain marks the iReady
+   tab writes are not grades, so a standard with only those is filled too */
+function rcGraded(sid, code, term) { return stdEvidence(sid, code, term).some(x => x.source !== "iready"); }
+function irGradeWord(n) { return n <= 0 ? "K" : String(n); }
+/* placement -> 1, 2 or 3 by his rule; null when it can't be read. Takes
+   absolute placements ("Mid 2", "Grade 1", "Emerging K") and relative
+   ones ("Mid or Above Grade Level", "Early On Grade Level", "1 Grade Level Below") */
+function irFillMark(p) {
+  const s = normHdr(p);
+  if (!s) return null;
+  const G = Number(S.settings.studentGrade || 2);
+  if (/tested out|max(imum)? scale/.test(s)) return 3;
+  if (/emerging/.test(s)) return 1;
+  if (/above grade level|(mid|late) on grade level/.test(s)) return 3;
+  if (/early on grade level/.test(s)) return 2;
+  if (/on grade level|at grade level/.test(s)) return 3;
+  let below = null, m = s.match(/(\d+)\s*(?:or more\s*)?grade levels?\s*below/);
+  if (m) below = Number(m[1]);
+  else if (/three or more grade levels?\s*below/.test(s)) below = 3;
+  else if (/two grade levels?\s*below/.test(s)) below = 2;
+  else if (/one grade level\s*below/.test(s)) below = 1;
+  if (below != null) return below <= 1 ? 2 : 1;
+  m = s.match(/^(?:(early|mid|late)\s+)?(?:grade\s*)?(k|\d+)$/);
+  if (!m) return null;
+  const g = m[2] === "k" ? 0 : Number(m[2]);
+  if (g > G) return 3;
+  if (g === G) return m[1] === "early" ? 2 : 3;
+  return g === G - 1 ? 2 : 1;
+}
+function irFillWords() {
+  const G = Number(S.settings.studentGrade || 2);
+  return "Mid " + irGradeWord(G) + " or higher \u2192 3 \u00b7 Grade " + irGradeWord(G - 1) + " or Early " + irGradeWord(G) +
+    " \u2192 2 \u00b7 Grade " + irGradeWord(G - 2) + (G - 2 > 0 ? " or below" : "") + " \u2192 1";
+}
+function rcIreadyFill(sid, code, term) {
+  if (!S.settings.rcIreadyFill) return null;
+  const std = byCode[code];
+  if (!std || (std.s !== "Math" && std.s !== "ELA")) return null;
+  const rule = RC_IR_FILL.find(r => r[0].test(code));
+  if (!rule) return null;
+  const rec = (S.iready || []).filter(r => r.sid === sid && r.subject === std.s && (!r.date || r.date <= term.end))
+    .sort((a, b) => (a.date || "").localeCompare(b.date || "")).slice(-1)[0];
+  if (!rec) return null;
+  for (const re of rule[1]) {
+    const k = Object.keys(rec.domains || {}).find(k => re.test(normHdr(k)));
+    const v = k ? irFillMark((rec.domains[k] || {}).p) : null;
+    if (v) return { v: v, from: k, p: rec.domains[k].p, date: rec.date || "" };
+  }
+  const v = irFillMark(rec.placement);
+  return v ? { v: v, from: "Overall", p: rec.placement, date: rec.date || "" } : null;
 }
 /* v134: how a child's marks on a standard become one mark for a marking
    period. It was set on the Report card tab; that tab is gone and the rule
@@ -2632,15 +3012,214 @@ function termMarksCardHTML() {
   return '<div class="card pad" id="term-marks"><h2>Term marks</h2>' +
     '<p class="hint" style="margin-top:4px">How a child\u2019s marks on one standard become one mark for a marking period. Conferences, Math goal and Skill groups all use it.</p>' +
     '<div class="row" style="margin-top:8px;align-items:flex-end"><label class="fld">How marks are figured<select id="tm-rule">' +
+    '<option value="powerlaw"' + (r === "powerlaw" ? " selected" : "") + '>Power law (the trend, where they are now)</option>' +
     '<option value="weighted"' + (r === "weighted" ? " selected" : "") + '>Recent work counts more</option>' +
     '<option value="latest"' + (r === "latest" ? " selected" : "") + '>Most recent mark only</option>' +
     '<option value="mean"' + (r === "mean" ? " selected" : "") + '>Straight average</option></select></label>' +
-    '<label class="row small" style="gap:6px;padding-bottom:7px"><input type="checkbox" id="tm-carry"' + (S.settings.carryForward ? " checked" : "") + '> Carry a mark forward when a standard has no marks this term</label></div></div>';
+    '<label class="row small" style="gap:6px;padding-bottom:7px"><input type="checkbox" id="tm-ytd"' + (S.settings.rcYTD ? " checked" : "") + '> Count the whole year so far, not just this term</label>' +
+    (S.settings.rcYTD ? "" : '<label class="row small" style="gap:6px;padding-bottom:7px"><input type="checkbox" id="tm-carry"' + (S.settings.carryForward ? " checked" : "") + '> Carry a mark forward when a standard has no marks this term</label>') +
+    '<label class="row small" style="gap:6px;padding-bottom:7px"><input type="checkbox" id="tm-irfill"' + (S.settings.rcIreadyFill ? " checked" : "") + '> Mark a math or reading standard with no scores from iReady alone</label>' +
+    "</div>" + (r === "powerlaw" ? '<p class="hint" style="margin-top:6px">With fewer than ' + POWER_MIN + " scores there is no trend to fit, so the plain average is used, and the Report card flags it.</p>" : "") + "</div>";
 }
-/* v134: the Report card tab is gone (grading happens in Synergy). The term-
-   mark math above stays: the conference sheets use it, and the export below
-   (downloadMarks, copyColumn) is kept, unwired, for the day calculated marks
-   go to Synergy's report card. How marks are figured is set in Setup. */
+/* ============================================================
+   REPORT CARD (v143)
+   Back as a tab, laid out as he chose from the mockups: the class as a grid
+   (students in last-name order, Synergy's; one column per standard, in the
+   stored Oregon codes, Synergy's) and a "why" panel for the picked mark: every
+   score behind it, assignments, iReady and ORF together, plotted oldest to
+   newest with the power-law curve, the number it lands on, the plain average
+   beside it, and 1-4 to set the mark yourself (an override, as in v104).
+   The mark is finalStd's, so Conferences, the CSV and the entry sheet all say
+   the same. Standards nobody has a score on yet are hidden unless asked for.
+   ============================================================ */
+function rcTerm() {
+  return S.terms.find(t => t.id === UI.reportTerm) || S.terms.find(t => t.id === studentTermNow()) || S.terms[0];
+}
+function rcScoredCodes(term) {
+  return rcCodes().filter(c => S.students.some(st => { const f = finalStd(st.id, c, term); return f.v || f.n; }));
+}
+/* v149: every standard, always. He keys Synergy from this grid by hand, so a
+   standard nobody has scored still gets its column (blank where no mark). */
+function rcShownCodes(term) { return rcCodes(); }
+function rcThin(f) { return S.settings.rule === "powerlaw" && !f.over && !f.latest && f.n > 0 && f.n < POWER_MIN; }
+function rcSrc(x) { return x.source === "iready" ? "iReady" : x.source === "orf" ? "ORF" : "Assignment"; }
+const RC_RULE_WORDS = { powerlaw: "power law", weighted: "recent work counts more", latest: "most recent mark", mean: "straight average" };
+function rcMethodLine(term) {
+  const what = ["assignments"];
+  if (S.settings.ireadyInReport && S.settings.ireadyAutoScore) what.push("iReady");
+  if (S.settings.orfAutoScore) what.push("ORF checks");
+  const span = S.settings.rcYTD ? "the year so far, through " + fmtShort(term.end) : fmtShort(term.start) + " \u2013 " + fmtShort(term.end);
+  return "Figured by " + (RC_RULE_WORDS[S.settings.rule] || S.settings.rule) + " over " + span + ", from " +
+    (what.length > 1 ? what.slice(0, -1).join(", ") + " and " + what[what.length - 1] : what[0]) + "." +
+    (S.settings.rcIreadyFill ? " A math or reading standard with no scores is marked from iReady alone." : "") +
+    (rcCodes().some(rcLatestOnly) ? " Reading fluency (2.RF.4) is the most recent score." : "");
+}
+function fmtShort(iso) {
+  const d = new Date(String(iso) + "T12:00:00");
+  return isNaN(d) ? String(iso || "") : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+function rcCellHTML(st, code, term, f) {
+  const ev = stdEvidence(st.id, code, term);
+  const on = UI.rcSel && UI.rcSel.sid === st.id && UI.rcSel.code === code;
+  const cls = "mark " + (f.v ? "v" + f.v : "vnone") + (rcThin(f) ? " rc-thin" : "") + (f.over ? " rc-over" : "") + (f.ir ? " rc-ir" : "");
+  const label = fullName(st) + ", " + code + ": " + (f.v ? f.v : "no mark") + (f.over ? ", set by you" : "") + (rcThin(f) ? ", fewer than " + POWER_MIN + " scores" : "") + (f.ir ? ", from iReady alone" : "");
+  return '<td class="c"><button type="button" class="rc-cell' + (on ? " on" : "") + '" data-sid="' + esc(st.id) + '" data-code="' + esc(code) + '" aria-label="' + esc(label) + '">' +
+    '<span class="' + cls + '">' + (f.v || "\u2013") + "</span>" +
+    (f.ir || ev.some(x => x.source === "iready") ? '<span class="rc-i" aria-hidden="true">i</span>' : "") + "</button></td>";
+}
+function rcChartSVG(ev, fit) {
+  const n = ev.length, W = 300, H = 120, x0 = 22, x1 = 290, y0 = 10, y1 = 104;
+  const X = i => n === 1 ? (x0 + x1) / 2 : x0 + (x1 - x0) * i / (n - 1);
+  const Y = v => y0 + (y1 - y0) * (4 - v) / 3;
+  let h = '<svg class="rc-chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Scores oldest to newest' + (fit ? ", with the power-law curve" : "") + '">';
+  [4, 3, 2, 1].forEach(v => {
+    h += '<line x1="' + x0 + '" x2="' + x1 + '" y1="' + Y(v) + '" y2="' + Y(v) + '" style="stroke:var(--line)"/>' +
+      '<text x="8" y="' + (Y(v) + 4) + '" style="fill:var(--ink-3);font-size:10px">' + v + "</text>";
+  });
+  if (fit) h += '<polyline fill="none" points="' + ev.map((_, i) => X(i).toFixed(1) + "," + Y(fit.at(i)).toFixed(1)).join(" ") + '" style="stroke:var(--accent);stroke-width:2;stroke-dasharray:5 4"/>';
+  ev.forEach((x, i) => {
+    const cx = X(i), cy = Y(x.v), c = "fill:var(--s" + x.v + ");stroke:var(--panel);stroke-width:2";
+    const t = "<title>" + esc(fmtShort(x.date) + ", " + rcSrc(x) + ": " + x.v) + "</title>";
+    if (x.source === "iready") h += '<polygon points="' + cx + "," + (cy - 7) + " " + (cx + 7) + "," + cy + " " + cx + "," + (cy + 7) + " " + (cx - 7) + "," + cy + '" style="' + c + '">' + t + "</polygon>";
+    else if (x.source === "orf") h += '<rect x="' + (cx - 5.5) + '" y="' + (cy - 5.5) + '" width="11" height="11" rx="2" style="' + c + '">' + t + "</rect>";
+    else h += '<circle cx="' + cx + '" cy="' + cy + '" r="6" style="' + c + '">' + t + "</circle>";
+  });
+  return h + "</svg>";
+}
+function rcWhyHTML(term) {
+  const sel = UI.rcSel, st = sel && S.students.find(s => s.id === sel.sid);
+  if (!st || !byCode[sel.code]) return '<div class="card pad rc-why"><p class="hint">Pick any mark to see the scores behind it.</p></div>';
+  const code = sel.code, f = finalStd(st.id, code, term), ev = stdEvidence(st.id, code, term), vals = ev.map(x => x.v);
+  const lat = rcLatestOnly(code);
+  const rule = lat ? "latest" : S.settings.rule, calc = rcCalc(code, ev), plain = vals.length ? avg(vals) : null;
+  const two = x => x == null ? "\u2013" : (Math.round(x * 100) / 100).toFixed(2);
+  let how;
+  if (!vals.length) how = "<b>No scores yet</b>" + (S.settings.rcYTD ? " this year." : " this term.");
+  else if (rule === "powerlaw" && vals.length >= POWER_MIN) how = "<b>Power law " + two(calc) + "</b> \u2192 rounds to " + roundMark(calc);
+  else if (rule === "powerlaw") how = "<b>Average of " + vals.length + " score" + (vals.length === 1 ? "" : "s") + ": " + two(calc) + "</b> \u2192 " + roundMark(calc);
+  else if (lat) how = "<b>Most recent score: " + calc + "</b>";
+  else how = "<b>" + esc(RC_RULE_WORDS[rule] || rule) + " " + two(calc) + "</b> \u2192 " + roundMark(calc);
+  let sub = vals.length ? "Straight average " + two(plain) + " \u00b7 " + vals.length + " score" + (vals.length === 1 ? "" : "s") + ", " + fmtShort(ev[0].date) + " \u2013 " + fmtShort(ev[ev.length - 1].date) : "";
+  const irf = f.ir || (!rcGraded(st.id, code, term) ? rcIreadyFill(st.id, code, term) : null);
+  const irWhere = x => esc((x.from === "Overall" ? "Overall" : x.from) + " placement " + x.p) + (x.date ? ", diagnostic of " + esc(fmtShort(x.date)) : "");
+  if (f.over) { how = "<b>Set by you: " + f.v + "</b>"; sub = vals.length && !irf ? "Calculated: " + roundMark(calc) + " (" + two(calc) + ")" : irf ? "From iReady: " + irf.v + " (" + irWhere(irf) + ")" : "Nothing calculated yet"; }
+  else if (!vals.length && f.carried) sub = "Carried from " + esc(f.carried);
+  else if (f.ir) { how = "<b>From iReady: " + f.v + "</b>"; sub = irWhere(f.ir); }
+  let h = '<div class="card pad rc-why" id="rc-why"><div class="rc-whyhead"><span class="rc-eyebrow">' + esc(code) + " \u00b7 " + esc(byCode[code].lbl) + "</span>" +
+    '<span class="rc-who">' + nameLink(st, fullName(st)) + "</span></div>" +
+    '<div class="rc-result">' + '<span class="mark rc-big ' + (f.v ? "v" + f.v : "vnone") + '">' + (f.v || "\u2013") + "</span>" +
+    '<div class="rc-how"><span>' + how + "</span>" + (sub ? '<span class="muted">' + sub + "</span>" : "") + "</div></div>";
+  if (f.ir) h += '<p class="notice rc-thinnote">No assignment or ORF scores on this standard yet, so the mark comes from the iReady placement alone: ' + irFillWords() + ". A score on it, or setting it yourself, replaces this.</p>";
+  if (lat && vals.length && !f.over && !f.ir) h += '<p class="notice rc-thinnote">Reading fluency uses the most recent score only, not the trend.</p>';
+  if (rcThin(f)) h += '<p class="notice rc-thinnote">Fewer than ' + POWER_MIN + " scores, so there\u2019s no trend to fit and this is the plain average. Worth a look before it goes on the report card.</p>";
+  if (ev.length && !f.ir) {
+    const fit = rule === "powerlaw" && vals.length >= POWER_MIN && !f.over ? powerFit(vals) : null;
+    h += rcChartSVG(ev, fit) + '<div class="rc-axis"><span>oldest</span><span>newest</span></div>';
+    h += '<div class="rc-ev">' + ev.slice().reverse().map(x => {
+      const before = x.date < term.start;
+      return '<div class="rc-evrow' + (before ? " early" : "") + '"' + (x.note ? ' title="' + esc(x.note) + '"' : "") + '><span class="rc-date">' + esc(fmtShort(x.date)) + "</span>" +
+        '<span class="rc-tag ' + rcSrc(x).toLowerCase() + '">' + rcSrc(x) + "</span>" +
+        '<span class="rc-what">' + esc(x.ctx || "") + (x.std !== code ? ' <span class="muted">(' + esc(x.std) + ")</span>" : "") + "</span>" + markHTML(x.v) + "</div>";
+    }).join("") + "</div>";
+  }
+  h += '<div class="rc-set"><span class="muted small">Set it yourself</span><span class="rc-setgrp">' + [1, 2, 3, 4].map(v =>
+    '<button type="button" class="rc-setbtn s' + v + '" data-set="' + v + '" aria-pressed="' + (f.over && f.v === v ? "true" : "false") + '">' + v + "</button>").join("") + "</span>" +
+    (f.over ? '<button type="button" class="btn sm ghost" data-set="0">Use calculated</button>' : "") + "</div></div>";
+  return h;
+}
+function renderReport() {
+  const el = document.getElementById("panel-report");
+  if (!el) return;
+  if (!S.students.length) return noStudents(el);
+  const term = rcTerm();
+  UI.reportTerm = term.id;
+  const codes = rcShownCodes(term), studs = sortedStudents();
+  if (!UI.rcSel || !studs.some(s => s.id === UI.rcSel.sid) || codes.indexOf(UI.rcSel.code) < 0)
+    UI.rcSel = codes.length ? { sid: studs[0].id, code: codes[0] } : null;
+  const marks = {};
+  studs.forEach(st => { marks[st.id] = {}; codes.forEach(c => { marks[st.id][c] = finalStd(st.id, c, term); }); });
+  let thin = 0, over = 0, irn = 0;
+  studs.forEach(st => codes.forEach(c => { const f = marks[st.id][c]; if (rcThin(f)) thin++; if (f.over) over++; if (f.ir) irn++; }));
+  let h = '<div class="sectionhead rc-top"><div><h2>' + esc(term.name) + " report card \u00b7 " + esc(subjLabel()) + "</h2>" +
+    '<p class="hint" style="margin-top:2px">' + esc(rcMethodLine(term)) + ' <a class="rc-change" href="#setup" onclick="gotoTab(\'setup\');setTimeout(()=>{const t=document.getElementById(\'term-marks\');t&&t.scrollIntoView()},50);return false">Change</a></p></div>' +
+    '<span class="spacer"></span><label class="fld">Term<select id="rc-term">' + S.terms.map(t => '<option value="' + t.id + '"' + (t.id === term.id ? " selected" : "") + ">" + esc(t.name) + "</option>").join("") + "</select></label>" +
+    '<button class="btn" onclick="rcPrint()">Print entry sheet</button><button class="btn primary" onclick="downloadMarks()">Download CSV</button></div>';
+  if (!codes.length) {
+    h += '<div class="card empty"><strong>No scores yet ' + (S.settings.rcYTD ? "this year" : "this term") + "</strong>Marks entered in Enter marks show up here, a column per standard.</div>";
+    el.innerHTML = h; rcWire(el); return;
+  }
+  h += '<div class="rc-wrap"><div class="card rc-grid"><div class="rc-scroll scroll"><table class="rc-table"><thead><tr><th class="rc-name">Student</th>';
+  codes.forEach(c => {
+    const cnt = { 1: 0, 2: 0, 3: 0, 4: 0 }; let tot = 0;
+    studs.forEach(st => { const v = marks[st.id][c].v; if (v) { cnt[v]++; tot++; } });
+    h += '<th class="rc-col"><code class="std">' + esc(c) + '</code><span class="rc-lbl">' + esc(byCode[c].lbl) + "</span>" +
+      '<span class="rc-dist" title="' + [1, 2, 3, 4].map(v => v + ": " + cnt[v]).join("  ") + '">' +
+      (tot ? [1, 2, 3, 4].map(v => cnt[v] ? '<span style="width:' + (cnt[v] / tot * 100) + '%;background:var(--s' + v + ')"></span>' : "").join("") : "") + "</span>" +
+      '<button type="button" class="btn sm ghost" data-copy="' + esc(c) + '">Copy column</button></th>';
+  });
+  h += "</tr></thead><tbody>";
+  studs.forEach(st => {
+    h += '<tr><th class="rc-name" scope="row">' + nameLink(st, st.last + ", " + st.first) + "</th>";
+    codes.forEach(c => { h += rcCellHTML(st, c, term, marks[st.id][c]); });
+    h += "</tr>";
+  });
+  h += "</tbody></table></div>" +
+    '<div class="rc-legend"><span><b class="rc-ikey">i</b> includes an iReady score</span>' +
+    '<span><span class="mark rc-thin v2" aria-hidden="true">2</span> fewer than ' + POWER_MIN + " scores: plain average" + (thin ? " (" + thin + ")" : "") + "</span>" +
+    '<span><span class="mark rc-over v3" aria-hidden="true">3</span> set by you' + (over ? " (" + over + ")" : "") + "</span>" +
+    (irn ? '<span><span class="mark rc-ir v2" aria-hidden="true">2</span> no scores: from iReady alone (' + irn + ")</span>" : "") +
+    "</div></div>" + rcWhyHTML(term) + "</div>";
+  el.innerHTML = h;
+  rcWire(el);
+}
+function rcWire(el) {
+  const ts = el.querySelector("#rc-term");
+  if (ts) ts.onchange = () => { UI.reportTerm = ts.value; renderReport(); };
+  el.onclick = e => {
+    const cell = e.target.closest(".rc-cell");
+    if (cell) {
+      UI.rcSel = { sid: cell.dataset.sid, code: cell.dataset.code };
+      renderReport();
+      const w = document.getElementById("rc-why");
+      if (w && phoneLayout() && w.scrollIntoView) w.scrollIntoView({ behavior: "smooth", block: "start" });
+      const again = el.querySelector('.rc-cell[data-sid="' + cell.dataset.sid + '"][data-code="' + cell.dataset.code + '"]');
+      if (again && !phoneLayout()) again.focus();
+      return;
+    }
+    const set = e.target.closest("[data-set]");
+    if (set && UI.rcSel) { rcSet(Number(set.dataset.set)); return; }
+    const cp = e.target.closest("[data-copy]");
+    if (cp) rcCopy(cp.dataset.copy);
+  };
+}
+/* tapping the mark already set clears it, as on the student page */
+function rcSet(v) {
+  const term = rcTerm(), k = stdKey(term, UI.rcSel.sid, UI.rcSel.code);
+  if (!v || S.overrides[k] === v) delete S.overrides[k]; else S.overrides[k] = v;
+  save(); renderReport();
+}
+function rcCopy(code) {
+  const text = copyColumn(code, rcTerm());
+  const done = () => toast("Copied " + code + ": " + sortedStudents().length + " marks, top to bottom");
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done, () => toast("Couldn\u2019t copy here. Try the CSV."));
+    else toast("Couldn\u2019t copy here. Try the CSV.");
+  } catch (e) { toast("Couldn\u2019t copy here. Try the CSV."); }
+}
+/* the entry sheet: the grid on paper, to type from */
+function rcPrint() {
+  const term = rcTerm(), codes = rcShownCodes(term);
+  let h = "<h2>" + esc(term.name) + " report card \u00b7 " + esc(subjLabel()) + '</h2><p style="font-size:11px;color:#555">' + esc(rcMethodLine(term)) +
+    " * fewer than " + POWER_MIN + " scores." + (S.settings.rcIreadyFill ? " i from iReady alone (no scores)." : "") + " Printed " + todayISO() + '.</p><table border="1" cellspacing="0" cellpadding="3" style="width:100%;border-collapse:collapse;font-size:11px"><tr><th align="left">Student</th>' +
+    codes.map(c => '<th style="text-align:center">' + esc(c) + "</th>").join("") + "</tr>";
+  sortedStudents().forEach(st => {
+    h += "<tr><td>" + esc(st.last + ", " + st.first) + "</td>" + codes.map(c => { const f = finalStd(st.id, c, term); return '<td style="text-align:center">' + (f.v || "") + (rcThin(f) ? "*" : "") + (f.ir ? "<sup>i</sup>" : "") + "</td>"; }).join("") + "</tr>";
+  });
+  document.getElementById("printsheet").innerHTML = h + "</table>";
+  suitePrint();
+}
+/* v143: the export below (downloadMarks, copyColumn) is wired to the Report
+   card tab again. How marks are figured is still set in Setup. */
 /* one mark per line, in last-name order: a blank line where there is no mark,
    so a pasted column never slides up against the wrong child */
 function copyColumn(code, term) {
@@ -2654,7 +3233,7 @@ function download(name, text) {
   setTimeout(() => URL.revokeObjectURL(a.href), 3000);
 }
 function downloadMarks() {
-  const term = termOf(UI.reportTerm);
+  const term = rcTerm();
   const codes = rcCodes();
   const head = ["Last Name", "First Name", "Student ID"].concat(codes);
   const rows = [head.map(csvCell).join(",")];
@@ -2690,31 +3269,33 @@ function printStudent() {
 }
 
 /* ============================================================
-   CONFERENCES (v121)
-   One sheet per child for a parent conference: their reading line and
-   each standard marked this term, in a family's words, black on white.
+   CONFERENCES (v121; v146 report card, iReady and home focus)
+   One sheet per child for a parent conference, black on white. v146 (his
+   layout "B"): a section per subject, Reading first, each with the child's
+   latest iReady diagnostic placement, the report card mark for every
+   standard that has one so far (finalStd: the Report card tab's mark, an
+   override if set; a standard with no mark yet is left off), and one area
+   to work on at home with a few steps. Reading also carries the ORF line.
    Nothing is stored: every line is read from what the gradebook and the
-   ORF tool already hold. The mark is the report card's (finalStd: an
-   override if one is set), so the sheet and Synergy never disagree. The
-   arrow compares the two most recent hand-entered marks on that standard
-   up to the term's end (ORF and iReady marks are left out of it); one mark,
-   no arrow. Both subjects always, whatever the Math/ELA/Both switch says:
-   a family hears about both.
+   ORF tool already hold. Both subjects always, whatever the Math/ELA/Both
+   switch says: a family hears about both.
+
+   The home focus (confFocus): the lowest report card mark of 2 or below
+   among the standards that have an area, ties to the area whose iReady
+   domain placed lowest, then catalog order. No mark that low: the lowest
+   iReady domain placed below grade level. Neither: "keep going". Writing,
+   conventions and speaking marks are on the sheet but never chosen: he
+   asked for reading and math. A different focus can be picked per child
+   on screen (UI.confFocus, this session only); paper shows the result.
    ============================================================ */
-const CONF_SUBJECTS = [["Math", "Math"], ["ELA", "Reading, writing, and language"]];
+const CONF_SUBJECTS = [["ELA", "Reading, writing, and language"], ["Math", "Math"]];
 function confTerm() {
   const want = UI.confTerm || studentTermNow();
   return S.terms.find(t => t.id === want) || termOf(want);
 }
 function confWords(code) { return PARENT_WORDS[code] || (byCode[code] ? byCode[code].lbl : code); }
-function confTrend(sid, code, term) {
-  const hand = S.scores.filter(x => x.sid === sid && !x.source && rcParent(x.std) === code && x.date <= term.end)
-    .sort((a, b) => a.date.localeCompare(b.date));
-  if (hand.length < 2) return "";
-  const a = hand[hand.length - 2].v, b = hand[hand.length - 1].v;
-  return b > a ? "up" : b < a ? "down" : "same";
-}
-/* the standards this child was marked on this term, by subject */
+/* the standards on this child's report card so far, by subject: every
+   standard switched on (a sub-standard as its parent) that has a mark */
 function confStandards(st, term) {
   return CONF_SUBJECTS.map(([subj, label]) => {
     const codes = [];
@@ -2723,13 +3304,129 @@ function confStandards(st, term) {
     codes.sort((x, y) => order.indexOf(x) - order.indexOf(y));
     const rows = [];
     codes.forEach(c => {
+      /* v149: no iReady on the sheet (his iReady report goes home on its
+         own). A row needs real grades (assignments, ORF) or a mark he set:
+         a mark filled from iReady alone is left off. */
       const f = finalStd(st.id, c, term);
-      if (!f.over && !f.n) return;
-      if (!f.v) return;
-      rows.push({ code: c, words: confWords(c), v: f.v, trend: confTrend(st.id, c, term) });
+      if (f.v && !f.ir && (f.over || rcGraded(st.id, c, term))) rows.push({ code: c, words: confWords(c), v: f.v });
     });
     return { subj: subj, label: label, rows: rows };
   });
+}
+/* ---- v146: at home. Each area in a family's words, with things most homes
+   have. Keys are stable (UI.confFocus holds them). ---- */
+const CONF_HOME = {
+  sounds: { s: "ELA", t: "Hearing the sounds in words", steps: [
+    "Say a word like \u201cstamp\u201d and tap a finger for each sound: s-t-a-m-p.",
+    "Play \u201cchange one sound\u201d: cat, bat, bit, bin. Say each new word together.",
+    "Clap the syllables in family names and favorite foods."] },
+  phonics: { s: "ELA", t: "Sounding out new words", steps: [
+    "When your child gets stuck on a word, have them slide through it sound by sound, then reread the sentence.",
+    "Hunt for word parts on signs, boxes, and menus: sh, ch, ee, ai, -ing, -ed.",
+    "Write a few tricky words on sticky notes around the house and read each one when you pass it."] },
+  fluency: { s: "ELA", t: "Reading smoothly", steps: [
+    "Read the same short page three times this week. Notice together how it gets smoother.",
+    "Take turns: you read a page with expression, then your child reads it back the same way.",
+    "Read jokes, poems, or a recipe aloud, like a performer."] },
+  stories: { s: "ELA", t: "Understanding stories", steps: [
+    "After a story, ask: Who was in it? What was the problem? How did it end?",
+    "Stop partway and ask, \u201cWhat do you think will happen next? Why?\u201d",
+    "Have your child retell the story to someone else using first, next, then, and last."] },
+  nonfiction: { s: "ELA", t: "Learning from nonfiction", steps: [
+    "Pick a library book about something your child loves, like animals, trucks, or space.",
+    "Before reading, look at the pictures and headings together and guess what you\u2019ll learn.",
+    "Afterward, ask for two new facts your child learned."] },
+  vocab: { s: "ELA", t: "Learning new words", steps: [
+    "Try one interesting word a day at dinner (enormous, curious, delicious) and look for chances to use it again.",
+    "When a book has a new word, figure out together what it might mean from the sentence and pictures.",
+    "Play \u201csame and opposite\u201d: you say a word, your child gives one that means the same and one that means the opposite."] },
+  readmore: { s: "ELA", t: "Keep reading every day", steps: [
+    "Read together for about 20 minutes a day, and let your child choose the book.",
+    "Talk about it afterward: a favorite part, a new word, a question it raised."] },
+  facts: { s: "Math", t: "Adding and subtracting within 20", steps: [
+    "Practice a few facts in the car or at dinner: \u201cWhat\u2019s 8 + 7? How did you know?\u201d",
+    "Play a card game: each flip two cards and add them. The bigger sum wins.",
+    "Make 10 with small objects: \u201cI have 6. How many more make 10?\u201d"] },
+  story: { s: "Math", t: "Solving story problems", steps: [
+    "Make up story problems from your day: \u201cWe had 14 grapes and ate 6. How many are left?\u201d",
+    "Ask your child to draw a quick picture of the problem before solving it.",
+    "Switch roles: your child makes up a problem for you to solve."] },
+  groups: { s: "Math", t: "Odd and even numbers and equal groups", steps: [
+    "Pair up socks or spoons. If every one has a partner, the number is even.",
+    "Set snacks out in rows (3 rows of 4) and add the rows to find the total."] },
+  placevalue: { s: "Math", t: "Hundreds, tens, and ones", steps: [
+    "Bundle straws, spoons, or crayons into groups of 10, then count by tens and ones.",
+    "Read house numbers and prices: \u201cIn 352, what does the 3 stand for?\u201d",
+    "Count by 5s, 10s, and 100s while walking or doing chores."] },
+  bignum: { s: "Math", t: "Adding and subtracting bigger numbers", steps: [
+    "Add two prices on a menu or receipt: the tens first, then the ones.",
+    "Ask \u201cWhat is 10 more? 10 less? 100 more?\u201d about house or page numbers."] },
+  measure: { s: "Math", t: "Measuring length", steps: [
+    "Measure things around the house with a ruler or tape measure, in inches and centimeters.",
+    "Guess first, then measure: \u201cHow long is the table? How close was your guess?\u201d"] },
+  timemoney: { s: "Math", t: "Telling time and counting money", steps: [
+    "Read a clock with hands together a few times a day, to the nearest 5 minutes.",
+    "Count a handful of coins: start with the quarters, then dimes, nickels, and pennies."] },
+  shapes: { s: "Math", t: "Shapes and equal parts", steps: [
+    "Name shapes you see: how many sides and corners does each have?",
+    "Cut a sandwich or tortilla into halves, thirds, or fourths and name the pieces."] },
+  data: { s: "Math", t: "Reading graphs", steps: [
+    "Make a tally chart at home (favorite fruit, cars that pass by) and talk about which has the most."] },
+  mathtalk: { s: "Math", t: "Math in everyday life", steps: [
+    "Ask \u201cHow many more?\u201d and \u201cHow did you know?\u201d while counting things together.",
+    "Play board or card games that use counting and adding."] }
+};
+/* a report card standard's home area, or null (writing, conventions,
+   speaking: on the sheet, never the focus) */
+const CONF_AREA_RULES = [[/^\d\.RF\.2$/, "sounds"], [/^\d\.RF\.3$/, "phonics"], [/^\d\.RF\.4$/, "fluency"],
+  [/^\d\.RL\./, "stories"], [/^\d\.RI\./, "nonfiction"], [/^\d\.L\.[456]$/, "vocab"],
+  [/^\d\.OA\.B\.2$/, "facts"], [/^\d\.(OA\.A\.1|GM\.C\.8)$/, "story"], [/^\d\.OA\.C\./, "groups"],
+  [/^\d\.NBT\.A\./, "placevalue"], [/^\d\.NBT\.B\./, "bignum"], [/^\d\.GM\.D\./, "timemoney"],
+  [/^\d\.GM\.A\./, "shapes"], [/^\d\.GM\./, "measure"], [/^\d\.DR\./, "data"]];
+function confAreaOf(code) { const r = CONF_AREA_RULES.find(x => x[0].test(code)); return r ? r[1] : null; }
+/* iReady's domains, foundations first, and the home area each points to */
+const CONF_DOMS = {
+  ELA: [["pa", /phonological/, "sounds"], ["phonics", /\bphonics\b/, "phonics"], ["hfw", /high.?frequency/, "phonics"],
+        ["vocab", /vocab/, "vocab"], ["lit", /literature/, "stories"], ["info", /informational/, "nonfiction"]],
+  Math: [["num", /number/, "placevalue"], ["alg", /algebra/, "facts"], ["md", /measurement/, "measure"], ["geo", /geometry/, "shapes"]]
+};
+const CONF_AREA_DOM = { sounds: "pa", phonics: "phonics", stories: "lit", nonfiction: "info", vocab: "vocab",
+  facts: "alg", story: "alg", groups: "alg", placevalue: "num", bignum: "num", measure: "md", timemoney: "md", shapes: "geo", data: "md" };
+/* the child's latest iReady diagnostic in this subject, up to the term's end */
+function confIready(st, term, subj) {
+  return S.iready.filter(r => r.sid === st.id && r.subject === subj && (!r.date || r.date <= term.end))
+    .sort((a, b) => (a.date || "").localeCompare(b.date || "")).slice(-1)[0] || null;
+}
+function confDomRank(rec, subj, dk) {
+  const d = (CONF_DOMS[subj] || []).find(x => x[0] === dk);
+  if (!rec || !d) return null;
+  const k = Object.keys(rec.domains || {}).find(k => d[1].test(normHdr(k)));
+  return k ? placementRank((rec.domains[k] || {}).p) : null;
+}
+function confRankWords(r) {
+  if (r == null) return "";
+  if (r > 0) return "above grade level";
+  if (r === 0) return "on grade level";
+  if (r === -1) return "one grade level below";
+  return Math.abs(r) + " grade levels below";
+}
+/* the area to work on at home: { area, from: "mark" | "iready" | "none" } */
+function confFocus(st, term, subj, rows) {
+  const rec = confIready(st, term, subj);
+  const cand = rows.map((r, i) => ({ v: r.v, i: i, area: confAreaOf(r.code) })).filter(x => x.area && CONF_HOME[x.area].s === subj);
+  const low = cand.length ? Math.min.apply(null, cand.map(x => x.v)) : 9;
+  if (low <= 2) {
+    const rk = x => { const r = confDomRank(rec, subj, CONF_AREA_DOM[x.area]); return r == null ? 0 : r; };
+    const pick = cand.filter(x => x.v === low).sort((a, b) => rk(a) - rk(b) || a.i - b.i)[0];
+    return { area: pick.area, from: "mark" };
+  }
+  let best = null;
+  (CONF_DOMS[subj] || []).forEach(d => {
+    const r = confDomRank(rec, subj, d[0]);
+    if (r != null && r < 0 && (!best || r < best.r)) best = { r: r, area: d[2] };
+  });
+  if (best) return { area: best.area, from: "iready" };
+  return { area: subj === "ELA" ? "readmore" : "mathtalk", from: "none" };
 }
 /* the child's reading plan from the ORF tool: of the ORF students linked to
    this child, the one read most recently */
@@ -2805,33 +3502,48 @@ function confChartSVG(pl) {
   pl.checks.forEach(c => { g += '<circle cx="' + X(c.t).toFixed(1) + '" cy="' + Y(c.y).toFixed(1) + '" r="4" fill="#000"><title>' + window.SuiteOrf.goals.fmtShort(new Date(c.t)) + ": " + c.y + "</title></circle>"; });
   return g + "</svg>";
 }
-const CONF_ARROW = { up: ["\u2191", "up from the mark before"], down: ["\u2193", "down from the mark before"], same: ["\u2192", "the same as the mark before"] };
-function confSheetHTML(st, term, now) {
+function confFocusKey(st, subj) { return st.id + "|" + subj; }
+function confSubjectHTML(st, term, now, g, paper) {
+  /* v149: the iReady placement line is gone; iReady has its own document */
+  let h = '<section class="cf-subj" data-subj="' + g.subj + '"><h3 class="cf-subjhead">' + esc(g.label) + "</h3>";
+  if (g.subj === "ELA") {
+    const pl = confReading(st, now);
+    if (pl) {
+      h += '<div class="cf-reading"><h4 class="cf-minor">Reading fluency</h4><p class="cf-hint">Words read correctly in one minute</p>' + confChartSVG(pl) +
+        '<p class="cf-key">Dots: each reading check. Dashed line: the steady path to the goal. Filled square: the goal' +
+        (pl.winterDue && pl.winterGoal != null ? "; open square: the mid-year checkpoint" : "") + ".</p>" +
+        '<p class="cf-says">' + esc(confReadingWords(st, pl, now)) + "</p></div>";
+    }
+  }
+  if (g.rows.length) {
+    h += '<table class="cf-table"><thead><tr><th>On the report card so far</th><th class="cf-c">Mark</th></tr></thead><tbody>' +
+      g.rows.map(r => '<tr data-std="' + esc(r.code) + '"><td>' + esc(r.words) + '</td><td class="cf-c"><span class="cf-mark">' + r.v + "</span></td></tr>").join("") +
+      "</tbody></table>";
+  } else h += '<p class="cf-none">No report card marks yet.</p>';
+  const auto = confFocus(st, term, g.subj, g.rows), key = confFocusKey(st, g.subj);
+  const chosen = UI.confFocus && UI.confFocus[key] && CONF_HOME[UI.confFocus[key]] && CONF_HOME[UI.confFocus[key]].s === g.subj ? UI.confFocus[key] : "";
+  const area = chosen || auto.area, a = CONF_HOME[area];
+  h += '<div class="cf-home" data-area="' + area + '"><div class="cf-homehead">Focus at home: ' + esc(a.t) + "</div><ul>" +
+    a.steps.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul></div>";
+  if (!paper) {
+    const why = { mark: "lowest report card mark", iready: "lowest iReady area", none: "no area below grade level" }[auto.from];
+    h += '<label class="cf-pick noprint">Focus<select data-cf-focus="' + esc(key) + '">' +
+      '<option value="">Picked for you: ' + esc(CONF_HOME[auto.area].t) + " (" + why + ")</option>" +
+      Object.keys(CONF_HOME).filter(k => CONF_HOME[k].s === g.subj && k !== auto.area).map(k =>
+        '<option value="' + k + '"' + (k === chosen ? " selected" : "") + ">" + esc(CONF_HOME[k].t) + "</option>").join("") + "</select></label>";
+  }
+  return h + "</section>";
+}
+function confSheetHTML(st, term, now, paper) {
   const teacher = String(S.settings.teacher || "").trim();
   let h = '<article class="confsheet" data-sid="' + esc(st.id) + '">' +
     '<header class="cf-head"><div><h2 class="cf-name">' + esc(fullName(st)) + "</h2>" +
     '<div class="cf-sub">Grade 2 \u00b7 ' + esc(term.name) + " conference</div></div>" +
     '<div class="cf-meta">' + (teacher ? esc(teacher) + "<br>" : "") + esc(window.SuiteOrf ? window.SuiteOrf.goals.fmtLong(now) + ", " + now.getFullYear() : todayISO()) + "</div></header>";
-  const pl = confReading(st, now);
-  if (pl) {
-    h += '<section class="cf-reading"><h3>Reading fluency</h3><p class="cf-hint">Words read correctly in one minute</p>' + confChartSVG(pl) +
-      '<p class="cf-key">Dots: each reading check. Dashed line: the steady path to the goal. Filled square: the goal' +
-      (pl.winterDue && pl.winterGoal != null ? "; open square: the mid-year checkpoint" : "") + ".</p>" +
-      '<p class="cf-says">' + esc(confReadingWords(st, pl, now)) + "</p></section>";
-  }
-  const groups = confStandards(st, term).filter(g => g.rows.length);
-  h += '<section class="cf-stds"><h3>What we\u2019re learning, and how it\u2019s going</h3><p class="cf-hint">Standards assessed so far this term</p>';
-  if (!groups.length) h += '<p class="cf-none">No standards marked yet this term.</p>';
-  groups.forEach(g => {
-    h += '<table class="cf-table"><thead><tr><th>' + esc(g.label) + '</th><th class="cf-c">Mark</th><th class="cf-c"><span class="cf-sr">Trend</span></th></tr></thead><tbody>' +
-      g.rows.map(r => {
-        const a = CONF_ARROW[r.trend];
-        return '<tr data-std="' + esc(r.code) + '"><td>' + esc(r.words) + '</td><td class="cf-c"><span class="cf-mark">' + r.v + "</span></td>" +
-          '<td class="cf-c cf-arrow"' + (a ? ' title="' + a[1] + '"><span aria-hidden="true">' + a[0] + '</span><span class="cf-sr">' + a[1] + "</span>" : ">") + "</td></tr>";
-      }).join("") + "</tbody></table>";
-  });
-  if (groups.length) h += '<p class="cf-key">Marks run from 1 to 4; 3 means meeting the end-of-year grade 2 standard. \u2191 \u2193 \u2192 compare the two most recent marks.</p>';
-  return h + "</section></article>";
+  const groups = confStandards(st, term);
+  groups.forEach(g => { h += confSubjectHTML(st, term, now, g, paper); });
+  if (groups.some(g => g.rows.length)) h += '<p class="cf-key">Marks run from 1 to 4; 3 means meeting the end-of-year grade 2 standard. Each is the report card mark from the grades so far.</p>';
+  return h + "</article>";
 }
 function confRoster() {
   const all = sortedStudents();
@@ -2848,16 +3560,23 @@ function renderConferences() {
     '<label class="fld">Student<select id="cf-who"><option value="all">Whole class</option>' +
     roster.map(s => '<option value="' + s.id + '"' + (s.id === UI.confWho ? " selected" : "") + ">" + esc(s.last + ", " + s.first) + "</option>").join("") + "</select></label>" +
     '<span style="flex:1"></span><button class="btn primary" id="cf-print">' + (UI.confWho && UI.confWho !== "all" ? "Print this sheet" : "Print all sheets") + "</button></div>" +
-    '<p class="hint" style="margin-top:8px">One page per child, black and white. Math and ELA both, whatever the subject switch says. Each mark is the term mark (Setup \u2192 Term marks).</p></div>' +
+    '<p class="hint" style="margin-top:8px">One page per child, black and white. Reading and math both, whatever the subject switch says: the report card mark for each standard graded so far (Setup \u2192 Term marks) and one thing to work on at home. No iReady: that goes home on its own. Change a child\u2019s home focus under it before printing.</p></div>' +
     '<div class="cf-preview">' + confRoster().map(st => confSheetHTML(st, term, now)).join("") + "</div></div>";
   el.innerHTML = h;
   document.getElementById("cf-term").onchange = e => { UI.confTerm = e.target.value; renderConferences(); };
   document.getElementById("cf-who").onchange = e => { UI.confWho = e.target.value; renderConferences(); };
   document.getElementById("cf-print").onclick = printConferences;
+  el.querySelectorAll("select[data-cf-focus]").forEach(sel => {
+    sel.onchange = () => {
+      UI.confFocus = UI.confFocus || {};
+      if (sel.value) UI.confFocus[sel.dataset.cfFocus] = sel.value; else delete UI.confFocus[sel.dataset.cfFocus];
+      renderConferences();
+    };
+  });
 }
 function printConferences() {
   const term = confTerm(), now = new Date();
-  document.getElementById("printsheet").innerHTML = confRoster().map(st => confSheetHTML(st, term, now)).join("");
+  document.getElementById("printsheet").innerHTML = confRoster().map(st => confSheetHTML(st, term, now, true)).join("");
   /* a toast is fixed, so it would print on every child's page */
   const t = document.getElementById("toast");
   if (t) { clearTimeout(toastT); t.classList.remove("show"); t.style.display = "none"; }
@@ -4146,7 +4865,7 @@ function ygFromFile(o) {
   if (!o || o.kind !== "classroom-suite/year-goals" || !Array.isArray(o.groups) || !o.groups.length) return null;
   const groups = o.groups.map((g, i) => ({
     id: uid(), n: Number(g.n) || i + 1, name: String(g.name || "Group " + (i + 1)), goal: String(g.goal || ""), need: String(g.need || ""),
-    codes: (Array.isArray(g.codes) ? g.codes : []).filter(c => byCode[c]), bar: Number(g.bar) === 4 ? 4 : 3,
+    codes: (fl20Codes(Array.isArray(g.codes) ? g.codes : []) || []).filter(c => byCode[c]), bar: Number(g.bar) === 4 ? 4 : 3,
     members: (Array.isArray(g.students) ? g.students : []).map(x => typeof x === "string" ? { name: x } : { name: String(x.name || ""), start: x.start && typeof x.start === "object" ? x.start : undefined })
       .filter(m => m.name)
   })).filter(g => g.codes.length && g.members.length);
@@ -4338,7 +5057,7 @@ function renderSetup() {
     const doms = [];
     CATALOG.filter(s => s.s === subj).forEach(s => { if (!doms.includes(s.d)) doms.push(s.d); });
     doms.forEach(d => {
-      const list = CATALOG.filter(s => s.s === subj && s.d === d && (S.settings.showSubs || s.lvl === 1));
+      const list = CATALOG.filter(s => s.s === subj && s.d === d && stdListed(s));
       html += '<div style="margin:8px 0"><div class="tiny muted" style="font-weight:640;margin-bottom:4px">' + esc(d) +
         ' <button class="btn sm ghost" onclick="toggleDomain(\'' + esc(subj) + "','" + esc(d) + "',true)\">all on</button>" +
         '<button class="btn sm ghost" onclick="toggleDomain(\'' + esc(subj) + "','" + esc(d) + "',false)\">all off</button></div>";
@@ -4395,9 +5114,13 @@ function renderSetup() {
   renderIReady();
   renderOrfImport();
   const tr = document.getElementById("tm-rule");
-  if (tr) tr.onchange = e => { S.settings.rule = e.target.value; save(); };
+  if (tr) tr.onchange = e => { S.settings.rule = e.target.value; save(); renderSetup(); };
   const tc = document.getElementById("tm-carry");
   if (tc) tc.onchange = e => { S.settings.carryForward = e.target.checked; save(); };
+  const ty = document.getElementById("tm-ytd");
+  if (ty) ty.onchange = e => { S.settings.rcYTD = e.target.checked; save(); renderSetup(); };
+  const tf = document.getElementById("tm-irfill");
+  if (tf) tf.onchange = e => { S.settings.rcIreadyFill = e.target.checked; save(); };
 
   const mp = document.getElementById("set-mapprompts");
   if (mp) mp.onchange = e => { S.settings.noMapPrompts = !e.target.checked; save(); };
@@ -4486,7 +5209,7 @@ function removeStudent(id) {
   save(); renderSetup();
 }
 function toggleDomain(subj, dom, on) {
-  CATALOG.filter(s => s.s === subj && s.d === dom && (S.settings.showSubs || s.lvl === 1)).forEach(s => S.active[s.c] = on);
+  CATALOG.filter(s => s.s === subj && s.d === dom && stdListed(s)).forEach(s => S.active[s.c] = on);
   save(); renderSetup();
 }
 function rebuildTerms() {
@@ -5605,9 +6328,9 @@ function calendarCardHTML() {
     '<p class="hint" style="margin-top:8px">An even split is only a starting point \u2014 real quarters break on grading days and skip over breaks. Set the exact end dates below from the district calendar and everything downstream follows.</p>' +
     '<table style="margin-top:8px"><thead><tr><th>Name</th><th>Starts</th><th>Ends</th></tr></thead><tbody>' +
     S.terms.map(t => "<tr>" +
-      '<td><input type="text" data-tf="name" data-id="' + t.id + '" value="' + esc(t.name) + '"></td>' +
-      '<td><input type="date" data-tf="start" data-id="' + t.id + '" value="' + t.start + '"></td>' +
-      '<td><input type="date" data-tf="end" data-id="' + t.id + '" value="' + t.end + '"></td></tr>').join("") +
+      '<td><input type="text" data-tf="name" data-id="' + t.id + '" aria-label="' + esc(t.name) + ' name" value="' + esc(t.name) + '"></td>' +
+      '<td><input type="date" data-tf="start" data-id="' + t.id + '" aria-label="' + esc(t.name) + ' starts" value="' + t.start + '"></td>' +
+      '<td><input type="date" data-tf="end" data-id="' + t.id + '" aria-label="' + esc(t.name) + ' ends" value="' + t.end + '"></td></tr>').join("") +
     "</tbody></table>" +
     '<h3 style="margin-top:16px">Reading checks</h3>' +
     '<div class="row" style="margin-top:6px">' +
@@ -5701,7 +6424,7 @@ function renderORF() {
     (orfBasis() === "eoy" ? '<th class="c">End of year</th>' : '<th class="c">Fall</th><th class="c">Winter</th><th class="c">Spring</th>') + '</tr></thead><tbody>' +
     [4, 3, 2].map(mk => {
       const p = cuts[mk];
-      return "<tr><td>" + markHTML(mk) + '</td><td><select data-cut="' + mk + '">' +
+      return "<tr><td>" + markHTML(mk) + '</td><td><select data-cut="' + mk + '" aria-label="A ' + mk + ' is at or above">' +
         [90, 75, 50, 25, 10].map(x => '<option value="' + x + '"' + (x === p ? " selected" : "") + ">" + x + "th percentile</option>").join("") +
         '</select></td>' + (orfBasis() === "eoy" ? '<td class="c num">' + normAt(p, 2) + "</td>"
           : '<td class="c num">' + normAt(p, 0) + '</td><td class="c num">' + normAt(p, 1) + '</td><td class="c num">' + normAt(p, 2) + "</td>") + "</tr>";
@@ -5878,16 +6601,19 @@ function orfTemplate() {
    WORK NOT TURNED IN
    ============================================================ */
 function missingOpen() { return S.missing.filter(m => !m.received && !m.excused); }
-function missingFor(sid, std, date) {
-  return S.missing.find(m => m.sid === sid && m.std === std && m.date === date && !m.received && !m.excused) || null;
+/* v149: an assignment is standard + date + "What was it?", and a child has a
+   mark (or a "no work") per assignment. ctx left out matches any name. */
+function sameCtx(x, ctx) { return ctx === undefined || x.ctx === undefined || (x.ctx || "") === (ctx || ""); }
+function missingFor(sid, std, date, ctx) {
+  return S.missing.find(m => m.sid === sid && m.std === std && m.date === date && sameCtx(m, ctx) && !m.received && !m.excused) || null;
 }
-function hasScore(sid, std, date) {
-  return S.scores.some(x => x.sid === sid && x.std === std && x.date === date);
+function hasScore(sid, std, date, ctx) {
+  return S.scores.some(x => x.sid === sid && x.std === std && x.date === date && !x.source && sameCtx(x, ctx));
 }
 /* called whenever a mark is entered, so the chase list clears itself */
-function clearMissingOnScore(sid, std, date) {
+function clearMissingOnScore(sid, std, date, ctx) {
   S.missing.forEach(m => {
-    if (m.sid === sid && m.std === std && m.date === date && !m.received) m.received = todayISO();
+    if (m.sid === sid && m.std === std && m.date === date && sameCtx(m, ctx) && !m.received) m.received = todayISO();
   });
 }
 function logRestAsMissing() {
@@ -5895,8 +6621,8 @@ function logRestAsMissing() {
   if (!std) return;
   const batch = [];
   sortedStudents().forEach(st => {
-    if (hasScore(st.id, std, date)) return;
-    if (missingFor(st.id, std, date)) return;
+    if (hasScore(st.id, std, date, UI.enterCtx || "")) return;
+    if (missingFor(st.id, std, date, UI.enterCtx || "")) return;
     const rec = { id: uid(), sid: st.id, std: std, date: date, ctx: UI.enterCtx || "", received: null, excused: false };
     S.missing.push(rec); batch.push(rec.id);
   });
@@ -5912,10 +6638,10 @@ function undoMissingBatch() {
 }
 function toggleMissingHere(sid) {
   const std = UI.enterStd, date = UI.enterDate;
-  const ex = missingFor(sid, std, date);
+  const ex = missingFor(sid, std, date, UI.enterCtx || "");
   if (ex) { S.missing = S.missing.filter(m => m.id !== ex.id); }
   else {
-    if (hasScore(sid, std, date)) { toast("That student already has a mark for this one"); return; }
+    if (hasScore(sid, std, date, UI.enterCtx || "")) { toast("That student already has a mark for this one"); return; }
     S.missing.push({ id: uid(), sid: sid, std: std, date: date, ctx: UI.enterCtx || "", received: null, excused: false });
   }
   save(); renderEnter();
@@ -6407,7 +7133,7 @@ function ireadyMappingCardHTML() {
       '<div class="row"><strong class="small" style="flex:1;min-width:170px">' + esc(d.label) + "</strong>" +
       "<span>" + (targets.length ? targets.map(t => codeHTML(t)).join(" ") : '<span class="tiny muted">not mapped \u2014 ignored</span>') + "</span></div>" +
       '<details style="margin-top:6px"><summary class="tiny muted" style="cursor:pointer">change</summary><div style="columns:2;margin-top:6px">' +
-      CATALOG.filter(x => x.s === subj && (S.settings.showSubs || x.lvl === 1)).map(x =>
+      CATALOG.filter(x => x.s === subj && stdListed(x)).map(x =>
         '<label class="row tiny" style="gap:6px;padding:1px 0"><input type="checkbox" data-irdom="' + esc(d.key) + '" data-code="' + x.c + '"' +
         (targets.indexOf(x.c) >= 0 ? " checked" : "") + "><span>" + esc(x.c + " " + x.lbl) + "</span></label>").join("") +
       "</div></details></div>";
@@ -7127,7 +7853,7 @@ function unitMapHTML() {
           ? codes.map(c => codeHTML(c)).join(" ")
           : '<span class="tiny muted">no standards attached</span>') + "</span></div>" +
         '<details style="margin-top:6px"><summary class="tiny muted" style="cursor:pointer">choose standards</summary><div style="columns:2;margin-top:6px">' +
-        CATALOG.filter(x => x.s === cat && (S.settings.showSubs || x.lvl === 1)).map(x =>
+        CATALOG.filter(x => x.s === cat && stdListed(x)).map(x =>
           '<label class="row tiny" style="gap:6px;padding:1px 0"><input type="checkbox" data-usub="' + esc(sb.id) + '" data-unit="' + u + '" data-code="' + x.c + '"' +
           (codes.indexOf(x.c) >= 0 ? " checked" : "") + "><span>" + esc(dispCode(x.c) + " " + x.lbl) + "</span></label>").join("") +
         "</div></details></div>";
@@ -7275,6 +8001,10 @@ function lessonPickHTML() {
       '<span class="tiny muted lessonname">' + esc(R.name(step)) + "</span></div>";
     if (following && !daySaved) h += '<div class="hint" style="margin-top:6px">This day isn\u2019t saved in the planner yet, so this is the lesson its card shows for it.</div>';
     if (step.tg && step.tg.length) h += '<div class="hint" style="margin-top:6px">' + esc(step.tg.join(" ")) + "</div>";
+    /* v147: a benchmark lists which questions go with each standard */
+    const qs = R.questions ? R.questions(step).filter(g => byCode[g.code]) : [];
+    if (qs.length) h += '<div class="hint" style="margin-top:6px">Questions by standard: ' +
+      qs.map(g => esc(byCode[g.code].lbl) + " — " + (g.qs.length > 1 ? "Qs " : "Q") + g.qs.join(", ")).join(" · ") + "</div>";
   } else {
     h += '<div class="hint" style="margin-top:8px">The planner has no Reveal lesson on this date. Pick one above, or choose a standard.</div>';
   }
@@ -7398,9 +8128,9 @@ function multiRosterHTML(codes) {
     "</div></div>";
   h += '<div id="rosterlist" class="mg">';
   sortedStudents().forEach(st => {
-    const recs = codes.map(c => S.scores.find(x => x.sid === st.id && x.std === c && x.date === UI.enterDate) || null);
+    const recs = codes.map(c => S.scores.find(x => x.sid === st.id && x.std === c && x.date === UI.enterDate && !x.source && sameCtx(x, (UI.enterCtx || ""))) || null);
     const same = recs.every(r => r) && recs.every(r => r.v === recs[0].v) ? recs[0].v : 0;
-    const miss = codes.every(c => hasScore(st.id, c, UI.enterDate) || missingFor(st.id, c, UI.enterDate)) && codes.some(c => missingFor(st.id, c, UI.enterDate));
+    const miss = codes.every(c => hasScore(st.id, c, UI.enterDate, UI.enterCtx || "") || missingFor(st.id, c, UI.enterDate, UI.enterCtx || "")) && codes.some(c => missingFor(st.id, c, UI.enterDate, UI.enterCtx || ""));
     const note = (recs.find(r => r && r.note) || {}).note || "";
     h += '<div class="entryrow mgrow"' + (miss ? ' style="background:var(--s1-bg)"' : "") + ">" +
       '<div class="mg-who"><span class="nm">' + esc(fullName(st)) + (st.eld ? ' <span class="chip eld">ELD</span>' : "") + "</span>" +
@@ -7431,7 +8161,7 @@ function wireMulti(el, codes) {
   if (addSel) addSel.onchange = () => { if (addSel.value) toggleMultiCode(addSel.value); };
   el.querySelectorAll("input[data-note-all]").forEach(inp => {
     inp.onchange = () => {
-      const recs = S.scores.filter(x => x.sid === inp.dataset.noteAll && x.date === UI.enterDate && codes.indexOf(x.std) >= 0);
+      const recs = S.scores.filter(x => x.sid === inp.dataset.noteAll && x.date === UI.enterDate && codes.indexOf(x.std) >= 0 && !x.source && sameCtx(x, (UI.enterCtx || "")));
       if (!recs.length) { if (inp.value) toast("Give a mark first, then the note saves with it"); return; }
       recs.forEach(r => { r.note = inp.value; }); save();
     };
@@ -7441,15 +8171,16 @@ function wireMulti(el, codes) {
    them all. Undo last puts back exactly what was there before. */
 function setAllScores(sid, codes, v) {
   const st = S.students.find(x => x.id === sid);
-  const cur = codes.map(c => S.scores.find(x => x.sid === sid && x.std === c && x.date === UI.enterDate) || null);
+  const ctx = (UI.enterCtx || "");
+  const cur = codes.map(c => S.scores.find(x => x.sid === sid && x.std === c && x.date === UI.enterDate && !x.source && sameCtx(x, ctx)) || null);
   const clear = cur.every(r => r && r.v === v);
-  UI.lastAll = { before: codes.map((c, i) => ({ std: c, rec: cur[i] ? Object.assign({}, cur[i]) : null })), sid: sid, date: UI.enterDate,
-    missing: S.missing.filter(m => m.sid === sid && m.date === UI.enterDate && codes.indexOf(m.std) >= 0).map(m => Object.assign({}, m)) };
+  UI.lastAll = { before: codes.map((c, i) => ({ std: c, rec: cur[i] ? Object.assign({}, cur[i]) : null })), sid: sid, date: UI.enterDate, ctx: ctx,
+    missing: S.missing.filter(m => m.sid === sid && m.date === UI.enterDate && codes.indexOf(m.std) >= 0 && sameCtx(m, ctx)).map(m => Object.assign({}, m)) };
   codes.forEach((c, i) => {
     if (clear) { S.scores = S.scores.filter(x => x !== cur[i]); return; }
     if (cur[i]) { cur[i].v = v; cur[i].ctx = UI.enterCtx || ""; }
     else S.scores.push({ id: uid(), sid: sid, std: c, v: v, date: UI.enterDate, note: "", ctx: UI.enterCtx || "" });
-    clearMissingOnScore(sid, c, UI.enterDate);
+    clearMissingOnScore(sid, c, UI.enterDate, ctx);
   });
   UI.log.push(clear ? "Cleared " + fullName(st) + " \u2014 all " + codes.length : fullName(st) + " \u2014 all " + codes.length + " = " + v);
   save(); renderEnter();
@@ -7457,7 +8188,7 @@ function setAllScores(sid, codes, v) {
 function undoAll() {
   const u = UI.lastAll; UI.lastAll = null;
   u.before.forEach(b => {
-    S.scores = S.scores.filter(x => !(x.sid === u.sid && x.std === b.std && x.date === u.date));
+    S.scores = S.scores.filter(x => !(x.sid === u.sid && x.std === b.std && x.date === u.date && !x.source && sameCtx(x, u.ctx)));
     if (b.rec) S.scores.push(b.rec);
   });
   /* a mark clears a student's "no work"; put those back as they were */
@@ -7465,11 +8196,11 @@ function undoAll() {
   UI.log.push("Undid last entry"); save(); renderEnter();
 }
 function toggleMissingAll(sid, codes) {
-  const date = UI.enterDate;
-  const open = codes.map(c => missingFor(sid, c, date)).filter(Boolean);
-  const unmarked = codes.filter(c => !hasScore(sid, c, date) && !missingFor(sid, c, date));
+  const date = UI.enterDate, ctx = (UI.enterCtx || "");
+  const open = codes.map(c => missingFor(sid, c, date, ctx)).filter(Boolean);
+  const unmarked = codes.filter(c => !hasScore(sid, c, date, ctx) && !missingFor(sid, c, date, ctx));
   if (open.length && !unmarked.length) { S.missing = S.missing.filter(m => open.indexOf(m) < 0); save(); renderEnter(); return; }
-  if (codes.some(c => hasScore(sid, c, date))) { toast("That student already has marks for this one"); return; }
+  if (codes.some(c => hasScore(sid, c, date, ctx))) { toast("That student already has marks for this one"); return; }
   unmarked.forEach(c => S.missing.push({ id: uid(), sid: sid, std: c, date: date, ctx: UI.enterCtx || "", received: null, excused: false }));
   save(); renderEnter();
 }
@@ -7479,7 +8210,7 @@ function logRestAsMissingMulti() {
   if (!codes) return;
   const batch = [];
   sortedStudents().forEach(st => {
-    if (codes.some(c => hasScore(st.id, c, date) || missingFor(st.id, c, date))) return;
+    if (codes.some(c => hasScore(st.id, c, date, UI.enterCtx || "") || missingFor(st.id, c, date, UI.enterCtx || ""))) return;
     codes.forEach(c => {
       const rec = { id: uid(), sid: st.id, std: c, date: date, ctx: UI.enterCtx || "", received: null, excused: false };
       S.missing.push(rec); batch.push(rec.id);
